@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Container, Form, FormControl } from "react-bootstrap";
+import { Container, Form, FormControl, Col, Card } from "react-bootstrap";
 import { useFields } from "../../libs/hooks";
 import { useAppContext } from "../../libs/context";
 import LoadingButton from "../../components/LoadingButton/LoadingButton";
@@ -39,36 +39,60 @@ export default function Signup() {
     }
 
     return (
-        <Container>
-            <Form onSubmit={handleSubmit}>
-                <Form.Label>Username</Form.Label>
-                <FormControl
-                    id="username"
-                    onChange={handleFieldChange}
-                    value={fields.username}
-                    autoFocus
-                />
-                <Form.Label>Password</Form.Label>
-                <FormControl
-                    id="password"
-                    type="password"
-                    onChange={handleFieldChange}
-                    value={fields.password}
-                />
-                <Form.Label>Confirm Password</Form.Label>
-                <FormControl
-                    id="confirmPassword"
-                    type="password"
-                    onChange={handleFieldChange}
-                    value={fields.confirmPassword}
-                />
-                <LoadingButton
-                    isLoading={isLoading}
-                    type="submit"
-                    disabled={!validateForm()}
-                > Sign Up
+        <Container className="d-flex" style={{ height: "75vh", maxWidth: "50vw"}}>
+            <Card className="col justify-content-center align-self-center">
+
+                <Card.Header>
+                    <h1>Sign Up</h1>
+                </Card.Header>
+                <Card.Body>
+                    <Form onSubmit={handleSubmit}>
+                        <Form.Row>
+                            <Form.Group as={Col}>
+                                <Form.Label>Username</Form.Label>
+                                <FormControl
+                                    id="username"
+                                    onChange={handleFieldChange}
+                                    value={fields.username}
+                                    autoFocus
+                                />
+                            </Form.Group>
+                            <Form.Group as={Col}>
+                            </Form.Group>
+                        </Form.Row>
+                        <Form.Row>
+                            <Form.Group as={Col}>
+
+                                <Form.Label>Password</Form.Label>
+                                <FormControl
+                                    id="password"
+                                    type="password"
+                                    onChange={handleFieldChange}
+                                    value={fields.password}
+                                />
+                            </Form.Group>
+                            <Form.Group as={Col}>
+
+                                <Form.Label>Confirm Password</Form.Label>
+                                <FormControl
+                                    id="confirmPassword"
+                                    type="password"
+                                    onChange={handleFieldChange}
+                                    value={fields.confirmPassword}
+                                />
+                            </Form.Group>
+                        </Form.Row>
+                        <Form.Row>
+                            <LoadingButton
+                                isLoading={isLoading}
+                                type="submit"
+                                disabled={!validateForm()}
+                            > Sign Up
                 </LoadingButton>
-            </Form>
+                        </Form.Row>
+                    </Form>
+                </Card.Body>
+            </Card>
         </Container>
     )
 }

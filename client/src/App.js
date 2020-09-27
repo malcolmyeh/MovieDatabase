@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Navbar, NavLink, Container } from "react-bootstrap";
 import { Link, useHistory } from "react-router-dom";
 import Routes from "./Routes";
