@@ -20,14 +20,14 @@ function App() {
           <NavLink as={Link} to="/">Home</NavLink>
           <NavLink as={Link} to="/profile">Profile</NavLink>
           <NavLink as={Link} to="/search">Search</NavLink>
-          <NavLink as={Link} to="/categories">Categories</NavLink>
+          <NavLink as={Link} to="/genres">Genres</NavLink>
           <NavLink onClick={handleLogout}>Log Out</NavLink>
         </> :
         <>
           <Navbar.Brand as={Link} to="/">Movie Database</Navbar.Brand>
           <NavLink as={Link} to="/">Home</NavLink>
           <NavLink as={Link} to="/search">Search</NavLink>
-          <NavLink as={Link} to="/categories">Categories</NavLink>
+          <NavLink as={Link} to="/genres">Genres</NavLink>
           <NavLink as={Link} to="/signup">Sign Up</NavLink>
           <NavLink as={Link} to="/login">Log In</NavLink>
           
