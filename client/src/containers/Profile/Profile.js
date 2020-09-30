@@ -77,6 +77,7 @@ export default function Profile() {
                 const moviesWatched = await loadMoviesWatched(sampleMoviesWatched);
                 setMoviesWatched(moviesWatched);
                 const following = await loadFollowing(sampleFollowing);
+                console.log("onLoad following: ", following);
                 setFollowing(following);
                 const followers = await loadFollowers(sampleFollowers);
                 setFollowers(followers);
@@ -96,7 +97,7 @@ export default function Profile() {
         return (
             <Row>
                 <Col sm={3}>
-                    <img style={{ "height": "15vh" }} src="https://www.peerq.com/profilepics/default-profile.png" />
+                    <img alt="user" style={{ "height": "15vh" }} src="https://www.peerq.com/profilepics/default-profile.png" />
                 </Col>
                 <Col sm={8}>
                     <h1>{id}</h1>
@@ -117,7 +118,7 @@ export default function Profile() {
                 <Row>
                     <Col>
                         {moviesWatched.map((movie) => {
-                            return <img src={movie.Poster} style={{ maxHeight: "15vh" }} />
+                            return <img alt="poster" src={movie.Poster} style={{ maxHeight: "15vh" }} />
                         })}
                     </Col>
                 </Row>
@@ -191,7 +192,22 @@ export default function Profile() {
         return (
             <Row>
                 <Col>
-                <h3>Following</h3>
+                    <h3>Following</h3>
+                    {following.map((user) => {
+                        return (
+                            <div key={user} style={{ display: "flex" }}>
+                                <p>{user}</p>
+                                {ownPage ?
+                                    <button
+                                        id={user}
+                                        type="submit"
+                                        onClick={handleUnfollow}
+                                    >
+                                        ✕
+                                </button> : <></>}
+                            </div>
+                        )
+                    })}
                 </Col>
             </Row>
         );
@@ -200,17 +216,98 @@ export default function Profile() {
     function renderFollowers() {
         return (
             <Row>
-                <h3>Followers</h3>
                 <Col>
+                    <h3>Followers</h3>
+                    {followers.map((user) => {
+                        return (
+                            <div key={user}>
+                                <p>{user}</p>
+
+                            </div>
+                        )
+                    })}
                 </Col>
             </Row>
         );
     }
 
+    async function handleUnfollowName(event) {
+        event.preventDefault();
+        const confirmed = window.confirm( // todo: turn into modal
+            "Unfollow?"
+        );
+        if (!confirmed) { return; }
+        setIsDeleting(true);
+        try {
+            ////////////////////////////////////////////////////////////////
+
+            function unfollowName(name) {
+                var arr = sampleFollowingNames.names;
+                var index = arr.indexOf(name);
+                if (index > -1) {
+                    arr.splice(index, 1);
+                }
+                sampleFollowingNames.names = arr;
+            }
+            unfollowName(event.target.id);
+            ////////////////////////////////////////////////////////////////
+            setFollowingNames(await loadFollowingNames(sampleFollowingNames));
+            setIsDeleting(false);
+        } catch (e) {
+            console.log(e);
+            setIsDeleting(false);
+        }
+    }
+
+    async function handleUnfollow(event) {
+        event.preventDefault();
+        const confirmed = window.confirm( // todo: turn into modal
+            "Unfollow?"
+        );
+        if (!confirmed) { return; }
+        setIsDeleting(true);
+        try {
+            ////////////////////////////////////////////////////////////////
+
+            function unfollowUser(user) {
+                var arr = sampleFollowing.users;
+                var index = arr.indexOf(user);
+                if (index > -1) {
+                    arr.splice(index, 1);
+                }
+                sampleFollowing.users = arr;
+            }
+            unfollowUser(event.target.id);
+            ////////////////////////////////////////////////////////////////
+            setFollowing(await loadFollowing(sampleFollowing));
+            setIsDeleting(false);
+        } catch (e) {
+            console.log(e);
+            setIsDeleting(false);
+        }
+    }
+
+
     function renderFollowingNames() {
         return (
             <Row>
                 <Col>
+                    <h3>People</h3>
+                    {followingNames.map((name) => {
+                        return (
+                            <div key={name} style={{ display: "flex" }}>
+                                <p>{name}</p>
+                                {ownPage ?
+                                    <button
+                                        id={name}
+                                        type="submit"
+                                        onClick={handleUnfollowName}
+                                    >
+                                        ✕
+                                </button> : <></>}
+                            </div>
+                        )
+                    })}
                 </Col>
             </Row>
         );
@@ -236,6 +333,9 @@ export default function Profile() {
                     {renderReviews()}
                 </Col>
                 <Col sm={4}>
+                    {renderFollowing()}
+                    {renderFollowingNames()}
+                    {renderFollowers()}
                 </Col>
             </Row>
             <br /><br />
