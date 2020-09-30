@@ -7,7 +7,7 @@ export default function Home() {
         <div>
             <h1>HOME</h1>
             <Link to="/movie"><h3>Sample Movie Page</h3></Link>
-            <Link to="/user"><h3>Sample User Page</h3></Link>
+            <Link to="/profile/someone"><h3>Sample Other User Page</h3></Link>
             <Link to="/person"><h3>Sample Person Page</h3></Link>
 
             <h3>- most recent movies</h3>

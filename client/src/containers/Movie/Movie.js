@@ -1,32 +1,61 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Container, Row, Col, Form, Modal, Button } from "react-bootstrap";
 import { Link } from "react-router-dom";
-
-
 import LoadingButton from "../../components/LoadingButton/LoadingButton";
 import { useFields } from "../../libs/hooks";
+import { useAppContext } from "../../libs/context";
+import { removeBracket, formatLink } from "../../libs/linkutils";
+// todo: find alternative to \xa0 -> proper padding
 
-export default function Movie() { // todo: accept movie obj as prop
-    const [isLoading, setIsLoading] = useState(false);
+// hard coded movie and reviews
+var sampleMovie = require('./sample-movie.json');
+var sampleReviews = require('./sample-reviews.json');
 
-    // Review Modals state
-    const [showFullReview, setShowFullReview] = useState(false);
-    const [showBasicReview, setShowBasicReview] = useState(false);
-    const handleCloseFull = () => {
-        setShowFullReview(false);
-        resetReview()
-    };
-    const handleCloseBasic = () => {
-        setShowBasicReview(false);
-        resetReview();
+export default function Movie() { // todo: accept movie id/title as prop
+
+    // todo: maybe use youtube api to get trailer
+    // play the first video result from sampleMovie.Title + " trailer"
+    const { isAuthenticated } = useAppContext();
+    console.log("isAuthenticated: ", isAuthenticated);
+    const [isLoading, setIsLoading] = useState(true);
+    const [reviews, setReviews] = useState([]);
+    const [movie, setMovie] = useState({
+    });
+
+    // function delay(ms = 500) {
+    //     return new Promise(resolve => setTimeout(resolve, ms));
+    // }
+
+    async function loadReviews(sampleReview) { // later will remove parameter since making GET from server
+        // await api.get(reviews/title)
+        // await delay();
+        return sampleReviews;
     }
-    const handleShowFull = () => setShowFullReview(true);
-    const handleShowBasic = () => setShowBasicReview(true);
-    function resetReview(){
-        fields.title = "";
-        fields.rating = "";
-        fields.body = "";
+
+    async function loadMovie(sampleMovie) {
+        // await api.get(movies/title)
+        // await delay();
+        return sampleMovie;
     }
+
+    useEffect(() => {
+        // console.log("useEffect()");
+        async function onLoad() {
+            try {
+                const movie = await loadMovie(sampleMovie);
+                setMovie(movie);
+                const reviews = await loadReviews(sampleReviews);
+                setReviews(reviews);
+            } catch (e) {
+                console.log(e);
+            }
+            setIsLoading(false);
+        }
+        onLoad();
+    }); // todo: specify functions that will trigger this
+
+    console.log("state: reviews: ", reviews);
+    // console.log("state: movie: ", movie)
 
     // Review form fields
     var [fields, handleFieldChange] = useFields({
@@ -35,113 +64,80 @@ export default function Movie() { // todo: accept movie obj as prop
         body: ""
     });
 
-    const sampleMovie = {
-        "Title": "Toy Story",
-        "Year": "1995",
-        "Rated": "G",
-        "Released": "22 Nov 1995",
-        "Runtime": "81 min",
-        "Genre": "Animation, Adventure, Comedy, Family, Fantasy",
-        "Director": "John Lasseter",
-        "Writer": "John Lasseter (original story by), Pete Docter (original story by), Andrew Stanton (original story by), Joe Ranft (original story by), Joss Whedon (screenplay by), Andrew Stanton (screenplay by), Joel Cohen (screenplay by), Alec Sokolow (screenplay by)",
-        "Actors": "Tom Hanks, Tim Allen, Don Rickles, Jim Varney",
-        "Plot": "A cowboy doll is profoundly threatened and jealous when a new spaceman figure supplants him as top toy in a boy's room.",
-        "Language": "English",
-        "Country": "USA",
-        "Awards": "Nominated for 3 Oscars. Another 27 wins & 20 nominations.",
-        "Poster": "https://m.media-amazon.com/images/M/MV5BMDU2ZWJlMjktMTRhMy00ZTA5LWEzNDgtYmNmZTEwZTViZWJkXkEyXkFqcGdeQXVyNDQ2OTk4MzI@._V1_SX300.jpg",
-        "Ratings": [
-            {
-                "Source": "Internet Movie Database",
-                "Value": "8.3/10"
-            },
-            {
-                "Source": "Rotten Tomatoes",
-                "Value": "100%"
-            },
-            {
-                "Source": "Metacritic",
-                "Value": "95/100"
-            }
-        ],
-        "Metascore": "95",
-        "imdbRating": "8.3",
-        "imdbVotes": "864,385",
-        "imdbID": "tt0114709",
-        "Type": "movie",
-        "DVD": "20 Mar 2001",
-        "BoxOffice": "N/A",
-        "Production": "Buena Vista",
-        "Website": "N/A",
-        "Response": "True"
+    // Review Modals state
+    const [showFullReview, setShowFullReview] = useState(false);
+    const [showBasicReview, setShowBasicReview] = useState(false);
+    const handleCloseFull = () => {
+        setShowFullReview(false);
+        resetReview();
+    };
+    const handleCloseBasic = () => {
+        setShowBasicReview(false);
+        resetReview();
     }
-
-    var sampleReviews = [
-        {
-            rating: 1,
-            date: "1/3/2020",
-            user: "Bob Jones",
-            title: "Terrible Movie!",
-            body: "Why do the toys talk? This movie not realistic at all! would give this a 0/10 if I could. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
-        },
-        {
-            rating: 9,
-            date: "1/2/2020",
-            user: "Job Bones",
-            title: "Amazing Movie!",
-            body: "The toys talk! Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
-        },
-        {
-            rating: 10,
-            date: "1/1/2020",
-            user: "ZZZ XXX",
-            title: "Lorem ipsum",
-            body: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
-        }
-    ]
+    const handleShowFull = () => setShowFullReview(true);
+    const handleShowBasic = () => setShowBasicReview(true);
+    function resetReview() {
+        fields.title = "";
+        fields.rating = "";
+        fields.body = "";
+    }
 
     function getReviews() {
         return (
-            // sort by date
-            sampleReviews.map((review) => {
-                return <div key={review.user + review.title}>
-                    <h5>{`${review.rating}/10\xa0\xa0${review.title}`}</h5>
-                    <p>{`${review.date}\xa0|\xa0${review.user}`}</p>
-                    <p>{review.body}</p>
-                </div>
+            // todo: read more accordion
+            // todo: sort by date
+            reviews.map((review) => {
+                return (review.title !== "" && review.body !== "") ? // don't display basic review/rating
+                    <div key={review.user + review.title}>
+                        <h5>{`${review.rating}/10\xa0\xa0${review.title}`}</h5>
+                        <p>{`${review.date}\xa0|\xa0${review.user}`}</p>
+                        <p>{review.body}</p>
+                    </div> : <></>
             })
         )
     }
 
     function getAverageRating() {
-        return (Math.round((sampleReviews.reduce((total, next) => total + next.rating, 0) / sampleReviews.length) * 10) / 10).toFixed(1);
-    }
-
-    // todo: maybe use youtube api to get trailer
-    // play the first video result from sampleMovie.Title + " trailer"
-
-    function removeBracket(str) {
-        return str.replace(/ *\([^)]*\) */g, "");
-    }
-
-    function formatLink(url) {
-        return removeBracket(url).replace(/\s+/g, '-').toLowerCase();
+        return (Math.round((reviews.reduce((total, next) => total + Number(next.rating), 0) / reviews.length) * 10) / 10).toFixed(1);
     }
 
     async function handleSubmit(event) {
+        // todo: let server handle duplicates
         event.preventDefault();
         setIsLoading(true);
+
+        const { rating, title, body } = fields;
+        const newReview = {
+            movie: movie.title,
+            rating: rating,
+            title: title,
+            body: body,
+            user: "test-user", // todo: appcontext stores username
+            date: "31/12/20" // todo: generate date (momentjs?)
+        }
+        console.log("newReview: ", newReview);
+        try {
+            // await delay();
+            sampleReviews.push(newReview);
+        } catch (e) {
+            console.log(e);
+        }
+        handleCloseBasic();
+        handleCloseFull();
+        setIsLoading(false);
         return;
     }
 
     function validateForm() {
         return Number(fields.rating) > 0 && Number(fields.rating <= 10);
     }
+
     function renderBasicReviewForm() {
         return (
             <Modal show={showBasicReview} onHide={handleCloseBasic}>
                 <Modal.Header closeButton>
-                    <Modal.Title>Rate {sampleMovie.Title}</Modal.Title>
+                    <Modal.Title>Rate {movie.Title}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <Form onSubmit={handleSubmit}>
@@ -170,7 +166,7 @@ export default function Movie() { // todo: accept movie obj as prop
         return (
             <Modal show={showFullReview} onHide={handleCloseFull}>
                 <Modal.Header closeButton>
-                    <Modal.Title>Review {sampleMovie.Title}</Modal.Title>
+                    <Modal.Title>Review {movie.Title}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <Form onSubmit={handleSubmit}>
@@ -212,7 +208,7 @@ export default function Movie() { // todo: accept movie obj as prop
 
     // returns list of string with link (for genre, writers, actors, etc.)
     function getList(property) {
-        var arr = sampleMovie[`${property}`].split(", ");
+        var arr = movie[`${property}`].split(", ");
         return (
             <div style={{ "display": "flex" }}>
                 {arr.map((ele, i) => {
@@ -230,7 +226,7 @@ export default function Movie() { // todo: accept movie obj as prop
 
     function getDirector() {
         return (
-            <Link to={`/name/${formatLink(sampleMovie.Director)}`} style={{ textDecoration: 'none', color: 'black' }}>{sampleMovie.Director}</Link>
+            <Link to={`/name/${formatLink(movie.Director)}`} style={{ textDecoration: 'none', color: 'black' }}>{movie.Director}</Link>
         )
     }
 
@@ -252,61 +248,89 @@ export default function Movie() { // todo: accept movie obj as prop
         )
     }
 
-    return (
-        <Container>
-            <Row className='mt-5'>
-                <Col sm={1}>
-                    <h1>+</h1>
-                </Col>
-                <Col sm={8}>
-                    <h1>{sampleMovie.Title} ({sampleMovie.Year})</h1>
-                    <Row>
-                        <Col style={{ "display": "flex" }}>
-                            {sampleMovie.Rated}{`\xa0\xa0\xa0|\xa0\xa0\xa0`}{sampleMovie.Runtime}
-                            {`\xa0\xa0\xa0|\xa0\xa0\xa0`}{getList('Genre')}{`\xa0\xa0\xa0|\xa0\xa0\xa0`}
-                            {sampleMovie.Released}
-                        </Col>
-                    </Row>
-                </Col>
-                <Col sm={3}>
-                    <h1>★{getAverageRating()}</h1>
-                </Col>
-            </Row>
-            <Row className='mt-3'>
-                <Col sm={5}>
-                    <img src={sampleMovie.Poster} alt="Poster" style={{ maxHeight: "30vh" }} />
-                </Col>
-            </Row>
-            <Row className='mt-3'>
-                <Col>
-                    <Row><Col>{sampleMovie.Plot}</Col></Row>
-                    <Row><Col>Director: {getDirector()}</Col></Row>
-                    <Row><Col style={{ "display": "flex" }}>{`Writers:\xa0`}{getList('Writer')}</Col></Row>
-                    <Row><Col style={{ "display": "flex" }}>{`Actors:\xa0`}{getList('Actors')}</Col></Row>
-                    <Row><Col>{`Metascore:\xa0`}{sampleMovie.Metascore}{`\xa0IMDB Rating:\xa0`}{sampleMovie.imdbRating}</Col></Row>
-                    <Row><Col>{sampleMovie.Awards}</Col></Row>
-                </Col>
-            </Row>
-            <Row className='mt-3'>
-                <Col><h2>More Like This</h2>
-                    {getMoreLike()}
-                </Col>
-            </Row>
+    function renderMovieInfo() {
+        return (
+            <>
+                <Row className='mt-5'>
+                    <Col sm={1}>
+                        <h1>+</h1>
+                    </Col>
+                    <Col sm={8}>
+                        <h1>{movie.Title} ({movie.Year})</h1>
+                        <Row>
+                            <Col style={{ "display": "flex" }}>
+                                {movie.Rated}{`\xa0\xa0\xa0|\xa0\xa0\xa0`}{movie.Runtime}
+                                {`\xa0\xa0\xa0|\xa0\xa0\xa0`}{getList('Genre')}{`\xa0\xa0\xa0|\xa0\xa0\xa0`}
+                                {movie.Released}
+                            </Col>
+                        </Row>
+                    </Col>
+                    <Col sm={3} style={{ "display": "flex" }}>
+                        <h1>★{getAverageRating()}</h1>
+                        <p>{`\xa0\xa0(${reviews.length} ratings)`}</p>
+                    </Col>
+                </Row>
+                <Row className='mt-3'>
+                    <Col sm={5}>
+                        <img src={movie.Poster} alt="Poster" style={{ maxHeight: "30vh" }} />
+                    </Col>
+                </Row>
+                <Row className='mt-3'>
+                    <Col>
+                        <Row><Col>{movie.Plot}</Col></Row>
+                        <Row><Col>Director: {getDirector()}</Col></Row>
+                        <Row><Col style={{ "display": "flex" }}>{`Writers:\xa0`}{getList('Writer')}</Col></Row>
+                        <Row><Col style={{ "display": "flex" }}>{`Actors:\xa0`}{getList('Actors')}</Col></Row>
+                        <Row><Col>{`Metascore:\xa0`}{movie.Metascore}{`\xa0IMDB Rating:\xa0`}{movie.imdbRating}</Col></Row>
+                        <Row><Col>{movie.Awards}</Col></Row>
+                    </Col>
+                </Row>
+                <Row className='mt-3'>
+                    <Col><h2>More Like This</h2>
+                        {getMoreLike()}
+                    </Col>
+                </Row>
+            </>
+        )
+    }
+
+    function renderReviews() {
+        return (
             <Row className='mt-3'>
                 <Col>
                     <h2>User Reviews</h2>
                     {getReviews()}
-                    {true ? <>{renderFullReviewForm()}
-                    {renderBasicReviewForm()}
-                    <Button variant="primary" onClick={handleShowFull}>
-                        Review this title
-                    </Button>
-                    <Button variant="primary" onClick={handleShowBasic}>
-                        Rate this title
-                    </Button></> : <></>}
-                    
+                    {isAuthenticated ?
+                        <>
+                            {renderFullReviewForm()}
+                            {renderBasicReviewForm()}
+                            <Button className="mr-1" variant="primary" onClick={handleShowFull}>
+                                Review this title
+                                    </Button>
+                            
+                            <Button className="mr-1" variant="primary" onClick={handleShowBasic}>
+                                Rate this title
+                                    </Button>
+                        </> : <h3>Sign in to review or rate this title. </h3>}
                 </Col>
             </Row>
+        )
+    }
+
+    function renderPage() {
+        return (
+            <>
+                {!isLoading && renderMovieInfo()}
+                {!isLoading && renderReviews()}
+                <br/>
+                <br/>
+            </>
+        );
+    }
+
+    return (
+        <Container>
+            {renderPage()}
         </Container>
     )
 }

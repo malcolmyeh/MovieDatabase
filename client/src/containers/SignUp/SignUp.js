@@ -12,7 +12,7 @@ export default function Signup() {
         password: "",
         confirmPassword: "",
     });
-    const { userHasAuthenticated } = useAppContext();
+    const { userHasAuthenticated, setUsername } = useAppContext();
     const history = useHistory();
 
     function validateForm() {
@@ -28,8 +28,20 @@ export default function Signup() {
             alert("Creating user...");
             console.log("Creating user ", fields.username, "...");
             // await create user (pass in "regular")
+            /*
+                {
+                    username: "xxxx",
+                    password: "yyyy",
+                    accountType: "regular" | "contributor",
+                    reviews: [ "reviewId1", "reviewId2", ... ],
+                    followers: ["username", ...]
+                    following: ["username" | "contributor name", ...],
+                    date: "mm-yyyy"
+                }
+            */
             // await login user
             userHasAuthenticated(true);
+            setUsername("fields.username");
             setIsLoading(false);
             history.push("/");
         } catch (e) {

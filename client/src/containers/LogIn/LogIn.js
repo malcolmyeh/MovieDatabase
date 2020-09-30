@@ -6,7 +6,7 @@ import { useFields } from "../../libs/hooks";
 import { useAppContext } from "../../libs/context";
 
 export default function Login() {
-    const { userHasAuthenticated } = useAppContext();
+    const { userHasAuthenticated, setUsername } = useAppContext();
     const [isLoading, setIsLoading] = useState(false);
     const history = useHistory();
     var [fields, handleFieldChange] = useFields({
@@ -23,6 +23,7 @@ export default function Login() {
             console.log("Logging in  user ", fields.username, "...");
             // await login user
             userHasAuthenticated(true);
+            setUsername("test-user");
             setIsLoading(false);
             history.push("/");
         } catch (e) {
@@ -36,7 +37,6 @@ export default function Login() {
             <Card className="col justify-content-center align-self-center">
                 <Card.Header>
                     <h1>Log In</h1>
-
                 </Card.Header>
                 <Card.Body>
                     <Form onSubmit={handleSubmit}>
