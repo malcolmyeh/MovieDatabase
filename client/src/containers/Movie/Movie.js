@@ -5,6 +5,9 @@ import LoadingButton from "../../components/LoadingButton/LoadingButton";
 import { useFields } from "../../libs/hooks";
 import { useAppContext } from "../../libs/context";
 import { removeBracket, formatLink } from "../../libs/linkutils";
+import MovieCard from "./MovieCard";
+const sampleMovieList = require("./sample-movie-list.json");
+
 // todo: find alternative to \xa0 -> proper padding
 
 // hard coded movie and reviews
@@ -29,13 +32,13 @@ export default function Movie() { // todo: accept movie id/title as prop
     async function loadReviews(sampleReview) { // later will remove parameter since making GET from server
         // await api.get(reviews/title)
         // await delay();
-        return sampleReviews;
+        return sampleReviews.data.reviews;
     }
 
     async function loadMovie(sampleMovie) {
         // await api.get(movies/title)
         // await delay();
-        return sampleMovie;
+        return sampleMovie.data.movie;
     }
 
     useEffect(() => {
@@ -83,15 +86,16 @@ export default function Movie() { // todo: accept movie id/title as prop
         fields.body = "";
     }
 
+
     function getReviews() {
         return (
-            // todo: read more accordion
+            // todo: read more accordion or separate page
             // todo: sort by date
             reviews.map((review) => {
                 return (review.title !== "" && review.body !== "") ? // don't display basic review/rating
                     <div key={review.user + review.title}>
                         <h5>{`${review.rating}/10\xa0\xa0${review.title}`}</h5>
-                        <p>{`${review.date}\xa0|\xa0${review.user}`}</p>
+                        <p>{`${review.date}\xa0|\xa0 by `}<Link to={formatLink(`/user/${review.user}`)}>{review.user}</Link></p>
                         <p>{review.body}</p>
                     </div> : <></>
             })
@@ -213,11 +217,11 @@ export default function Movie() { // todo: accept movie id/title as prop
             <div style={{ "display": "flex" }}>
                 {arr.map((ele, i) => {
                     if (arr.length === i + 1) {
-                        return <Link to={`${formatLink(`/${(property === 'Writer' || property === 'Actor') ? `name` : property}/${formatLink(ele)}`)}`}
-                            style={{ textDecoration: 'none', color: 'black' }} key={ele}>{removeBracket(ele)}</Link>
+                        return <Link to={`${formatLink(`/${(property === 'Writer' || property === 'Actors') ? `name` : property}/${formatLink(ele)}`)}`}
+                            key={ele}>{removeBracket(ele)}</Link>
                     } else {
-                        return <Link to={`${formatLink(`/${(property === 'Writer' || property === 'Actor') ? `name` : property}/${formatLink(ele)}`)}`}
-                            style={{ textDecoration: 'none', color: 'black' }} key={ele}>{`${removeBracket(ele)},\xa0`}</Link>
+                        return <Link to={`${formatLink(`/${(property === 'Writer' || property === 'Actors') ? `name` : property}/${formatLink(ele)}`)}`}
+                            key={ele}>{`${removeBracket(ele)},\xa0`}</Link>
                     }
                 })}
             </div>
@@ -226,7 +230,7 @@ export default function Movie() { // todo: accept movie id/title as prop
 
     function getDirector() {
         return (
-            <Link to={`/name/${formatLink(movie.Director)}`} style={{ textDecoration: 'none', color: 'black' }}>{movie.Director}</Link>
+            <Link to={`/name/${formatLink(movie.Director)}`}>{movie.Director}</Link>
         )
     }
 

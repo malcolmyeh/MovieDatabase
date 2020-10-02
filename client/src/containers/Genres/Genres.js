@@ -39,16 +39,15 @@ export default function Genres() {
     });
 
     async function loadGenres(sampleData) {
-        return sampleData.genres;
+        return sampleData.data.genres;
     }
 
     function listGenres() {
-        console.log("genres: ", genres);
         return (
             <ListGroup>
                 {genres.map((genre) => {
                     return(
-                        <ListGroup.Item><Link to={`/genre/${formatLink(genre)}`}>{genre}</Link></ListGroup.Item>
+                        <ListGroup.Item key={genre}><Link to={`/genre/${formatLink(genre)}`}>{genre}</Link></ListGroup.Item>
                     )
                 })}
             </ListGroup>

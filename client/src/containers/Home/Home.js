@@ -13,7 +13,6 @@ export default function Home() {
             <h3>- most recent movies</h3>
             <h3>- most popular (by # of imbd votes)</h3>
             <h3>- recent reviews (user review from this site)</h3>
-            <h3>- watch list (if logged in)</h3>
             <h3>- feed (followed person new movie, followed user review)</h3>
         </div>
     )

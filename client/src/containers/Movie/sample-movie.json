@@ -1,4 +1,7 @@
 {
+    "success": true,
+    "data": {
+    "movie": {
     "Title": "Toy Story",
     "Year": "1995",
     "Rated": "G",
@@ -14,18 +17,18 @@
     "Awards": "Nominated for 3 Oscars. Another 27 wins & 20 nominations.",
     "Poster": "https://m.media-amazon.com/images/M/MV5BMDU2ZWJlMjktMTRhMy00ZTA5LWEzNDgtYmNmZTEwZTViZWJkXkEyXkFqcGdeQXVyNDQ2OTk4MzI@._V1_SX300.jpg",
     "Ratings": [
-        {
-            "Source": "Internet Movie Database",
-            "Value": "8.3/10"
-        },
-        {
-            "Source": "Rotten Tomatoes",
-            "Value": "100%"
-        },
-        {
-            "Source": "Metacritic",
-            "Value": "95/100"
-        }
+    {
+    "Source": "Internet Movie Database",
+    "Value": "8.3/10"
+    },
+    {
+    "Source": "Rotten Tomatoes",
+    "Value": "100%"
+    },
+    {
+    "Source": "Metacritic",
+    "Value": "95/100"
+    }
     ],
     "Metascore": "95",
     "imdbRating": "8.3",
@@ -37,4 +40,6 @@
     "Production": "Buena Vista",
     "Website": "N/A",
     "Response": "True"
-}
+    }
+    }
+    }
