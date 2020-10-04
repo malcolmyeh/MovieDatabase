@@ -1,42 +1,43 @@
 import React, { useState, useEffect } from "react";
 import { Row, Col } from "react-bootstrap";
+import MovieCard from "../../components/MovieCard/MovieCard";
+import Loading from "../../components/Loading/Loading";
+import { delay } from "../../libs/otherutils";
+import FadeIn from "../../components/Fade/Fade";
 
 var sampleMoviesWatched = require("./sample-movies-watched.json");
 
 export default function Reviews(id) {
-    const [moviesWatched, setMoviesWatched] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
-    async function loadMoviesWatched(moviesWatched) {
-        return moviesWatched.data.movies;
+  const [moviesWatched, setMoviesWatched] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  async function loadMoviesWatched(id) {
+    setIsLoading(true);
+    console.log("Loading movies watched for ", id);
+    await delay();
+    setMoviesWatched(sampleMoviesWatched.data.movies);
+    setIsLoading(false);
+  }
+  useEffect(() => {
+    async function onLoad() {
+      try {
+        loadMoviesWatched(id);
+      } catch (e) {
+        console.log(e);
+      }
     }
-    useEffect(() => {
-        async function onLoad() {
-            try {
-                const moviesWatched = await loadMoviesWatched(sampleMoviesWatched);
-                setMoviesWatched(moviesWatched);
-            } catch (e) {
-                console.log(e);
-            }
-            setIsLoading(false);
-        }
-        onLoad();
-    });
+    onLoad();
+  }, [id]);
 
-    return (!isLoading &&
-        <>
-            <Row>
-                <Col>
-                    <h3>Movies Watched</h3>
-                </Col>
-            </Row>
-            <Row>
-                <Col>
-                    {moviesWatched.map((movie) => {
-                        return <img key={movie.Title} alt="poster" src={movie.Poster} style={{ maxHeight: "15vh" }} />
-                    })}
-                </Col>
-            </Row>
-        </>
-    )
-
+  return isLoading ? (
+    Loading("movies watched")
+  ) : (
+    <FadeIn>
+      <Row>
+        <Col>
+          <h3>Movies Watched</h3>
+        </Col>
+      </Row>
+      <Row>{moviesWatched.map((movie) => MovieCard(movie))}</Row>
+    </FadeIn>
+  );
 }

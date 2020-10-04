@@ -1,60 +1,52 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { Container, Card, Row, Col } from "react-bootstrap";
-import MovieCard from "../Movie/MovieCard"
+import { Container, Row } from "react-bootstrap";
+import MovieCard from "../../components/MovieCard/MovieCard";
+import Filter from "../../components/Filter/Filter";
+import Loading from "../../components/Loading/Loading";
+import { delay } from "../../libs/otherutils";
+import FadeIn from "../../components/Fade/Fade";
+
 const sampleMovieList = require("./sample-movie-list.json");
 
 export default function Genre() {
-    const [movies, setMovies] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const { id } = useParams();
+  const [movies, setMovies] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const { id } = useParams();
 
-    async function loadMovies() {
-        return (sampleMovieList.data.movies);
+  async function loadMovies(id) {
+    console.log("Loading movies with genre ", id);
+    await delay();
+    setMovies(sampleMovieList.data.movies);
+    setIsLoading(false);
+  }
+
+  useEffect(() => {
+    async function onLoad() {
+      try {
+        loadMovies(id);
+      } catch (e) {
+        console.log(e);
+      }
     }
+    onLoad();
+  });
 
-    useEffect(() => {
-        async function onLoad() {
-            try {
-                const movies = await loadMovies();
-                setMovies(movies);
-            } catch (e) {
-                console.log(e);
-            }
-            setIsLoading(false);
-        }
-        onLoad();
-    })
+  function renderMovies() {
+    return isLoading ? (
+      Loading()
+    ) : (
+      <FadeIn>
+        <Row>{movies.map((movie) => MovieCard(movie))}</Row>
+      </FadeIn>
+    );
+  }
 
-    function renderMovies() {
-
-        const groupArray = (group, size) => group.reduce((accumulator, current, index, original) =>
-            ((index % size) === 0)
-                ? accumulator.concat([original.slice(index, index + size)])
-                : accumulator, []
-        )
-        const groupedMovieArr = groupArray(movies, 5)
-
-        return (
-            groupedMovieArr.map(movies => {
-                return (
-                    <div key={groupedMovieArr.indexOf(movies)}>
-                        <Row>
-                            {movies.map((movie) => MovieCard(movie))}
-                        </Row>
-                    </div>
-
-                )
-            })
-
-        )
-    }
-
-    return (!isLoading &&
-        <Container>
-            <h1>{id.charAt(0).toUpperCase() + id.slice(1)}</h1>
-            <h3>filter by date, rating, etc.</h3>
-            {renderMovies()}
-        </Container>
-    )
+  return (
+    <Container>
+      <h1>{id.charAt(0).toUpperCase() + id.slice(1)}</h1>
+      {Filter(movies, setMovies)}
+      {renderMovies()}
+    </Container>
+  );
 }

@@ -1,5 +1,8 @@
 1. 
 
+Pages not yet implemented:
+    - Contributor Add Movie/Add Name
+
 2. Movie Database
 3. N/A
 4. 
@@ -7,6 +10,9 @@
     npm i
     npm start
 5. 
+
+Pages: 
+
     Sign Up/Log In/Log Out Pages:
     - changes authenticated state in Context
     - user input is validated
@@ -38,7 +44,3 @@
     Search Bar/Search Page:
 
     Home Page:
-
-
-    
-

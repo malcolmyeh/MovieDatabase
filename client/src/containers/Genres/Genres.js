@@ -1,7 +1,10 @@
-import React, {useState, useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Container, ListGroup } from "react-bootstrap";
 import { formatLink } from "../../libs/linkutils";
+import Loading from "../../components/Loading/Loading";
+import { delay } from "../../libs/otherutils";
+import FadeIn from "../../components/Fade/Fade";
 
 // samplesGenres contains arr of unique genres
 // todo: should this be hardcoded? Can we add movie with other genres?
@@ -19,45 +22,50 @@ function getUniqueGenres(){
 }
 */
 
-var sampleGenres = require('./genres.json');
+var sampleGenres = require("./genres.json");
 
 export default function Genres() {
-    const [genres, setGenres] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
+  const [genres, setGenres] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-    useEffect(() => {
-        async function onLoad() {
-            try {
-                const genres = await loadGenres(sampleGenres);
-                setGenres(genres);
-            } catch (e) {
-                console.log(e);
-            }
-            setIsLoading(false);
-        }
-        onLoad();
-    });
+  async function loadGenres() {
+    await delay();
+    setGenres(sampleGenres.data.genres);
+    setIsLoading(false);
+  }
 
-    async function loadGenres(sampleData) {
-        return sampleData.data.genres;
+  useEffect(() => {
+    async function onLoad() {
+      try {
+        loadGenres();
+      } catch (e) {
+        console.log(e);
+      }
     }
+    onLoad();
+  });
 
-    function listGenres() {
-        return (
-            <ListGroup>
-                {genres.map((genre) => {
-                    return(
-                        <ListGroup.Item key={genre}><Link to={`/genre/${formatLink(genre)}`}>{genre}</Link></ListGroup.Item>
-                    )
-                })}
-            </ListGroup>
-        )
-    }
-    return (
-        <Container>
-            <h1>Movies by Genre</h1>
-            {!isLoading && listGenres()}
-            <br/><br/>
-        </Container>
-    )
+  function listGenres() {
+    return isLoading ? (
+      Loading()
+    ) : (
+      <FadeIn>
+        <ListGroup>
+          {genres.map((genre) => {
+            return (
+              <ListGroup.Item key={genre}>
+                <Link to={`/genre/${formatLink(genre)}`}>{genre}</Link>
+              </ListGroup.Item>
+            );
+          })}
+        </ListGroup>
+      </FadeIn>
+    );
+  }
+  return (
+    <Container>
+      <h1>Movies by Genre</h1>
+      {listGenres()}
+    </Container>
+  );
 }

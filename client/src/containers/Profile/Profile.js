@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Container, Row, Col } from "react-bootstrap";
 import { useParams } from "react-router-dom";
 import { useAppContext } from "../../libs/context";
@@ -26,7 +26,6 @@ OTHER
     List of people they follow
 */
 
-
 /*
     If profile is of user, allow:
         1. Remove review
@@ -37,53 +36,77 @@ OTHER
         1. follow/unfollow from button
 */
 
-
-
 export default function Profile() {
+  const { username, isContributor, setIsContributor } = useAppContext();
+  const { id } = useParams();
+  const { isFollowing, setIsFollowing } = useState(false);
+  var ownPage;
+  if (id === username) {
+    ownPage = true;
+  } else {
+    ownPage = false;
+  }
 
-    const { username } = useAppContext();
-    const { id } = useParams();
+  async function upgradeAccount() {
+    setIsContributor(true);
+  }
 
-    var ownPage;
-    if (id === username) {
-        ownPage = true;
-    } else {
-        ownPage = false;
-    }
+  async function downgradeAccount() {
+    setIsContributor(false);
+  }
 
-
-    function renderUserInfo() {
-        return (
-            <Row>
-                <Col sm={3}>
-                    <img alt="user" style={{ "height": "15vh" }} src="https://www.peerq.com/profilepics/default-profile.png" />
-                </Col>
-                <Col sm={8}>
-                    <h1>{id}</h1>
-                    <p>Movie Database member since September 2020</p>
-                    {!ownPage ?
-                        <LoadingButton>Follow</LoadingButton>
-                        : <></>}
-                </Col>
-            </Row>
-        )
-    }
-
+  function renderUserInfo() {
     return (
-        <Container>
-            <Row>
-                <Col sm={8}>
-                    {renderUserInfo()}
-                    {MoviesWatched(id)}
-                    {Reviews(ownPage, id)}
-                </Col>
-                <Col sm={4}>
-                    {Following(id, ownPage, "user")}
-                    {Following(id, ownPage, "name")}
-                    {Followers(id)}
-                </Col>
-            </Row>
-            <br /><br />
-        </Container>
-    )
+      <Row>
+        <Col sm={3}>
+          <img
+            alt="user"
+            style={{ height: "15vh" }}
+            src="https://www.peerq.com/profilepics/default-profile.png"
+          />
+        </Col>
+        <Col sm={8}>
+          <h1>{id}</h1>
+          {!ownPage ? (
+            <LoadingButton variant="outline-primary">Follow</LoadingButton>
+          ) : (
+            <>
+              {isContributor ? (
+                <LoadingButton
+                  variant="outline-primary"
+                  onClick={downgradeAccount}
+                >
+                  Become Regular User
+                </LoadingButton>
+              ) : (
+                <LoadingButton
+                  variant="outline-primary"
+                  onClick={upgradeAccount}
+                >
+                  Become Contributing User
+                </LoadingButton>
+              )}
+            </>
+          )}
+        </Col>
+      </Row>
+    );
+  }
+
+  return (
+    <Container>
+      <Row>
+        <Col sm={8}>
+          {renderUserInfo()}
+          {MoviesWatched(id)}
+          {Reviews(ownPage, id)}
+        </Col>
+        <Col sm={4}>
+          {Following(id, ownPage, "user")}
+          {Following(id, ownPage, "name")}
+          {Followers(id)}
+        </Col>
+      </Row>
+    </Container>
+  );
 }
