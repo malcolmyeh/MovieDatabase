@@ -1,12 +1,9 @@
 {
-  "success": true,
-  "data": {
-    "collaborators": [
-      "Abaddon",
-      "Alchemist",
-      "Ancient Apparition",
-      "Anti-Mage",
-      "Arc Warden"
-    ]
-  }
+  "collaborators": [
+    "Abaddon",
+    "Alchemist",
+    "Ancient Apparition",
+    "Anti-Mage",
+    "Arc Warden"
+  ]
 }

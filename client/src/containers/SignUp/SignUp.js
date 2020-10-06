@@ -92,14 +92,14 @@ export default function Signup() {
                 />
               </Form.Group>
             </Form.Row>
-              <LoadingButton
-                isLoading={isLoading}
-                type="submit"
-                disabled={!validateForm()}
-              >
-                {" "}
-                Sign Up
-              </LoadingButton>
+            <LoadingButton
+              isLoading={isLoading}
+              type="submit"
+              disabled={!validateForm()}
+            >
+              {" "}
+              Sign Up
+            </LoadingButton>
           </Form>
         </Card.Body>
       </Card>

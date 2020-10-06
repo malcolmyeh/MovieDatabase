@@ -13,15 +13,13 @@ export default function Following(id, ownPage, type) {
   const [following, setFollowing] = useState([]);
   const [numFollowing, setNumFollowing] = useState(5);
   const [isLoading, setIsLoading] = useState(true);
-  const [isDeleting, setIsDeleting] = useState(false);
 
   async function loadFollowing() {
     // takes in id and type
     setIsLoading(true);
-    console.log("Loading following for ", id);
     await delay();
-    if (type === "user") setFollowing(sampleFollowingUsers.data.users);
-    else if (type === "name") setFollowing(sampleFollowingNames.data.names);
+    if (type === "user") setFollowing(sampleFollowingUsers.users);
+    else if (type === "name") setFollowing(sampleFollowingNames.names);
     setIsLoading(false);
   }
 
@@ -34,6 +32,7 @@ export default function Following(id, ownPage, type) {
       }
     }
     onLoad();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]); // todo: specify functions that will trigger this
 
   async function handleUnfollow(event) {
@@ -45,35 +44,32 @@ export default function Following(id, ownPage, type) {
     if (!confirmed) {
       return;
     }
-    setIsDeleting(true);
     try {
       ////////////////////////////////////////////////////////////////
       function unfollowName(name) {
-        var arr = sampleFollowingNames.data.names;
+        var arr = sampleFollowingNames.names;
         var index = arr.indexOf(name);
         if (index > -1) {
           arr.splice(index, 1);
         }
-        sampleFollowingNames.data.names = arr;
+        sampleFollowingNames.names = arr;
       }
       ////////////////////////////////////////////////////////////////
       ////////////////////////////////////////////////////////////////
       function unfollowUser(user) {
-        var arr = sampleFollowingUsers.data.users;
+        var arr = sampleFollowingUsers.users;
         var index = arr.indexOf(user);
         if (index > -1) {
           arr.splice(index, 1);
         }
-        sampleFollowingUsers.data.users = arr;
+        sampleFollowingUsers.users = arr;
       }
       ////////////////////////////////////////////////////////////////
       if (type === "user") unfollowUser(event.target.id);
       else if (type === "name") unfollowName(event.target.id);
       loadFollowing();
-      setIsDeleting(false);
     } catch (e) {
       console.log(e);
-      setIsDeleting(false);
     }
   }
 

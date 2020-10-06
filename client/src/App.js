@@ -57,7 +57,7 @@ function App() {
                 Add Movie
               </NavLink>
               <NavLink as={Link} to="/add-name">
-                Add Movie
+                Add Name
               </NavLink>
             </>
           ) : (

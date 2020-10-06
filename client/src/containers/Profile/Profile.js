@@ -39,13 +39,14 @@ OTHER
 export default function Profile() {
   const { username, isContributor, setIsContributor } = useAppContext();
   const { id } = useParams();
-  const { isFollowing, setIsFollowing } = useState(false);
+  const [isFollowing, setIsFollowing] = useState(false);
   var ownPage;
   if (id === username) {
     ownPage = true;
   } else {
     ownPage = false;
   }
+  // todo: load isFollowing
 
   async function upgradeAccount() {
     setIsContributor(true);
@@ -53,6 +54,10 @@ export default function Profile() {
 
   async function downgradeAccount() {
     setIsContributor(false);
+  }
+
+  async function handleFollow() {
+    setIsFollowing(!isFollowing);
   }
 
   function renderUserInfo() {
@@ -68,7 +73,15 @@ export default function Profile() {
         <Col sm={8}>
           <h1>{id}</h1>
           {!ownPage ? (
-            <LoadingButton variant="outline-primary">Follow</LoadingButton>
+            isFollowing ? (
+              <LoadingButton onClick={handleFollow} variant="outline-danger">
+                Unfollow
+              </LoadingButton>
+            ) : (
+              <LoadingButton onClick={handleFollow} variant="outline-primary">
+                Follow
+              </LoadingButton>
+            )
           ) : (
             <>
               {isContributor ? (

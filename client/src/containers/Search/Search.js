@@ -19,16 +19,15 @@ export default function Search() {
   async function loadMovies() {
     // search to be handled on server side
     setIsLoading(true);
-    console.log("loading movies from query: ", queryString);
     console.log(
-      sampleMovieList.data.movies.filter((movie) =>
+      sampleMovieList.movies.filter((movie) =>
         movie.Title.toLowerCase().includes(queryString)
       ).length,
       " movies found."
     );
     await delay();
     setMovies(
-      sampleMovieList.data.movies.filter((movie) => {
+      sampleMovieList.movies.filter((movie) => {
         return (
           movie.Title.toLowerCase().includes(queryString) ||
           movie.Year.includes(queryString)
@@ -40,15 +39,14 @@ export default function Search() {
 
   useEffect(() => {
     async function onLoad() {
-      console.log("onLoad()");
       try {
-        console.log("queryString: ", queryString);
         loadMovies();
       } catch (e) {
         console.log(e);
       }
     }
     onLoad();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location]);
 
   function renderMovies() {

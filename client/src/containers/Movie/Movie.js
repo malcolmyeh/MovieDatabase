@@ -17,32 +17,25 @@ import MovieCard from "../../components/MovieCard/MovieCard";
 import Loading from "../../components/Loading/Loading";
 import { delay } from "../../libs/otherutils";
 import FadeIn from "../../components/Fade/Fade";
+import Trailer from "../../components/Trailer/Trailer";
+import { v1 as uuidv1 } from "uuid";
 
 const sampleMovieList = require("./sample-movie-list.json");
-
-// todo: if no reviews, default rating to IMDB score
-
-// todo: find alternative to \xa0 -> proper padding
 
 // hard coded movie and reviews
 var sampleMovie = require("./sample-movie.json");
 var sampleReviews = require("./sample-reviews.json");
 
 export default function Movie() {
-  // todo: accept movie id/title as prop
-
-  // todo: maybe use youtube api to get trailer
-  // play the first video result from sampleMovie.Title + " trailer"
-  const { isAuthenticated } = useAppContext();
+  const { isAuthenticated, username } = useAppContext();
   const [isLoading, setIsLoading] = useState(true);
-
   const [isLoadingMovie, setIsLoadingMovie] = useState(true);
   const [isLoadingReviews, setIsLoadingReviews] = useState(true);
   const [isLoadingRecommended, setIsLoadingRecommended] = useState(true);
-
   const [reviews, setReviews] = useState([]);
   const [movie, setMovie] = useState({});
   const [recommended, setRecommended] = useState([]);
+  const [watched, setWatched] = useState(false);
 
   const { id } = useParams();
 
@@ -50,7 +43,7 @@ export default function Movie() {
     // later will remove parameter since making GET from server
     // await api.get(reviews/title)
     await delay();
-    setReviews(sampleReview.data.reviews);
+    setReviews(sampleReview.reviews);
     setIsLoadingReviews(false);
   }
 
@@ -58,13 +51,13 @@ export default function Movie() {
     // GET movies/{id}
     // await api.get(movies/title)
     await delay();
-    setMovie(sampleMovie.data.movie);
+    setMovie(sampleMovie.movie);
     setIsLoadingMovie(false);
   }
 
   async function loadRecommended(sampleMovieList) {
     await delay();
-    setRecommended(sampleMovieList.data.movies);
+    setRecommended(sampleMovieList.movies);
     setIsLoadingRecommended(false);
   }
 
@@ -85,12 +78,31 @@ export default function Movie() {
     onLoad();
   }, [id]);
 
+  function handleWatched() {
+    const w = watched;
+    setWatched(!w);
+  }
+
   // Review form fields
   var [fields, handleFieldChange] = useFields({
     title: "",
     rating: "",
     body: "",
   });
+
+  function generateReview() {
+    console.log("generate Review");
+    fields.title = uuidv1();
+    fields.body = uuidv1();
+    fields.rating = Math.floor(Math.random() * 11).toString();
+    handleSubmit();
+  }
+
+  function generateRating() {
+    console.log("generate Rating);");
+    fields.rating = Math.floor(Math.random() * 11).toString();
+    handleSubmit();
+  }
 
   // Review Modals state
   const [showFullReview, setShowFullReview] = useState(false);
@@ -125,7 +137,7 @@ export default function Movie() {
               <h5>{`${review.rating}/10\xa0\xa0${review.title}`}</h5>
               <p>
                 {`${review.date}\xa0|\xa0 by `}
-                <Link to={formatLink(`/profile/${review.user}`)}>
+                <Link to={`/profile/${formatLink(review.user)}`}>
                   {review.user}
                 </Link>
               </p>
@@ -149,9 +161,12 @@ export default function Movie() {
     ).toFixed(1);
   }
 
-  async function handleSubmit(event) {
-    // todo: let server handle duplicates
+  function handleSubmitForm(event) {
     event.preventDefault();
+    handleSubmit();
+  }
+  async function handleSubmit() {
+    // todo: let server handle duplicates
     setIsLoading(true);
     setIsLoadingReviews(true);
     const { rating, title, body } = fields;
@@ -160,11 +175,11 @@ export default function Movie() {
       rating: rating,
       title: title,
       body: body,
-      user: "test-user", // todo: appcontext stores username
-      date: "31/12/20", // todo: generate date (momentjs?)
+      user: username, // todo: appcontext stores username
+      date: "31/12/20", // todo: generate date (momentjs?), formatdate function
     };
     try {
-      sampleReviews.data.reviews.push(newReview);
+      sampleReviews.reviews.push(newReview);
     } catch (e) {
       console.log(e);
     }
@@ -186,16 +201,19 @@ export default function Movie() {
           <Modal.Title>Rate {movie.Title}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Form onSubmit={handleSubmit}>
+          <Button variant="danger" onClick={generateRating}>
+            Generate
+          </Button>
+          <Form onSubmit={handleSubmitForm}>
             <Form.Row>
-              <Col sm={2}>
+              <Form.Group as={Col} sm={2}>
                 <Form.Label>Rating</Form.Label>
                 <Form.Control
                   id="rating"
                   value={fields.rating}
                   onChange={handleFieldChange}
                 />
-              </Col>
+              </Form.Group>
             </Form.Row>
             <LoadingButton
               type="submit"
@@ -218,32 +236,40 @@ export default function Movie() {
           <Modal.Title>Review {movie.Title}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Form onSubmit={handleSubmit}>
+          <Button variant="danger" onClick={generateReview}>
+            Generate
+          </Button>
+          <Form onSubmit={handleSubmitForm}>
             <Form.Row>
-              <Col sm={2}>
+              <Form.Group as={Col} sm={2}>
                 <Form.Label>Rating</Form.Label>
                 <Form.Control
                   id="rating"
                   value={fields.rating}
                   onChange={handleFieldChange}
                 />
-              </Col>
-              <Col sm={10}>
+              </Form.Group>
+              <Form.Group as={Col} sm={10}>
                 <Form.Label>Title</Form.Label>
                 <Form.Control
                   id="title"
                   value={fields.title}
                   onChange={handleFieldChange}
                 />
-              </Col>
+              </Form.Group>
             </Form.Row>
-            <Form.Label>Review</Form.Label>
-            <Form.Control
-              id="body"
-              value={fields.body}
-              as="textarea"
-              onChange={handleFieldChange}
-            />
+            <Form.Row>
+              <Form.Group as={Col}>
+                <Form.Label>Review</Form.Label>
+                <Form.Control
+                  id="body"
+                  value={fields.body}
+                  as="textarea"
+                  onChange={handleFieldChange}
+                />
+              </Form.Group>
+            </Form.Row>
+
             <LoadingButton
               type="submit"
               isLoading={isLoading}
@@ -337,9 +363,6 @@ export default function Movie() {
     ) : (
       <FadeIn>
         <Row className="mt-5">
-          <Col sm={1}>
-            <LoadingButton variant="outline-dark">+</LoadingButton>
-          </Col>
           <Col sm={8}>
             <h1>
               {unformatLink(id)} ({movie.Year})
@@ -353,6 +376,25 @@ export default function Movie() {
                 {getList("Genre")}
                 {`\xa0\xa0\xa0|\xa0\xa0\xa0`}
                 {movie.Released}
+              </Col>
+            </Row>
+            <Row>
+              <Col>
+                {!watched ? (
+                  <LoadingButton
+                    onClick={handleWatched}
+                    variant="outline-primary"
+                  >
+                    Add to Watched
+                  </LoadingButton>
+                ) : (
+                  <LoadingButton
+                    onClick={handleWatched}
+                    variant="outline-danger"
+                  >
+                    Remove from Watched
+                  </LoadingButton>
+                )}
               </Col>
             </Row>
           </Col>
@@ -369,13 +411,14 @@ export default function Movie() {
           </Col>
         </Row>
         <Row className="mt-3">
-          <Col sm={5}>
+          <Col sm={2}>
             <img
               src={movie.Poster}
               alt="Poster"
               style={{ maxHeight: "30vh" }}
             />
           </Col>
+          <Col sm={6}>{Trailer(movie)}</Col>
         </Row>
         <Row className="mt-3">
           <Col>

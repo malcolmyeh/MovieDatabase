@@ -8,26 +8,22 @@ import Loading from "../../components/Loading/Loading";
 import { delay } from "../../libs/otherutils";
 import FadeIn from "../../components/Fade/Fade";
 
-const axios = require("axios");
-
 const sampleMovies = require("./sample-movie-list.json");
 const sampleCollaborators = require("./sample-collaborators-list.json");
 
 export default function Name() {
   const [isFollowing, setIsFollowing] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  // const [isLoading, setIsLoading] = useState(true);
   const [isLoadingMovies, setIsLoadingMovies] = useState(true);
   const [isLoadingCollaborators, setIsLoadingCollaborators] = useState(true);
   const [movies, setMovies] = useState([]);
   const [collaborators, setCollaborators] = useState([]);
   const [numMovies, setNumMovies] = useState(5);
   const { id } = useParams();
-  console.log("id", id);
   async function loadMovies(name) {
     setIsLoadingMovies(true);
-    console.log("Loading ", name, "'s movies.");
     await delay();
-    setMovies(sampleMovies.data.movies);
+    setMovies(sampleMovies.movies);
     setIsLoadingMovies(false);
 
     // axios.get(`http://localhost:8000/name/${name}/movie`)
@@ -41,9 +37,8 @@ export default function Name() {
   async function loadCollaborators(name) {
     setIsLoadingCollaborators(true);
 
-    console.log("Loading ", name, "'s frequent collaborators");
     await delay();
-    setCollaborators(sampleCollaborators.data.collaborators);
+    setCollaborators(sampleCollaborators.collaborators);
     setIsLoadingCollaborators(false);
   }
 
@@ -118,7 +113,15 @@ export default function Name() {
           </Col>
           <Col sm={8}>
             <h1>{unformatLink(id)}</h1>
-            <LoadingButton variant="outline-primary">Follow</LoadingButton>
+            {isFollowing ? (
+              <LoadingButton onClick={handleFollow} variant="outline-danger">
+                Unfollow
+              </LoadingButton>
+            ) : (
+              <LoadingButton onClick={handleFollow} variant="outline-primary">
+                Follow
+              </LoadingButton>
+            )}
           </Col>
         </Row>
       </>

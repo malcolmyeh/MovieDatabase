@@ -12,9 +12,8 @@ export default function Reviews(id) {
   const [isLoading, setIsLoading] = useState(true);
   async function loadMoviesWatched(id) {
     setIsLoading(true);
-    console.log("Loading movies watched for ", id);
     await delay();
-    setMoviesWatched(sampleMoviesWatched.data.movies);
+    setMoviesWatched(sampleMoviesWatched.movies);
     setIsLoading(false);
   }
   useEffect(() => {

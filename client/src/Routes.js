@@ -9,7 +9,8 @@ import Genre from "./containers/Genres/Genre";
 import Profile from "./containers/Profile/Profile";
 import Name from "./containers/Name/Name";
 import Search from "./containers/Search/Search";
-import Loading from "./components/Loading/Loading"; //remove
+import AddNewMovie from "./containers/AddNew/AddNewMovie";
+import AddNewName from "./containers/AddNew/AddNewName";
 import NotFound from "./containers/NotFound/NotFound";
 
 // todo: /movie/:id
@@ -44,8 +45,11 @@ export default function Routes() {
       <Route exact path="/search">
         <Search />
       </Route>
-      <Route exact path="/loading">
-        <Loading />
+      <Route exact path="/add-movie">
+        <AddNewMovie />
+      </Route>
+      <Route exact path="/add-name">
+        <AddNewName />
       </Route>
       <Route>
         <NotFound />

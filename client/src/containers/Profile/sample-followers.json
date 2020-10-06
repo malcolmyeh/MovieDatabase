@@ -1,22 +1,19 @@
 {
-  "sucess": true,
-  "data": {
-    "users": [
-      "Sand King",
-      "Shadow Demon",
-      "Shadow Fiend",
-      "Shadow Shaman",
-      "Silencer",
-      "Skywrath Mage",
-      "Slardar",
-      "Slark",
-      "Snapfire",
-      "Sniper",
-      "Spectre",
-      "Spirit Breaker",
-      "Storm Spirit",
-      "Sven",
-      "Techies"
-    ]
-  }
+  "users": [
+    "Sand King",
+    "Shadow Demon",
+    "Shadow Fiend",
+    "Shadow Shaman",
+    "Silencer",
+    "Skywrath Mage",
+    "Slardar",
+    "Slark",
+    "Snapfire",
+    "Sniper",
+    "Spectre",
+    "Spirit Breaker",
+    "Storm Spirit",
+    "Sven",
+    "Techies"
+  ]
 }

@@ -1,8 +1,8 @@
 import React from "react";
-import { Accordion, Card, Button, Row, Form } from "react-bootstrap";
+import { Accordion, Card, Button, Row } from "react-bootstrap";
 
 export default function Filter(movies, setMovies) {
-  function renderForm() {}
+  // function renderForm() {}
   return (
     <Row>
       <Accordion>

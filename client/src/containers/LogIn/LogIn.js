@@ -20,7 +20,6 @@ export default function Login() {
     event.preventDefault();
     try {
       alert("Logging in...");
-      console.log("Logging in  user ", fields.username, "...");
       // await login user
       userHasAuthenticated(true);
       setUsername("test-user");

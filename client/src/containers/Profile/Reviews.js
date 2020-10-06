@@ -8,14 +8,13 @@ import FadeIn from "../../components/Fade/Fade";
 var sampleReviews = require("./sample-reviews.json");
 
 export default function Reviews(ownPage, id) {
-  const [reviews, setReviews] = useState([{}]);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [numReviews, setNumReviews] = useState(3);
+  const [reviews, setReviews] = useState([{}]);
 
   async function loadReviews(id) {
     setIsLoading(true);
-    console.log("Loading reviews for ", id);
     await delay();
     setReviews(sampleReviews.reviews);
     setIsLoading(false);
@@ -90,7 +89,7 @@ export default function Reviews(ownPage, id) {
             )}
           </div>
           <p>{`${review.date}`}</p>
-          <p>{review.body}</p>
+          <div>{review.body}</div>{" "}
         </div>
       ) : (
         <></>

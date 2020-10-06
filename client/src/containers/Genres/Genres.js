@@ -30,7 +30,7 @@ export default function Genres() {
 
   async function loadGenres() {
     await delay();
-    setGenres(sampleGenres.data.genres);
+    setGenres(sampleGenres.genres);
     setIsLoading(false);
   }
 

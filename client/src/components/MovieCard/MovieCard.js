@@ -11,17 +11,6 @@ export default function MovieCard(movie) {
       key={movie.Title}
       style={{ maxWidth: "11vw", textDecoration: "none", color: "black" }}
     >
-      {/* <Card.Header>
-        <div
-          style={{
-            whiteSpace: "nowrap",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-          }}
-        >
-          {`${movie.Title} (${movie.Year})`}
-        </div>
-      </Card.Header> */}
       <Card.Img
         variant="bottom"
         src={movie.Poster}
@@ -35,7 +24,6 @@ export default function MovieCard(movie) {
             textOverflow: "ellipsis",
           }}
         >
-          {/* {`${movie.Rated} | ${movie.Runtime}`} */}
           {`${movie.Title} (${movie.Year})`}
         </div>
       </Card.Header>

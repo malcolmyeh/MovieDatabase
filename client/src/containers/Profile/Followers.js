@@ -14,9 +14,8 @@ export default function Followers(id) {
   const [isLoading, setIsLoading] = useState(true);
   async function loadFollowers(id) {
     setIsLoading(true);
-    console.log("Loading followers for ", id);
     await delay();
-    setFollowers(sampleFollowers.data.users);
+    setFollowers(sampleFollowers.users);
     setIsLoading(false);
   }
   useEffect(() => {

@@ -15,9 +15,8 @@ export default function Genre() {
   const { id } = useParams();
 
   async function loadMovies(id) {
-    console.log("Loading movies with genre ", id);
     await delay();
-    setMovies(sampleMovieList.data.movies);
+    setMovies(sampleMovieList.movies);
     setIsLoading(false);
   }
 

@@ -1,31 +1,28 @@
 {
-  "success": true,
-  "data": {
-    "reviews": [
-      {
-        "movie": "Toy Story",
-        "rating": "1",
-        "date": "1/3/2020",
-        "user": "Bob Jones",
-        "title": "Terrible Movie!",
-        "body": "Why do the toys talk? This movie not realistic at all! would give this a 0/10 if I could. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
-      },
-      {
-        "movie": "Toy Story",
-        "rating": "9",
-        "date": "1/2/2020",
-        "user": "Job Bones",
-        "title": "Amazing Movie!",
-        "body": "The toys talk! Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
-      },
-      {
-        "movie": "Toy Story",
-        "rating": "10",
-        "date": "1/1/2020",
-        "user": "ZZZ XXX",
-        "title": "Lorem ipsum",
-        "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
-      }
-    ]
-  }
+  "reviews": [
+    {
+      "movie": "Toy Story",
+      "rating": "1",
+      "date": "1/3/2020",
+      "user": "Bob Jones",
+      "title": "Terrible Movie!",
+      "body": "Why do the toys talk? This movie not realistic at all! would give this a 0/10 if I could. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Odio euismod lacinia at quis risus sed. Nisi quis eleifend quam adipiscing vitae. Id diam maecenas ultricies mi eget mauris pharetra. Nullam vehicula ipsum a arcu cursus vitae congue. Rhoncus mattis rhoncus urna neque viverra justo nec ultrices dui. Duis ut diam quam nulla. Eu ultrices vitae auctor eu augue. Odio aenean sed adipiscing diam donec adipiscing. Nibh venenatis cras sed felis eget velit aliquet sagittis id. Lorem donec massa sapien faucibus et molestie ac feugiat."
+    },
+    {
+      "movie": "Toy Story",
+      "rating": "9",
+      "date": "1/2/2020",
+      "user": "Job Bones",
+      "title": "Amazing Movie!",
+      "body": "The toys talk! Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Odio euismod lacinia at quis risus sed. Nisi quis eleifend quam adipiscing vitae. Id diam maecenas ultricies mi eget mauris pharetra. Nullam vehicula ipsum a arcu cursus vitae congue. Rhoncus mattis rhoncus urna neque viverra justo nec ultrices dui. Duis ut diam quam nulla. Eu ultrices vitae auctor eu augue. Odio aenean sed adipiscing diam donec adipiscing. Nibh venenatis cras sed felis eget velit aliquet sagittis id. Lorem donec massa sapien faucibus et molestie ac feugiat."
+    },
+    {
+      "movie": "Toy Story",
+      "rating": "10",
+      "date": "1/1/2020",
+      "user": "ZZZ XXX",
+      "title": "Lorem ipsum",
+      "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Odio euismod lacinia at quis risus sed. Nisi quis eleifend quam adipiscing vitae. Id diam maecenas ultricies mi eget mauris pharetra. Nullam vehicula ipsum a arcu cursus vitae congue. Rhoncus mattis rhoncus urna neque viverra justo nec ultrices dui. Duis ut diam quam nulla. Eu ultrices vitae auctor eu augue. Odio aenean sed adipiscing diam donec adipiscing. Nibh venenatis cras sed felis eget velit aliquet sagittis id. Lorem donec massa sapien faucibus et molestie ac feugiat."
+    }
+  ]
 }

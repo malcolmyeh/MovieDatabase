@@ -1,30 +1,27 @@
 {
-  "sucess": true,
-  "data": {
-    "names": [
-      "Doom",
-      "Dragon Knight",
-      "Drow Ranger",
-      "Earth Spirit",
-      "Earthshaker",
-      "Elder Titan",
-      "Ember Spirit",
-      "Enchantress",
-      "Enigma",
-      "Faceless Void",
-      "Grimstroke",
-      "Gyrocopter",
-      "Huskar",
-      "Invoker",
-      "Io",
-      "Jakiro",
-      "Juggernaut",
-      "Keeper of the Light",
-      "Kunkka",
-      "Legion Commander",
-      "Leshrac",
-      "Lich",
-      "Lifestealer"
-    ]
-  }
+  "names": [
+    "Doom",
+    "Dragon Knight",
+    "Drow Ranger",
+    "Earth Spirit",
+    "Earthshaker",
+    "Elder Titan",
+    "Ember Spirit",
+    "Enchantress",
+    "Enigma",
+    "Faceless Void",
+    "Grimstroke",
+    "Gyrocopter",
+    "Huskar",
+    "Invoker",
+    "Io",
+    "Jakiro",
+    "Juggernaut",
+    "Keeper of the Light",
+    "Kunkka",
+    "Legion Commander",
+    "Leshrac",
+    "Lich",
+    "Lifestealer"
+  ]
 }
