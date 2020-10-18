@@ -4,6 +4,7 @@ import LoadingButton from "../../components/LoadingButton/LoadingButton";
 import { useHistory } from "react-router-dom";
 import { useFields } from "../../libs/hooks";
 import { useAppContext } from "../../libs/context";
+import axios from "axios";
 
 export default function Login() {
   const { userHasAuthenticated, setUsername } = useAppContext();
@@ -18,14 +19,22 @@ export default function Login() {
   }
   async function handleSubmit(event) {
     event.preventDefault();
+    const newPost = {
+      username: fields.username,
+      password: fields.password,
+    };
     try {
-      alert("Logging in...");
-      // await login user
+      const resp = await axios.post(
+        "http://localhost:5000/api/auth/signin",
+        newPost
+      );
+      console.log(resp.data);
       userHasAuthenticated(true);
-      setUsername("test-user");
+      setUsername(fields.username);
       setIsLoading(false);
       history.push("/");
     } catch (e) {
+      alert(e);
       console.error(e);
       setIsLoading(false);
     }

@@ -1,0 +1,23 @@
+const mongoose = require("mongoose");
+
+const PeopleSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: [true, 'Name is required. '],
+      unique: [true, 'Name already taken. ']
+    },
+    movies: {
+        type: Array,
+        default: []
+    },
+    frequentCollaborators: {
+        type: Array, 
+        default: []
+    }
+  },
+  { strict: false }
+);
+
+module.exports = People = mongoose.model("people", PeopleSchema);
+

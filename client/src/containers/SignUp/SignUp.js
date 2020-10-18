@@ -4,6 +4,7 @@ import { useFields } from "../../libs/hooks";
 import { useAppContext } from "../../libs/context";
 import LoadingButton from "../../components/LoadingButton/LoadingButton";
 import { useHistory } from "react-router-dom";
+import axios from "axios";
 
 export default function Signup() {
   const [isLoading, setIsLoading] = useState(false);
@@ -26,27 +27,22 @@ export default function Signup() {
   async function handleSubmit(event) {
     event.preventDefault();
     setIsLoading(true);
+    const newPost = {
+      username: fields.username,
+      password: fields.password,
+    };
     try {
-      alert("Creating user...");
-      console.log("Creating user ", fields.username, "...");
-      // await create user (pass in "regular")
-      /*
-                {
-                    username: "xxxx",
-                    password: "yyyy",
-                    accountType: "regular" | "contributor",
-                    reviews: [ "reviewId1", "reviewId2", ... ],
-                    followers: ["username", ...]
-                    following: ["username" | "contributor name", ...],
-                    date: "mm-yyyy"
-                }
-            */
-      // await login user
+      const resp = await axios.post(
+        "http://localhost:5000/api/auth/signin",
+        newPost
+      );
+      console.log(resp.data);
       userHasAuthenticated(true);
-      setUsername("fields.username");
+      setUsername(fields.username);
       setIsLoading(false);
       history.push("/");
     } catch (e) {
+      alert(e);
       console.error(e);
       setIsLoading(false);
     }
