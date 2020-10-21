@@ -3,34 +3,21 @@ import { Link } from "react-router-dom";
 import { Container, ListGroup } from "react-bootstrap";
 import { formatLink } from "../../libs/linkutils";
 import Loading from "../../components/Loading/Loading";
-import { delay } from "../../libs/otherutils";
 import FadeIn from "../../components/Fade/Fade";
+import axios from "axios";
 
-// samplesGenres contains arr of unique genres
-// todo: should this be hardcoded? Can we add movie with other genres?
-// on server side, can get genres from every movie and return unique array
-/*
-function getUniqueGenres(){
-    const data = movies.map((movie) => { return movie.Genre });
-    var genreArr = [];
-    for (const genreString of data) {
-      var arr = genreString.split(", ");
-      genreArr = [...arr, ...genreArr];
-    }
-    const uniqueGenreArr = Array.from(new Set(genreArr)).sort();
-    console.log("uniqueGenreArr: ", uniqueGenreArr);
-}
-*/
-
-var sampleGenres = require("./genres.json");
+var genreList = [];
 
 export default function Genres() {
   const [genres, setGenres] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   async function loadGenres() {
-    await delay();
-    setGenres(sampleGenres.genres);
+    if (genreList.length === 0){
+      const res = await axios('http://localhost:5000/api/genres');
+      genreList = res.data.genres;
+    }
+    setGenres(genreList);
     setIsLoading(false);
   }
 
@@ -43,7 +30,7 @@ export default function Genres() {
       }
     }
     onLoad();
-  });
+  },[]);
 
   function listGenres() {
     return isLoading ? (

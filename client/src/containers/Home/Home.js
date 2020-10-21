@@ -2,12 +2,10 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Container, Row, Col, Carousel, Jumbotron } from "react-bootstrap";
 import Loading from "../../components/Loading/Loading";
-import { delay } from "../../libs/otherutils";
 import Trailer from "../../components/Trailer/Trailer";
 import { formatLink } from "../../libs/linkutils";
 import FadeIn from "../../components/Fade/Fade";
-
-let sampleFeatured = require("./sample-featured-list.json");
+import axios from "axios";
 
 export default function Home() {
   const [isLoadingRecommended, setIsLoadingRecommended] = useState(true);
@@ -15,8 +13,8 @@ export default function Home() {
 
   async function loadFeatured() {
     setIsLoadingRecommended(true);
-    await delay();
-    const movies = sampleFeatured.movies;
+    const res = await axios('http://localhost:5000/api/featuredmovies');
+    const movies = res.data;
     setFeaturedMovies(movies);
     setIsLoadingRecommended(false);
   }
@@ -78,7 +76,7 @@ export default function Home() {
                 key={movie.Title}
                 style={{ top: "0", bottom: "auto" }}
               >
-                <Row style={{ minHeight: "450px" }}>
+                <Row style={{ maxHeight: "440px" }}>
                   <Col md="auto" style={{ padding: "0" }}>
                     <img src={movie.Poster} alt="Poster" />
                   </Col>
