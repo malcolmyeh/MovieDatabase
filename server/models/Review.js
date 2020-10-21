@@ -1,13 +1,17 @@
+const { ObjectId } = require("mongodb");
 const mongoose = require("mongoose");
 
 const ReviewSchema = new mongoose.Schema(
   {
-    name: {
-      type: String,
+    user: {
+      type: ObjectId,
       required: true,
     },
-    movie: {
-      // movie id
+    movieId: {
+      type: ObjectId,
+      required: true,
+    },
+    movieTitle: {
       type: String,
       required: true,
     },

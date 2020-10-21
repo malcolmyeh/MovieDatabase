@@ -6,6 +6,9 @@ const mongoose = require("mongoose");
 const passport = require("./passport/setup");
 const auth = require("./routes/auth");
 const movieroutes = require("./routes/movieroutes");
+const peopleroutes = require("./routes/peopleroutes");
+const reviewroutes = require("./routes/reviewroutes");
+const userroutes = require("./routes/userroutes");
 const cors = require("cors");
 const app = express();
 const PORT = 5000;
@@ -41,6 +44,9 @@ mongoose
     // Routes
     app.use("/api/auth", auth);
     app.use("/api", movieroutes);
+    app.use("/api", userroutes);
+    app.use("/api", reviewroutes);
+    app.use("/api", peopleroutes);
     app.get("/", (req, res) => res.send("Backend is healthy."));
 
     app.listen(PORT, () => console.log(`Backend listening on port ${PORT}`));

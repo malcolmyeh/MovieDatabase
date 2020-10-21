@@ -20,8 +20,8 @@ router.get("/users", async (req, res, next) => {
         let query = {};
         if (name)
             query.username = {$regex : `(?i).*${name}.*`};
-    
-        const users = await users.find(query);
+        console.log("query: ", query);
+        const users = await User.find(query);
         console.log("users: ", users);
         var reducedUsers = users.map((user) => {
           const reducedUser = {

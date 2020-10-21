@@ -4,7 +4,7 @@ const Movie = require("../models/Movie");
 const router = express.Router();
 
 // Get all reviews for given movie
-router.get("/reviews/:movie", (req, res, next) => {
+router.get("/reviews/:movie",async (req, res, next) => {
     try{
         console.log("looking for reviews for movie: ", req.params.movie);
         const reviews = await Review.find({movie: req.params.movie});
@@ -15,23 +15,34 @@ router.get("/reviews/:movie", (req, res, next) => {
     }
 });
 
+// Get all reviews for given user
+router.get("/reviews/:user", async (req, res, next) => {
+    try {
+        console.log("looking for reviews for user: ", req.params.user);
+        const reviews = await Review.find({user: req.params.user});
+        console.log(reviews);
+        res.send(reviews);
+    } catch {
+        res.send([]);
+    }
+});
+
 // Post new review
-router.post("/reviews", (req, res, next) => {
+router.post("/reviews", async (req, res, next) => {
     try{
         const review = new Review({
-            name: req.body.name,
-            movie: req.body.movie,
+            user: req.body.user,
+            movieId: req.body.movieId,
+            movieTitle: req.body.movieTitle,
             score: req.body.score,
             title: req.body.title,
             body: req.body.body
         });
         await review.save();
-
         await updateRating(req.body.movie);
-
     } catch {
         res.status(500);
-        res.send({error: "Could not post review!"});]
+        res.send({error: "Could not post review!"});
     }
 })
 
@@ -55,7 +66,7 @@ async function updateRating(movieId){
         const reviews = await Review.find({movie: movieId});
         var average = reviews.reduce((total, next) => total + next.score, 0)/reviews.length;
         console.log("average: ", average);
-        // update rating on movief
+        // update rating on movie
         const movie = await Movie.findOne({_id: movieId});
         movie.rating = average;
         await movie.save();        

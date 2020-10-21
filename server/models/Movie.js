@@ -1,3 +1,4 @@
+const { ObjectID } = require("mongodb");
 const mongoose = require("mongoose");
 
 const MovieSchema = new mongoose.Schema(
@@ -5,7 +6,6 @@ const MovieSchema = new mongoose.Schema(
     Title: {
       type: String,
       required: [true, 'Title is required. '],
-      unique: [true, 'Title already exists. ']
     },
     Year: {
       type: String,
@@ -28,15 +28,17 @@ const MovieSchema = new mongoose.Schema(
       required: [true, 'Genre is required. ']
     },
     Director: {
-      type: String,
+      type: ObjectID,
       required: [true, 'Director is required. ']
     },
     Writer: {
-      type: String,
+      type: Array,
+      default: [],
       required: [true, 'Writer is required. ']
     },
     Actors: {
-      type: String,
+      type: Array,
+      default: [],
       required: [true, 'Actors is required. ']
     },
     Plot: {
@@ -83,9 +85,6 @@ const MovieSchema = new mongoose.Schema(
       type: String,
     },
     Production: {
-      type: String,
-    },
-    Website: {
       type: String,
     },
     Rating: {

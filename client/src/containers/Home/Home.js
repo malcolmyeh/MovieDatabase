@@ -6,6 +6,7 @@ import { delay } from "../../libs/otherutils";
 import Trailer from "../../components/Trailer/Trailer";
 import { formatLink } from "../../libs/linkutils";
 import FadeIn from "../../components/Fade/Fade";
+
 let sampleFeatured = require("./sample-featured-list.json");
 
 export default function Home() {

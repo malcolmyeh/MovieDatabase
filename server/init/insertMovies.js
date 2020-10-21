@@ -1,72 +1,18 @@
-const express = require("express");
-const router = express.Router();
+const movies = require("../data/movie-data.json");
 const Movie = require("../models/Movie");
 const People = require("../models/People");
+const mongoose = require("mongoose");
+mongoose.connect("mongodb://127.0.0.1:27017/", { useNewUrlParser: true });
 
-router.get("/movies/:movie", async (req, res, next) => {
-  try {
-    console.log("looking for movie: ", req.params.movie);
-    const movie = await Movie.findOne({ _id: req.params.movie });
-    console.log("Movie found: ", movie.Title);
-    res.send(movie);
-  } catch {
-    res.status(404);
-    res.send({ error: "Movie doesn't exist!" });
-  }
-});
+// Script to load movies and people from movie-data.json
 
-router.get("/movies", async (req, res, next) => {
-  try {
-    let title = req.query.title;
-    let genre = req.query.genre;
-    let year = req.query.year;
-    let minrating = req.query.minrating;
-    let query = {};
-    if (title) query.Title = { $regex: `(?i).*${title}.*` };
-    if (genre) query.Genre = { $regex: `(?i).*${genre}.*` };
-    if (year) query.Year = year;
-    if (minrating) query.Rating = { $gte: minrating };
+async function insertMovies() {
+  console.log("Inserting movies...");
+  var db = mongoose.connection;
 
-    const movies = await Movie.find(query);
-    console.log("movies: ", movies);
-    var reducedMovies = movies.map((movie) => {
-      const reducedMovie = {
-        Title: movie.Title,
-        Year: movie.Year,
-        Poster: movie.Poster,
-        _id: movie._id,
-      };
-      return reducedMovie;
-    });
-    console.log("reducedMovies: ", reducedMovies);
-    res.send(reducedMovies);
-  } catch {
-    res.status(404);
-    res.send({ error: "No movies found!" });
-  }
-});
+  db.on("error", console.error.bind(console, "connection error: "));
 
-router.get("/featuredmovies", async (req, res, next) => {
-  console.log("featured movies");
-  try {
-    const movies = await Movie.find().sort([['Year', -1]]).limit(10);
-    console.log("movies: ", movies);
-    const reducedMovies = movies.map(movie => {
-      return {
-        Title: movie.Title,
-        Year: movie.Year,
-        Poster: movie.Poster
-      }
-    })
-    res.send(reducedMovies);
-  } catch {
-    res.status(404);
-    res.send({ error: "No movies found! "})
-  }
-})
-
-router.post("/movies", async (req, res, next) => {
-  try {
+  for (const movie of movies) {
     var directorName;
     var writerNames = [];
     var actorNames = [];
@@ -75,7 +21,8 @@ router.post("/movies", async (req, res, next) => {
     var actors = [];
     var people = [];
 
-    const newMovie = new Movie({
+    var newMovie = new Movie({
+      // everything except people
       Title: movie.Title,
       Year: movie.Year,
       Rated: movie.Rated,
@@ -97,15 +44,16 @@ router.post("/movies", async (req, res, next) => {
       Production: movie.Production,
     });
 
-    directorName = [req.body.Director];
-    req.body.Writer.replace(/ *\([^)]*\) */g, "")
+    // Get people from each movie object
+    directorName = [movie.Director];
+    movie.Writer.replace(/ *\([^)]*\) */g, "")
       .split(", ")
       .forEach((writer) => {
         // remove brackets
         writerNames.push(writer);
       });
     writerNames = Array.from(new Set(writerNames)).sort(); // some writers listed multiple times
-    req.body.Actors.split(", ").forEach((actor) => {
+    movie.Actors.split(", ").forEach((actor) => {
       actorNames.push(actor);
     });
     actorNames = Array.from(new Set(actorNames)).sort();
@@ -187,31 +135,10 @@ router.post("/movies", async (req, res, next) => {
     newMovie.Actors = actors.map((actor) => actor.id);
     await newMovie.save();
     console.log(movie.Title, " saved.");
-
-    res.send(movie);
-  } catch {
-    res.status(500);
-    res.send({ error: "Error adding new movie. " });
   }
-});
-
-// list of genres
-router.get("/genres", async (req, res, next) => {
-  try {
-    const movies = await Movie.find();
-    var genres = [];
-    movies.forEach((movie) => {
-      var arr = movie.Genre.split(", ");
-      genres = [...arr, ...genres];
-    });
-    var uniqueGenres = Array.from(new Set(genres)).sort();
-    console.log(uniqueGenres);
-    res.send({ genres: uniqueGenres });
-  } catch {
-    res.status(500);
-    res.send({ error: "Error getting genres!" });
-  }
-});
+  console.log("Done inserting movies.");
+  // mongoose.disconnect();
+}
 
 // Creates People if not already created from array of string (names)
 // and returns array [ {name, id}, {name, id}, ...]
@@ -241,4 +168,6 @@ async function getPeopleIds(people) {
   return peopleArr;
 }
 
-module.exports = router;
+// insertMovies();
+
+module.exports = { insertMovies }
