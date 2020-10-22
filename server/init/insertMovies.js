@@ -9,7 +9,7 @@ mongoose.connect("mongodb://127.0.0.1:27017/", { useNewUrlParser: true });
 async function insertMovies() {
   console.log("Inserting movies...");
   var db = mongoose.connection;
-
+  
   db.on("error", console.error.bind(console, "connection error: "));
 
   for (const movie of movies) {
