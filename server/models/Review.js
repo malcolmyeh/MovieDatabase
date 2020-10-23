@@ -3,9 +3,13 @@ const mongoose = require("mongoose");
 
 const ReviewSchema = new mongoose.Schema(
   {
-    user: {
+    userId: {
       type: ObjectId,
       required: true,
+    },
+    userName: {
+      type: String,
+      required:true,
     },
     movieId: {
       type: ObjectId,

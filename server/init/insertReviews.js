@@ -18,7 +18,8 @@ async function insertReviews() {
 
   const users = await User.find();
   const userIds = users.map((user) => user._id);
-  const movies = await Movie.find().limit(users.length * 3);
+  const userNames = users.map((user) => user.username);
+  const movies = await Movie.find().sort([['Year', -1]]).limit(100);
   const movieIds = movies.map((movie) => {
     return {
       title: movie.Title,
@@ -27,17 +28,17 @@ async function insertReviews() {
   });
 
   for (var i = 0; i < userIds.length; ++i) {
-    const reviewMovieIds = movieIds.slice(i * 3, i * 3 + 3);
-    for (const movieId of reviewMovieIds) {
+    for (const movieId of movieIds) {
       const review = new Review({
-        user: userIds[i],
+        userId: userIds[i],
+        userName: userNames[i],
         movieId: movieId.id,
         movieTitle: movieId.title,
         score: Math.floor(Math.random() * 10) + 1,
         title: loremIpsum().slice(0, -1),
         body: loremIpsum({ count: 3, units: "paragraph" }),
       });
-      const user = await User.findOne({_id: userIds[i]});
+      const user = await User.findOne({ _id: userIds[i] });
       user.reviews.push(review._id);
       user.moviesWatched.push(movieId.id);
       await review.save();
@@ -59,7 +60,7 @@ async function updateRating(movieId) {
       reviews.reduce((total, next) => total + next.score, 0) / reviews.length;
     // update rating on movie
     const movie = await Movie.findOne({ _id: movieId });
-    movie.rating = average;
+    movie.Rating = average;
     await movie.save();
   } catch (e) {
     console.log(e);
@@ -68,4 +69,4 @@ async function updateRating(movieId) {
 
 // insertReviews();
 
-module.exports = { insertReviews }
+module.exports = { insertReviews };

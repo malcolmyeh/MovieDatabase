@@ -68,7 +68,7 @@ const MovieSchema = new mongoose.Schema(
       type: String,
       default: 0
     },
-    imbdbRating: {
+    imdbRating: {
       type: String,
       default: 0
     },

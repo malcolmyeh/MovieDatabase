@@ -33,6 +33,7 @@ export default function Genres() {
   },[]);
 
   function listGenres() {
+    console.log("genres: ", genres);
     return isLoading ? (
       Loading()
     ) : (

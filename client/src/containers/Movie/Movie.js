@@ -12,19 +12,20 @@ import { Link, useParams } from "react-router-dom";
 import LoadingButton from "../../components/LoadingButton/LoadingButton";
 import { useFields } from "../../libs/hooks";
 import { useAppContext } from "../../libs/context";
-import { removeBracket, formatLink, unformatLink } from "../../libs/linkutils";
 import MovieCard from "../../components/MovieCard/MovieCard";
 import Loading from "../../components/Loading/Loading";
 import { delay } from "../../libs/otherutils";
 import FadeIn from "../../components/Fade/Fade";
 import Trailer from "../../components/Trailer/Trailer";
-import { v1 as uuidv1 } from "uuid";
+import axios from "axios";
+import { loremIpsum } from "lorem-ipsum";
 
 const sampleMovieList = require("./sample-movie-list.json");
 
 // hard coded movie and reviews
-var sampleMovie = require("./sample-movie.json");
 var sampleReviews = require("./sample-reviews.json");
+
+var reviewList = [];
 
 export default function Movie() {
   const { isAuthenticated, username } = useAppContext();
@@ -34,24 +35,55 @@ export default function Movie() {
   const [isLoadingRecommended, setIsLoadingRecommended] = useState(true);
   const [reviews, setReviews] = useState([]);
   const [movie, setMovie] = useState({});
+  const [director, setDirector] = useState("");
+  const [writers, setWriters] = useState([]);
+  const [actors, setActors] = useState([]);
   const [recommended, setRecommended] = useState([]);
   const [watched, setWatched] = useState(false);
 
   const { id } = useParams();
-
-  async function loadReviews(sampleReview) {
-    // later will remove parameter since making GET from server
-    // await api.get(reviews/title)
-    await delay();
-    setReviews(sampleReview.reviews);
+  async function loadReviews() {
+    if (reviewList.length === 0) {
+      const res = await axios.get(`http://localhost:5000/api/reviews/${id}`);
+      console.log("reviewList: ", res.data);
+      reviewList = res.data;
+    }
+    setReviews(reviewList);
     setIsLoadingReviews(false);
   }
 
-  async function loadMovie(sampleMovie) {
-    // GET movies/{id}
-    // await api.get(movies/title)
-    await delay();
-    setMovie(sampleMovie.movie);
+  async function loadMovie() {
+    // movie
+    const movieRes = await axios.get(`http://localhost:5000/api/movies/${id}`);
+    setMovie(movieRes.data);
+    // director name from id
+    const directorId = movieRes.data.Director;
+    const directorRes = await axios.get(
+      `http://localhost:5000/api/people/${directorId}`
+    );
+    setDirector(directorRes.data.name);
+    const writerIds = movieRes.data.Writer;
+    // writer names from id
+    const writerArr = [];
+    for (const writerId of writerIds) {
+      const writerRes = await axios.get(
+        `http://localhost:5000/api/people/${writerId}`
+      );
+      // setWriters(...writers, writerRes.data.name);
+      writerArr.push(writerRes.data.name);
+    }
+    setWriters(writerArr);
+    // actor names from id
+    const actorArr = [];
+    const actorIds = movieRes.data.Actors;
+    for (const actorId of actorIds) {
+      const actorRes = await axios.get(
+        `http://localhost:5000/api/people/${actorId}`
+      );
+      // setActors(...actors, actorRes.data.name);
+      actorArr.push(actorRes.data.name);
+    }
+    setActors(actorArr);
     setIsLoadingMovie(false);
   }
 
@@ -67,8 +99,8 @@ export default function Movie() {
     setIsLoadingRecommended(true);
     async function onLoad() {
       try {
-        loadMovie(sampleMovie);
-        loadReviews(sampleReviews);
+        await loadMovie();
+        loadReviews();
         loadRecommended(sampleMovieList);
       } catch (e) {
         console.log(e);
@@ -91,15 +123,13 @@ export default function Movie() {
   });
 
   function generateReview() {
-    console.log("generate Review");
-    fields.title = uuidv1();
-    fields.body = uuidv1();
+    fields.title = loremIpsum().slice(0, -1);
+    fields.body = loremIpsum({ count: 3, units: "paragraph" });
     fields.rating = Math.floor(Math.random() * 11).toString();
     handleSubmit();
   }
 
   function generateRating() {
-    console.log("generate Rating);");
     fields.rating = Math.floor(Math.random() * 11).toString();
     handleSubmit();
   }
@@ -134,37 +164,28 @@ export default function Movie() {
         {reviews.map((review) => {
           return review.title !== "" && review.body !== "" ? ( // don't display basic review/rating
             <div key={review.user + review.title}>
-              <h5>{`${review.rating}/10\xa0\xa0${review.title}`}</h5>
+              <h5>{`${review.score}/10\xa0\xa0${review.title}`}</h5>
               <p>
-                {`${review.date}\xa0|\xa0 by `}
-                <Link to={`/profile/${formatLink(review.user)}`}>
-                  {review.user}
+                {`${review.date.slice(0, 10)}\xa0|\xa0 by `}
+                <Link to={`/profile/${review.userId}`}>
+                  {review.userName}
                 </Link>
               </p>
               <p>{review.body}</p>
             </div>
           ) : (
-            <></>
+            <h3>No reviews</h3>
           );
         })}
       </FadeIn>
     );
   }
 
-  function getAverageRating() {
-    return (
-      Math.round(
-        (reviews.reduce((total, next) => total + Number(next.rating), 0) /
-          reviews.length) *
-          10
-      ) / 10
-    ).toFixed(1);
-  }
-
   function handleSubmitForm(event) {
     event.preventDefault();
     handleSubmit();
   }
+
   async function handleSubmit() {
     // todo: let server handle duplicates
     setIsLoading(true);
@@ -285,38 +306,25 @@ export default function Movie() {
   }
 
   // returns list of string with link (for genre, writers, actors, etc.)
-  function getList(property) {
-    var arr = movie[`${property}`].split(", ");
+  function getGenres() {
+    var genreArr = movie.Genre.split(", ");
     return (
       <div style={{ display: "flex" }}>
-        {arr.map((ele, i) => {
-          if (arr.length === i + 1) {
+        {genreArr.map((ele, i) => {
+          if (genreArr.length === i + 1) {
             return (
-              <Link
-                to={`${formatLink(
-                  `/${
-                    property === "Writer" || property === "Actors"
-                      ? `name`
-                      : property
-                  }/${formatLink(ele)}`
-                )}`}
-                key={ele}
-              >
-                {removeBracket(ele)}
+              <Link to={`/genre/${ele}`} key={ele}>
+                {ele}
               </Link>
             );
           } else {
             return (
-              <Link
-                to={`${formatLink(
-                  `/${
-                    property === "Writer" || property === "Actors"
-                      ? `name`
-                      : property
-                  }/${formatLink(ele)}`
-                )}`}
-                key={ele}
-              >{`${removeBracket(ele)},\xa0`}</Link>
+              <div key={ele}>
+                <Link to={`/genre/${ele}`} key={ele}>
+                  {ele}
+                </Link>
+                {`,\xa0`}
+              </div>
             );
           }
         })}
@@ -325,9 +333,43 @@ export default function Movie() {
   }
 
   function getDirector() {
-    return (
-      <Link to={`/name/${formatLink(movie.Director)}`}>{movie.Director}</Link>
-    );
+    return <Link to={`/name/${movie.Director}`}>{director}</Link>;
+  }
+
+  function getWriters() {
+    return writers.map((writer, index) => {
+      if (writers.length === index + 1) {
+        return (
+          <Link key={writer} to={`/name/${movie.Writer[index]}`}>
+            {writer}
+          </Link>
+        );
+      } else {
+        return (
+          <React.Fragment key={writer}>
+            <Link to={`/name/${movie.Writer[index]}`}>{writer}</Link> {`,\xa0`}
+          </React.Fragment>
+        );
+      }
+    });
+  }
+
+  function getActors() {
+    return actors.map((actor, index) => {
+      if (actors.length === index + 1) {
+        return (
+          <Link key={actor} to={`/name/${movie.Actors[index]}`}>
+            {actor}
+          </Link>
+        );
+      } else {
+        return (
+          <React.Fragment key={actor}>
+            <Link to={`/name/${movie.Actors[index]}`}>{actor}</Link> {`,\xa0`}
+          </React.Fragment>
+        );
+      }
+    });
   }
 
   function renderMoreLike() {
@@ -365,7 +407,7 @@ export default function Movie() {
         <Row className="mt-5">
           <Col sm={8}>
             <h1>
-              {unformatLink(id)} ({movie.Year})
+              {movie.Title} ({movie.Year})
             </h1>
             <Row>
               <Col style={{ display: "flex" }}>
@@ -373,7 +415,7 @@ export default function Movie() {
                 {`\xa0\xa0\xa0|\xa0\xa0\xa0`}
                 {movie.Runtime}
                 {`\xa0\xa0\xa0|\xa0\xa0\xa0`}
-                {getList("Genre")}
+                {getGenres()}
                 {`\xa0\xa0\xa0|\xa0\xa0\xa0`}
                 {movie.Released}
               </Col>
@@ -399,15 +441,14 @@ export default function Movie() {
             </Row>
           </Col>
           <Col sm={3} style={{ display: "flex" }}>
-            <h1>
-              ★
-              {isLoadingReviews ? (
-                <Spinner size="md" animation="border" />
-              ) : (
-                getAverageRating()
-              )}
-            </h1>
-            <p>{`\xa0\xa0(${reviews.length} ratings)`}</p>
+            {reviews.length > 0 ? (
+              <>
+                <h1>★{movie.Rating}</h1>
+                <p>{`\xa0\xa0(${reviews.length} ratings)`}</p>{" "}
+              </>
+            ) : (
+              <h3>No ratings </h3>
+            )}
           </Col>
         </Row>
         <Row className="mt-3">
@@ -421,7 +462,7 @@ export default function Movie() {
           <Col sm={6}>{Trailer(movie)}</Col>
         </Row>
         <Row className="mt-3">
-          <Col>
+          <Col sm={8}>
             <Row>
               <Col>{movie.Plot}</Col>
             </Row>
@@ -429,15 +470,15 @@ export default function Movie() {
               <Col>Director: {getDirector()}</Col>
             </Row>
             <Row>
-              <Col style={{ display: "flex" }}>
+              <Col style={{ display: "inline-block", overflow: "hidden" }}>
                 {`Writers:\xa0`}
-                {getList("Writer")}
+                {getWriters()}
               </Col>
             </Row>
             <Row>
-              <Col style={{ display: "flex" }}>
+              <Col style={{ display: "inline-block", overflow: "hidden" }}>
                 {`Actors:\xa0`}
-                {getList("Actors")}
+                {getActors()}
               </Col>
             </Row>
             <Row>
@@ -473,7 +514,6 @@ export default function Movie() {
               >
                 Review this title
               </Button>
-
               <Button
                 className="mr-1"
                 variant="outline-dark"

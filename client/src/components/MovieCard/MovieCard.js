@@ -1,20 +1,21 @@
 import React from "react";
 import { Card } from "react-bootstrap";
 import { Link } from "react-router-dom";
-import { formatLink } from "../../libs/linkutils";
+import {v1 as uuidv1} from "uuid";
 
 export default function MovieCard(movie) {
+
   return (
     <Card
       as={Link}
-      to={`/movie/${formatLink(movie.Title)}`}
-      key={movie.Title}
-      style={{ maxWidth: "11vw", textDecoration: "none", color: "black" }}
+      to={`/movie/${movie._id}`}
+      key={uuidv1()}
+      style={{ width: "11vw", textDecoration: "none", color: "black" }}
     >
       <Card.Img
         variant="bottom"
         src={movie.Poster}
-        style={{ maxHeight: "28vh" }}
+        style={{ height: "29vh", width: "11vw" }}
       />
       <Card.Header>
         <div

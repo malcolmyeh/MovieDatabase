@@ -1,10 +1,11 @@
 import React from "react";
-import { Accordion, Card, Button, Row } from "react-bootstrap";
+import { Accordion, Card, Button, Row, Col } from "react-bootstrap";
 
 export default function Filter(movies, setMovies) {
   // function renderForm() {}
   return (
-    <Row>
+    <Row style={{marginBottom: "20px"}}>
+      <Col>
       <Accordion>
         <Card>
           <Card.Header>
@@ -17,6 +18,7 @@ export default function Filter(movies, setMovies) {
           </Accordion.Collapse>
         </Card>
       </Accordion>
+      </Col>
     </Row>
   );
 }

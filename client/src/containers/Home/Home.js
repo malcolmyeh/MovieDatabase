@@ -7,15 +7,20 @@ import { formatLink } from "../../libs/linkutils";
 import FadeIn from "../../components/Fade/Fade";
 import axios from "axios";
 
+var movieList = [];
+
 export default function Home() {
   const [isLoadingRecommended, setIsLoadingRecommended] = useState(true);
   const [featuredMovies, setFeaturedMovies] = useState([]);
 
   async function loadFeatured() {
-    setIsLoadingRecommended(true);
-    const res = await axios('http://localhost:5000/api/featuredmovies');
-    const movies = res.data;
-    setFeaturedMovies(movies);
+    if (movieList.length === 0) {
+      setIsLoadingRecommended(true);
+      const res = await axios("http://localhost:5000/api/featuredmovies");
+      movieList = res.data;
+    }
+    console.log("movieList: ", movieList);
+    setFeaturedMovies(movieList);
     setIsLoadingRecommended(false);
   }
 
@@ -48,18 +53,7 @@ export default function Home() {
 
   return (
     <Container>
-      <Jumbotron style={{ marginTop: "15px" }}>
-        <Link to="/movie/toy-story">
-          <h3>Sample Movie Page</h3>
-        </Link>
-        <Link to="/profile/someone">
-          <h3>Sample Other User Page</h3>
-        </Link>
-        <Link to="/name/test">
-          <h3>Sample Name Page</h3>
-        </Link>
-      </Jumbotron>
-
+      <Jumbotron style={{ marginTop: "15px" }}></Jumbotron>
       {isLoadingRecommended ? (
         Loading()
       ) : (
@@ -95,7 +89,7 @@ export default function Home() {
                   to(rgba(0,0,0,0.01)), color-stop(.3,#000000)
                 )`,
                   }}
-                  to={`/movie/${formatLink(movie.Title)}`}
+                  to={`/movie/${movie.id}`}
                 >
                   <h1>{`${movie.Title} (${movie.Year})`}</h1>
                 </Carousel.Caption>

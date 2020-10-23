@@ -36,7 +36,7 @@ async function insertMovies() {
       Poster: movie.Poster,
       Ratings: movie.Ratings,
       Metascore: movie.Metascore,
-      imbdbRating: movie.imbdbRating,
+      imdbRating: movie.imdbRating,
       imdbId: movie.imdbId,
       Type: movie.Type,
       DVD: movie.DVD,

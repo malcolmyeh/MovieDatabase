@@ -3,10 +3,9 @@ const router = express.Router();
 const User = require("../models/User");
 
 router.get("/users/:user", async (req, res, next) => {
+  console.log("GET user: ", req.params.user);
   try {
-    console.log("looking for user: ", req.params.user);
     const user = await User.findOne({ _id: req.params.user });
-    console.log("User found: ", user.username);
     res.send(user);
   } catch {
     res.status(404);

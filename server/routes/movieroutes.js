@@ -4,10 +4,9 @@ const Movie = require("../models/Movie");
 const People = require("../models/People");
 
 router.get("/movies/:movie", async (req, res, next) => {
+  console.log("GET movie", req.params.movie);
   try {
-    console.log("looking for movie: ", req.params.movie);
     const movie = await Movie.findOne({ _id: req.params.movie });
-    console.log("Movie found: ", movie.Title);
     res.send(movie);
   } catch {
     res.status(404);
@@ -16,19 +15,20 @@ router.get("/movies/:movie", async (req, res, next) => {
 });
 
 router.get("/movies", async (req, res, next) => {
+  console.log("GET movies");
+  console.log(req.query);
   try {
-    let title = req.query.title;
     let genre = req.query.genre;
+    let title = req.query.title;
     let year = req.query.year;
     let minrating = req.query.minrating;
     let query = {};
-    if (title) query.Title = { $regex: `(?i).*${title}.*` };
+    if (title) query.Title = { $regex: `(?i).*${title.replace('-', ' ')}.*` };
     if (genre) query.Genre = { $regex: `(?i).*${genre}.*` };
     if (year) query.Year = year;
     if (minrating) query.Rating = { $gte: minrating };
 
-    const movies = await Movie.find(query);
-    console.log("movies: ", movies);
+    const movies = await Movie.find(query).sort([['Year', -1]]);
     var reducedMovies = movies.map((movie) => {
       const reducedMovie = {
         Title: movie.Title,
@@ -38,7 +38,6 @@ router.get("/movies", async (req, res, next) => {
       };
       return reducedMovie;
     });
-    console.log("reducedMovies: ", reducedMovies);
     res.send(reducedMovies);
   } catch {
     res.status(404);
@@ -47,15 +46,15 @@ router.get("/movies", async (req, res, next) => {
 });
 
 router.get("/featuredmovies", async (req, res, next) => {
-  console.log("featured movies");
+  console.log("GET featured movies");
   try {
     const movies = await Movie.find().sort([['Year', -1]]).limit(10);
-    console.log("movies: ", movies);
     const reducedMovies = movies.map(movie => {
       return {
         Title: movie.Title,
         Year: movie.Year,
-        Poster: movie.Poster
+        Poster: movie.Poster,
+        id: movie._id
       }
     })
     res.send(reducedMovies);
@@ -89,7 +88,7 @@ router.post("/movies", async (req, res, next) => {
       Poster: movie.Poster,
       Ratings: movie.Ratings,
       Metascore: movie.Metascore,
-      imbdbRating: movie.imbdbRating,
+      imdbRating: movie.imdbRating,
       imdbId: movie.imdbId,
       Type: movie.Type,
       DVD: movie.DVD,

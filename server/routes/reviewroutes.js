@@ -5,9 +5,9 @@ const router = express.Router();
 
 // Get all reviews for given movie
 router.get("/reviews/:movie",async (req, res, next) => {
+    console.log("GET reviews for movie: ", req.params.movie);
     try{
-        console.log("looking for reviews for movie: ", req.params.movie);
-        const reviews = await Review.find({movie: req.params.movie});
+        const reviews = await Review.find({movieId: req.params.movie});
         console.log(reviews);
         res.send(reviews);
     } catch {
@@ -16,10 +16,11 @@ router.get("/reviews/:movie",async (req, res, next) => {
 });
 
 // Get all reviews for given user
-router.get("/reviews/:user", async (req, res, next) => {
+router.get("/reviews/:userId", async (req, res, next) => {
+    console.log("GET reviews for user: ", req.params.userId);
     try {
-        console.log("looking for reviews for user: ", req.params.user);
-        const reviews = await Review.find({user: req.params.user});
+        console.log("looking for reviews for user: ", req.params.userId);
+        const reviews = await Review.find({userId: req.params.userId});
         console.log(reviews);
         res.send(reviews);
     } catch {
@@ -29,9 +30,11 @@ router.get("/reviews/:user", async (req, res, next) => {
 
 // Post new review
 router.post("/reviews", async (req, res, next) => {
+    console.log("POST review");
     try{
         const review = new Review({
-            user: req.body.user,
+            userId: req.body.userId,
+            userName: req.body.userName,
             movieId: req.body.movieId,
             movieTitle: req.body.movieTitle,
             score: req.body.score,
@@ -48,6 +51,7 @@ router.post("/reviews", async (req, res, next) => {
 
 // Delete review by id
 router.delete("/reviews/:id", async(req, res) => {
+    console.log("DELETE review");
     try {
         const movieId = await Review.findOne({_id: req.params.id}).movie;
         await Review.deleteOne({_id: req.params.id});
@@ -68,7 +72,7 @@ async function updateRating(movieId){
         console.log("average: ", average);
         // update rating on movie
         const movie = await Movie.findOne({_id: movieId});
-        movie.rating = average;
+        movie.Rating = average;
         await movie.save();        
     } catch (e){
         console.log(e);
