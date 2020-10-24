@@ -249,9 +249,7 @@ router.get("/recommended/:movie", async (req, res, next) => {
 
     while (recommended.length < 5) {
       const remaining = 5 - recommended.length;
-
       broaderGenres.pop();
-
       const genres = broaderGenres.join(", ");
       var newRecommendedMovies;
       if (genres == "") {

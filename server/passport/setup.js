@@ -3,9 +3,8 @@ const User = require("../models/User");
 const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
 
-// serialize user for the session
 passport.serializeUser((user, done) => {
-    done(null, user.id); // attached to session as req.session.passport.user{id: 'x'}
+    done(null, user.id); 
 });
 
 passport.deserializeUser((id, done) => {
@@ -16,13 +15,10 @@ passport.deserializeUser((id, done) => {
 
 passport.use(
     new LocalStrategy({ usernameField: "username" }, (username, password, done) => {
-        // Match User
         User.findOne({ username: username })
             .then(user => {
-                // Create new User
                 if (!user) {
                     const newUser = new User({ username, password });
-                    // Hash password before saving in database
                     bcrypt.genSalt(10, (err, salt) => {
                         bcrypt.hash(newUser.password, salt, (err, hash) => {
                             if (err) throw err;
@@ -37,9 +33,7 @@ passport.use(
                                 });
                         });
                     });
-                    // Return other user
                 } else {
-                    // Match password
                     bcrypt.compare(password, user.password, (err, isMatch) => {
                         if (err) throw err;
 

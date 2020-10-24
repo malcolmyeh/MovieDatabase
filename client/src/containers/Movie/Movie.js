@@ -93,7 +93,7 @@ export default function Movie() {
     setIsLoadingRecommended(true);
     async function onLoad() {
       try {
-        loadMovie();
+        await loadMovie(); // load movie first so visual transition isn't as jarring
         loadReviews();
         loadRecommended(sampleMovieList);
       } catch (e) {
