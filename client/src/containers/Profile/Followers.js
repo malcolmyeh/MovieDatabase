@@ -3,10 +3,10 @@ import { Row, Col } from "react-bootstrap";
 import { formatLink } from "../../libs/linkutils";
 import { Link } from "react-router-dom";
 import Loading from "../../components/Loading/Loading";
-import { delay } from "../../libs/otherutils";
 import FadeIn from "../../components/Fade/Fade";
+import axios from "axios";
 
-var sampleFollowers = require("./sample-followers.json");
+var users = [];
 
 export default function Followers(id) {
   const [followers, setFollowers] = useState([]);
@@ -14,8 +14,18 @@ export default function Followers(id) {
   const [isLoading, setIsLoading] = useState(true);
   async function loadFollowers(id) {
     setIsLoading(true);
-    await delay();
-    setFollowers(sampleFollowers.users);
+
+    const res = await axios(`http://localhost:5000/api/users/${id}`);
+    const userIds = res.data.followers;
+    users = [];
+    for (const userId of userIds) {
+      const user = await axios.get(
+        `http://localhost:5000/api/users/${userId}`
+      );
+      users.push({username: user.data.username, id: userId});
+    }
+    setFollowers(users);
+
     setIsLoading(false);
   }
   useEffect(() => {
@@ -37,12 +47,11 @@ export default function Followers(id) {
           <h3>{`Followers (${followers.length})`}</h3>
           {followers.slice(0, numFollowers).map((user) => {
             return (
-              <div key={user}>
+              <div key={user.id}>
                 <Link
-                  to={`${formatLink(`/profile/${user}`)}`}
-                  style={{ textDecoration: "none", color: "black" }}
+                  to={`${formatLink(`/profile/${user.id}`)}`}
                 >
-                  {user}
+                  {user.username}
                 </Link>
               </div>
             );

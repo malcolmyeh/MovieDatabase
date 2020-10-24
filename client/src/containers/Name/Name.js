@@ -1,22 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { Container, Row, Col } from "react-bootstrap";
 import MovieCard from "../../components/MovieCard/MovieCard";
-import { formatLink, unformatLink } from "../../libs/linkutils";
 import { Link, useParams } from "react-router-dom";
 import LoadingButton from "../../components/LoadingButton/LoadingButton";
 import Loading from "../../components/Loading/Loading";
-import { delay } from "../../libs/otherutils";
+
 import FadeIn from "../../components/Fade/Fade";
 import axios from "axios";
 
-const sampleMovies = require("./sample-movie-list.json");
-const sampleCollaborators = require("./sample-collaborators-list.json");
+
 
 export default function Name() {
+  const [isLoading, setIsLoading] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isLoadingMovies, setIsLoadingMovies] = useState(true);
-  const [isLoadingCollaborators, setIsLoadingCollaborators] = useState(true);
   const [movies, setMovies] = useState([]);
   const [collaborators, setCollaborators] = useState([]);
   const [numMovies, setNumMovies] = useState(5);
@@ -25,6 +21,7 @@ export default function Name() {
   const [person, setPerson] = useState({});
 
   async function loadPerson() {
+    setIsLoading(true);
     // person
     const personRes = await axios(`http://localhost:5000/api/people/${id}`);
     setPerson(personRes.data);
@@ -48,26 +45,10 @@ export default function Name() {
     setIsLoading(false);
   }
 
-  async function loadMovies(name) {
-    // setIsLoadingMovies(true);
-    // await delay();
-    // setMovies(sampleMovies.movies);
-    setIsLoadingMovies(false);
-  }
-
-  async function loadCollaborators(name) {
-    // setIsLoadingCollaborators(true);
-    // await delay();
-    // setCollaborators(sampleCollaborators.collaborators);
-    setIsLoadingCollaborators(false);
-  }
-
   useEffect(() => {
     async function onLoad() {
       try {
         loadPerson();
-        loadMovies(id);
-        loadCollaborators(id);
       } catch (e) {
         console.log(e);
       }
@@ -80,7 +61,7 @@ export default function Name() {
   }
 
   function renderMovies() {
-    return (
+    return  isLoading? (Loading("movies")) : (
       <FadeIn>
         <Row>
           <h3>Movies</h3>
@@ -114,7 +95,7 @@ export default function Name() {
   }
 
   function renderInfo() {
-    return (
+    return  isLoading? (Loading("info")) : (
       <>
         <Row>
           <Col sm={2}>
@@ -142,7 +123,7 @@ export default function Name() {
   }
 
   function renderCollaborators() {
-    return (
+    return isLoading? (Loading("collaborators")) : (
       <FadeIn>
         <Row>
           <h3>Frequent Collaborators</h3>
@@ -153,7 +134,7 @@ export default function Name() {
               if (collaborators.length === i + 1) {
                 return (
                   <Link
-                    to={`${formatLink(`/name/${collaborator.id}`)}`}
+                    to={`/name/${collaborator.id}`}
                     key={collaborator.id}
                   >
                     {collaborator.name}
@@ -162,7 +143,7 @@ export default function Name() {
               } else {
                 return (
                   <div key={collaborator.id}>
-                    <Link to={`${formatLink(`/name/${collaborator.id}`)}`}>
+                    <Link to={`/name/${collaborator.id}`}>
                       {collaborator.name}
                     </Link>
                     {`,\xa0`}

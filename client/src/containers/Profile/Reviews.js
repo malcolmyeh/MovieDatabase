@@ -4,6 +4,7 @@ import LoadingButton from "../../components/LoadingButton/LoadingButton";
 import Loading from "../../components/Loading/Loading";
 import { delay } from "../../libs/otherutils";
 import FadeIn from "../../components/Fade/Fade";
+import axios from "axios";
 
 var sampleReviews = require("./sample-reviews.json");
 
@@ -13,16 +14,19 @@ export default function Reviews(ownPage, id) {
   const [numReviews, setNumReviews] = useState(3);
   const [reviews, setReviews] = useState([{}]);
 
-  async function loadReviews(id) {
+  async function loadReviews() {
     setIsLoading(true);
-    await delay();
-    setReviews(sampleReviews.reviews);
+    const res = await axios(`http://localhost:5000/api/reviews?userId=${id}`);
+    const reviews = res.data;
+    console.log("reviews:", reviews)
+    setReviews(reviews);
     setIsLoading(false);
   }
+
   useEffect(() => {
     async function onLoad() {
       try {
-        loadReviews(id);
+        loadReviews();
       } catch (e) {
         console.log(e);
       }
@@ -72,7 +76,7 @@ export default function Reviews(ownPage, id) {
       return review.title !== "" && review.body !== "" ? (
         <div key={review.movie + review.title}>
           <div style={{ display: "flex" }}>
-            <h4>{`${review.movie}\xa0|\xa0${review.title}`}</h4>
+            <h4>{`${review.movieTitle}\xa0|\xa0${review.title}`}</h4>
             {ownPage ? (
               <LoadingButton
                 variant="outline-dark"
@@ -88,7 +92,7 @@ export default function Reviews(ownPage, id) {
               <></>
             )}
           </div>
-          <p>{`${review.date}`}</p>
+          <p>{`${review.date.slice(0, 10)}`}</p>
           <div>{review.body}</div>{" "}
         </div>
       ) : (

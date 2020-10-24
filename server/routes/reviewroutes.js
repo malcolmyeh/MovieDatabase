@@ -1,32 +1,27 @@
 const express = require("express");
 const Review = require("../models/Review");
 const Movie = require("../models/Movie");
+const { query } = require("express");
 const router = express.Router();
 
-// Get all reviews for given movie
-router.get("/reviews/:movie",async (req, res, next) => {
-    console.log("GET reviews for movie: ", req.params.movie);
-    try{
-        const reviews = await Review.find({movieId: req.params.movie});
-        console.log(reviews);
-        res.send(reviews);
-    } catch {
-        res.send([]);
-    }
-});
-
-// Get all reviews for given user
-router.get("/reviews/:userId", async (req, res, next) => {
-    console.log("GET reviews for user: ", req.params.userId);
+router.get("/reviews", async (req, res, next) => {
+    console.log("GET reviews");
+    console.log(req.query);
     try {
-        console.log("looking for reviews for user: ", req.params.userId);
-        const reviews = await Review.find({userId: req.params.userId});
-        console.log(reviews);
-        res.send(reviews);
+        var userId = req.query.userId;
+        var movieId = req.query.movieId;
+        var query = {};
+        if (userId) query.userId = userId;
+        if (movieId) query.movieId = movieId;
+
+        const reviews = await Review.find(query);
+        res.send(reviews)
     } catch {
-        res.send([]);
+        res.status(404);
+        res.send({ error: "No reviews found!"});
     }
-});
+})
+
 
 // Post new review
 router.post("/reviews", async (req, res, next) => {

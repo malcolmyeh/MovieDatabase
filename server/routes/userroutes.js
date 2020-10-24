@@ -36,4 +36,16 @@ router.get("/users", async (req, res, next) => {
         res.send({ error: "No users found!" });
       }
 })
+
+// follow user
+
+// unfollow user
+
+// follow name
+
+// unfollow name
+
+// make contributor
+
+// make regular
 module.exports = router;

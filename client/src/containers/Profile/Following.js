@@ -3,8 +3,11 @@ import { Row, Col } from "react-bootstrap";
 import { formatLink } from "../../libs/linkutils";
 import { Link } from "react-router-dom";
 import Loading from "../../components/Loading/Loading";
-import { delay } from "../../libs/otherutils";
 import FadeIn from "../../components/Fade/Fade";
+import axios from "axios";
+
+var users = [];
+var names = [];
 
 var sampleFollowingUsers = require("./sample-following-users.json");
 var sampleFollowingNames = require("./sample-following-names.json");
@@ -15,11 +18,29 @@ export default function Following(id, ownPage, type) {
   const [isLoading, setIsLoading] = useState(true);
 
   async function loadFollowing() {
-    // takes in id and type
     setIsLoading(true);
-    await delay();
-    if (type === "user") setFollowing(sampleFollowingUsers.users);
-    else if (type === "name") setFollowing(sampleFollowingNames.names);
+    const res = await axios(`http://localhost:5000/api/users/${id}`);
+    const userIds = res.data.followingUsers;
+    const nameIds = res.data.followingPeople;
+    if (type === "user") {
+      users = [];
+      for (const userId of userIds) {
+        const user = await axios.get(
+          `http://localhost:5000/api/users/${userId}`
+        );
+        users.push({username: user.data.username, id: userId});
+      }
+      setFollowing(users);
+    } else if (type === "name") {
+      names = [];
+      for (const nameId of nameIds) {
+        const person = await axios.get(
+          `http://localhost:5000/api/people/${nameId}`
+        );
+        names.push({name: person.data.name, id: nameId});
+      }
+      setFollowing(names);
+    }
     setIsLoading(false);
   }
 
@@ -55,7 +76,6 @@ export default function Following(id, ownPage, type) {
         sampleFollowingNames.names = arr;
       }
       ////////////////////////////////////////////////////////////////
-      ////////////////////////////////////////////////////////////////
       function unfollowUser(user) {
         var arr = sampleFollowingUsers.users;
         var index = arr.indexOf(user);
@@ -75,21 +95,11 @@ export default function Following(id, ownPage, type) {
 
   function displayFollowing(user) {
     return (
-      <div key={user} style={{ display: "flex", height: "auto" }}>
+      <div key={user.id} style={{ display: "flex", height: "auto" }}>
         {type === "user" ? (
-          <Link
-            to={`${formatLink(`/profile/${user}`)}`}
-            style={{ textDecoration: "none", color: "black" }}
-          >
-            {user}
-          </Link>
+          <Link to={`${formatLink(`/profile/${user.id}`)}`}>{user.username}</Link>
         ) : (
-          <Link
-            to={`${formatLink(`/name/${user}`)}`}
-            style={{ textDecoration: "none", color: "black" }}
-          >
-            {user}
-          </Link>
+          <Link to={`${formatLink(`/name/${user.id}`)}`}>{user.name}</Link>
         )}
 
         {ownPage ? (

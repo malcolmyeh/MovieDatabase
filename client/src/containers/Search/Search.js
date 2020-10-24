@@ -15,7 +15,7 @@ export default function Search() {
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
 
-  const moviesPerPage = 25;
+  const moviesPerPage = 10;
   const pageNumbers = [];
 
   for (var i = 1; i <= Math.ceil(movies.length / moviesPerPage); i++) {
@@ -79,7 +79,7 @@ export default function Search() {
     const currentMovies = movies.slice(firstIndex, lastIndex + 1);
     return (
       <FadeIn>
-        <Row>{currentMovies.map((movie) => MovieCard(movie))}</Row>
+        <Row className="justify-content-md-center">{currentMovies.map((movie) => MovieCard(movie))}</Row>
       </FadeIn>
     );
   }

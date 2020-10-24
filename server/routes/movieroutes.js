@@ -3,6 +3,8 @@ const router = express.Router();
 const Movie = require("../models/Movie");
 const People = require("../models/People");
 
+var genreList = []; // save genres in memory as it is not likely to change
+
 router.get("/movies/:movie", async (req, res, next) => {
   console.log("GET movie", req.params.movie);
   try {
@@ -197,15 +199,18 @@ router.post("/movies", async (req, res, next) => {
 // list of genres
 router.get("/genres", async (req, res, next) => {
   try {
-    const movies = await Movie.find();
-    var genres = [];
-    movies.forEach((movie) => {
-      var arr = movie.Genre.split(", ");
-      genres = [...arr, ...genres];
-    });
-    var uniqueGenres = Array.from(new Set(genres)).sort();
-    console.log(uniqueGenres);
-    res.send({ genres: uniqueGenres });
+    if (genreList.length === 0){
+      const movies = await Movie.find();
+      var genres = [];
+      movies.forEach((movie) => {
+        var arr = movie.Genre.split(", ");
+        genres = [...arr, ...genres];
+      });
+      var uniqueGenres = Array.from(new Set(genres)).sort();
+      console.log(uniqueGenres);
+      genreList = uniqueGenres
+    }
+    res.send({ genres: genreList });
   } catch {
     res.status(500);
     res.send({ error: "Error getting genres!" });

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Container, Row, Col } from "react-bootstrap";
 import { useParams } from "react-router-dom";
 import { useAppContext } from "../../libs/context";
@@ -7,41 +7,17 @@ import Reviews from "./Reviews";
 import MoviesWatched from "./MoviesWatched";
 import Followers from "./Followers";
 import Following from "./Following";
-
-/*
-SELF
-    profile photo?
-    user tiers?
-    date registered?
-    list of people they follow (and a way to unfollow)
-    list of users they follow (and a way to unfollow)
-    list of followers?
-    Switch account type (regular/contributor)
-    Movies recommendation
-    Movies watched
-    search bar? or put it somewhere else
-OTHER
-    Option to follow
-    List of their reviews that they have made
-    List of people they follow
-*/
-
-/*
-    If profile is of user, allow:
-        1. Remove review
-        2. unfollow from list of followed users
-        3. unfollow from list of followed names
-        4. switch account type 
-    If profile is of someone else,  allow:
-        1. follow/unfollow from button
-*/
+import axios from "axios";
+import Loading from "../../components/Loading/Loading";
 
 export default function Profile() {
-  const { username, isContributor, setIsContributor } = useAppContext();
+  const { userId, isContributor, setIsContributor } = useAppContext();
   const { id } = useParams();
   const [isFollowing, setIsFollowing] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [username, setUsername] = useState("");
   var ownPage;
-  if (id === username) {
+  if (id === userId) {
     ownPage = true;
   } else {
     ownPage = false;
@@ -60,8 +36,26 @@ export default function Profile() {
     setIsFollowing(!isFollowing);
   }
 
+  async function loadUsername(id){
+    setIsLoading(true);
+    const res = await axios(`http://localhost:5000/api/users/${id}`);
+    console.log("res.data", res.data.username);
+    setUsername(res.data.username);
+    setIsLoading(false);
+  }
+  useEffect(() => {
+    async function onLoad() {
+      try {
+        loadUsername(id);
+      } catch (e) {
+        console.log(e);
+      }
+    }
+    onLoad();
+  }, [id]);
+
   function renderUserInfo() {
-    return (
+    return isLoading? (Loading("user")): (
       <Row>
         <Col sm={3}>
           <img
@@ -71,7 +65,7 @@ export default function Profile() {
           />
         </Col>
         <Col sm={8}>
-          <h1>{id}</h1>
+          <h1>{username}</h1>
           {!ownPage ? (
             isFollowing ? (
               <LoadingButton onClick={handleFollow} variant="outline-danger">

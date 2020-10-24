@@ -19,7 +19,7 @@ async function insertReviews() {
   const users = await User.find();
   const userIds = users.map((user) => user._id);
   const userNames = users.map((user) => user.username);
-  const movies = await Movie.find().sort([['Year', -1]]).limit(100);
+  const movies = await Movie.find().sort([['Year', -1]]).limit(200);
   const movieIds = movies.map((movie) => {
     return {
       title: movie.Title,
@@ -28,7 +28,7 @@ async function insertReviews() {
   });
 
   for (var i = 0; i < userIds.length; ++i) {
-    for (const movieId of movieIds) {
+    for (const movieId of movieIds.slice(i, i * (movieIds.length / userIds.length))) {
       const review = new Review({
         userId: userIds[i],
         userName: userNames[i],

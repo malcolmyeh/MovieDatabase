@@ -16,7 +16,8 @@ import { formatLink } from "./libs/linkutils";
 
 function App() {
   const [isAuthenticated, userHasAuthenticated] = useState(true); // todo: default should be false
-  const [username, setUsername] = useState("test-user"); // todo: default should be empty
+  const [username, setUsername] = useState("test-user-1"); // todo: default should be empty
+  const [userId, setUserId] = useState("1");
   const [isContributor, setIsContributor] = useState(false);
   const history = useHistory();
   var [fields, handleFieldChange] = useFields({
@@ -103,6 +104,8 @@ function App() {
             userHasAuthenticated,
             username,
             setUsername,
+            userId,
+            setUserId,
             isContributor,
             setIsContributor,
           }}

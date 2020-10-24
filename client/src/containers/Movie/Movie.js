@@ -6,7 +6,6 @@ import {
   Form,
   Modal,
   Button,
-  Spinner,
 } from "react-bootstrap";
 import { Link, useParams } from "react-router-dom";
 import LoadingButton from "../../components/LoadingButton/LoadingButton";
@@ -22,10 +21,8 @@ import { loremIpsum } from "lorem-ipsum";
 
 const sampleMovieList = require("./sample-movie-list.json");
 
-// hard coded movie and reviews
-var sampleReviews = require("./sample-reviews.json");
-
 var reviewList = [];
+var currentId = "";
 
 export default function Movie() {
   const { isAuthenticated, username } = useAppContext();
@@ -43,10 +40,11 @@ export default function Movie() {
 
   const { id } = useParams();
   async function loadReviews() {
-    if (reviewList.length === 0) {
-      const res = await axios.get(`http://localhost:5000/api/reviews/${id}`);
+    if (reviewList.length === 0 || id !== currentId) {
+      const res = await axios.get(`http://localhost:5000/api/reviews?movieId=${id}`);
       console.log("reviewList: ", res.data);
       reviewList = res.data;
+      currentId = id;
     }
     setReviews(reviewList);
     setIsLoadingReviews(false);
@@ -200,14 +198,14 @@ export default function Movie() {
       date: "31/12/20", // todo: generate date (momentjs?), formatdate function
     };
     try {
-      sampleReviews.reviews.push(newReview);
+      // sampleReviews.reviews.push(newReview);
     } catch (e) {
       console.log(e);
     }
     handleCloseBasic();
     handleCloseFull();
     setIsLoading(false);
-    loadReviews(sampleReviews);
+    // loadReviews(sampleReviews);
     return;
   }
 
