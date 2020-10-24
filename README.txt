@@ -87,7 +87,6 @@ CLIENT-SIDE
  - searchbar
  - links between pages (Movies, People, User)
 
-    
 Things that are not done:
 
 - User sign in was not integrated, so Profile page has been disabled. Authentication has not been fully implemented. 
