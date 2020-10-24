@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { Row, Col } from "react-bootstrap";
-import { formatLink } from "../../libs/linkutils";
 import { Link } from "react-router-dom";
 import Loading from "../../components/Loading/Loading";
 import FadeIn from "../../components/Fade/Fade";
@@ -15,12 +14,12 @@ export default function Followers(id) {
   async function loadFollowers(id) {
     setIsLoading(true);
 
-    const res = await axios(`http://localhost:5000/api/users/${id}`);
+    const res = await axios(`${process.env.REACT_APP_API_URL}/api/users/${id}`);
     const userIds = res.data.followers;
     users = [];
     for (const userId of userIds) {
       const user = await axios.get(
-        `http://localhost:5000/api/users/${userId}`
+        `${process.env.REACT_APP_API_URL}/api/users/${userId}`
       );
       users.push({username: user.data.username, id: userId});
     }
@@ -49,7 +48,7 @@ export default function Followers(id) {
             return (
               <div key={user.id}>
                 <Link
-                  to={`${formatLink(`/profile/${user.id}`)}`}
+                  to={`/profile/${user.id}`}
                 >
                   {user.username}
                 </Link>

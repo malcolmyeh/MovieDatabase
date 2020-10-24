@@ -38,7 +38,7 @@ export default function Profile() {
 
   async function loadUsername(id){
     setIsLoading(true);
-    const res = await axios(`http://localhost:5000/api/users/${id}`);
+    const res = await axios(`${process.env.REACT_APP_API_URL}/api/users/${id}`);
     console.log("res.data", res.data.username);
     setUsername(res.data.username);
     setIsLoading(false);

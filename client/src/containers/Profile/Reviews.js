@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { Row, Col } from "react-bootstrap";
 import LoadingButton from "../../components/LoadingButton/LoadingButton";
 import Loading from "../../components/Loading/Loading";
-import { delay } from "../../libs/otherutils";
 import FadeIn from "../../components/Fade/Fade";
 import axios from "axios";
 
@@ -16,7 +15,7 @@ export default function Reviews(ownPage, id) {
 
   async function loadReviews() {
     setIsLoading(true);
-    const res = await axios(`http://localhost:5000/api/reviews?userId=${id}`);
+    const res = await axios(`${process.env.REACT_APP_API_URL}/api/reviews?userId=${id}`);
     const reviews = res.data;
     console.log("reviews:", reviews)
     setReviews(reviews);
@@ -93,7 +92,7 @@ export default function Reviews(ownPage, id) {
             )}
           </div>
           <p>{`${review.date.slice(0, 10)}`}</p>
-          <div>{review.body}</div>{" "}
+          <div>{review.body}</div>
         </div>
       ) : (
         <></>

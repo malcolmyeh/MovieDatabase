@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { Container, Row, Col, Carousel, Jumbotron } from "react-bootstrap";
 import Loading from "../../components/Loading/Loading";
 import Trailer from "../../components/Trailer/Trailer";
-import { formatLink } from "../../libs/linkutils";
 import FadeIn from "../../components/Fade/Fade";
 import axios from "axios";
 
@@ -16,7 +15,7 @@ export default function Home() {
   async function loadFeatured() {
     if (movieList.length === 0) {
       setIsLoadingRecommended(true);
-      const res = await axios("http://localhost:5000/api/featuredmovies");
+      const res = await axios(`${process.env.REACT_APP_API_URL}/api/featuredmovies`);
       movieList = res.data;
     }
     console.log("movieList: ", movieList);
@@ -53,7 +52,8 @@ export default function Home() {
 
   return (
     <Container>
-      <Jumbotron style={{ marginTop: "15px" }}></Jumbotron>
+      <Jumbotron style={{ marginTop: "15px" }}>
+      </Jumbotron>
       {isLoadingRecommended ? (
         Loading()
       ) : (

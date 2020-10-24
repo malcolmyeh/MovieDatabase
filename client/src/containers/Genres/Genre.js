@@ -37,7 +37,7 @@ export default function Genre() {
 
   async function loadMovies(id) {
     if (movieList.length === 0 || id !== currentId) {
-      const res = await axios(`http://localhost:5000/api/movies?genre=${id}`);
+      const res = await axios(`${process.env.REACT_APP_API_URL}/api/movies?genre=${id}`);
       movieList = res.data;
       currentId = id;
     }
@@ -84,9 +84,8 @@ export default function Genre() {
         Loading()
       ) : (
         <>
-          {" "}
           {renderMovies()}
-          {renderPageNumbers()}{" "}
+          {renderPageNumbers()}
         </>
       )}
     </Container>

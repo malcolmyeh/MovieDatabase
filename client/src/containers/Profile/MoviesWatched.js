@@ -13,12 +13,12 @@ export default function Reviews(id) {
   async function loadMoviesWatched(id) {
     setIsLoading(true);
 
-    const res = await axios(`http://localhost:5000/api/users/${id}`);
+    const res = await axios(`${process.env.REACT_APP_API_URL}/api/users/${id}`);
     const movieIds = res.data.moviesWatched;
     var movieList = [];
     for (const movieId of movieIds) {
       const movie = await axios.get(
-        `http://localhost:5000/api/movies/${movieId}`
+        `${process.env.REACT_APP_API_URL}/api/movies/${movieId}`
       );
       movieList.push(movie.data);
     }

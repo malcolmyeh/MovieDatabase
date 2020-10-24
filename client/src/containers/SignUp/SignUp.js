@@ -33,7 +33,7 @@ export default function Signup() {
     };
     try {
       const resp = await axios.post(
-        "http://localhost:5000/api/auth/signin",
+        `${process.env.REACT_APP_API_URL}/api/auth/signin`,
         newPost
       );
       console.log(resp.data);
@@ -93,7 +93,6 @@ export default function Signup() {
               type="submit"
               disabled={!validateForm()}
             >
-              {" "}
               Sign Up
             </LoadingButton>
           </Form>

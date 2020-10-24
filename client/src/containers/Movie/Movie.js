@@ -1,19 +1,11 @@
 import React, { useState, useEffect } from "react";
-import {
-  Container,
-  Row,
-  Col,
-  Form,
-  Modal,
-  Button,
-} from "react-bootstrap";
+import { Container, Row, Col, Form, Modal, Button } from "react-bootstrap";
 import { Link, useParams } from "react-router-dom";
 import LoadingButton from "../../components/LoadingButton/LoadingButton";
 import { useFields } from "../../libs/hooks";
 import { useAppContext } from "../../libs/context";
 import MovieCard from "../../components/MovieCard/MovieCard";
 import Loading from "../../components/Loading/Loading";
-import { delay } from "../../libs/otherutils";
 import FadeIn from "../../components/Fade/Fade";
 import Trailer from "../../components/Trailer/Trailer";
 import axios from "axios";
@@ -41,7 +33,9 @@ export default function Movie() {
   const { id } = useParams();
   async function loadReviews() {
     if (reviewList.length === 0 || id !== currentId) {
-      const res = await axios.get(`http://localhost:5000/api/reviews?movieId=${id}`);
+      const res = await axios.get(
+        `${process.env.REACT_APP_API_URL}/api/reviews?movieId=${id}`
+      );
       console.log("reviewList: ", res.data);
       reviewList = res.data;
       currentId = id;
@@ -49,15 +43,16 @@ export default function Movie() {
     setReviews(reviewList);
     setIsLoadingReviews(false);
   }
+  console.log("username: ", username);
 
   async function loadMovie() {
     // movie
-    const movieRes = await axios.get(`http://localhost:5000/api/movies/${id}`);
+    const movieRes = await axios.get(`${process.env.REACT_APP_API_URL}/api/movies/${id}`);
     setMovie(movieRes.data);
     // director name from id
     const directorId = movieRes.data.Director;
     const directorRes = await axios.get(
-      `http://localhost:5000/api/people/${directorId}`
+      `${process.env.REACT_APP_API_URL}/api/people/${directorId}`
     );
     setDirector(directorRes.data.name);
     const writerIds = movieRes.data.Writer;
@@ -65,7 +60,7 @@ export default function Movie() {
     const writerArr = [];
     for (const writerId of writerIds) {
       const writerRes = await axios.get(
-        `http://localhost:5000/api/people/${writerId}`
+        `${process.env.REACT_APP_API_URL}/api/people/${writerId}`
       );
       // setWriters(...writers, writerRes.data.name);
       writerArr.push(writerRes.data.name);
@@ -76,7 +71,7 @@ export default function Movie() {
     const actorIds = movieRes.data.Actors;
     for (const actorId of actorIds) {
       const actorRes = await axios.get(
-        `http://localhost:5000/api/people/${actorId}`
+        `${process.env.REACT_APP_API_URL}/api/people/${actorId}`
       );
       // setActors(...actors, actorRes.data.name);
       actorArr.push(actorRes.data.name);
@@ -85,9 +80,10 @@ export default function Movie() {
     setIsLoadingMovie(false);
   }
 
-  async function loadRecommended(sampleMovieList) {
-    await delay();
-    setRecommended(sampleMovieList.movies);
+  async function loadRecommended() {
+    const res = await axios(`${process.env.REACT_APP_API_URL}/api/recommended/${id}`);
+    console.log("recommended: ", res.data);
+    setRecommended(res.data);
     setIsLoadingRecommended(false);
   }
 
@@ -97,7 +93,7 @@ export default function Movie() {
     setIsLoadingRecommended(true);
     async function onLoad() {
       try {
-        await loadMovie();
+        loadMovie();
         loadReviews();
         loadRecommended(sampleMovieList);
       } catch (e) {
@@ -165,9 +161,7 @@ export default function Movie() {
               <h5>{`${review.score}/10\xa0\xa0${review.title}`}</h5>
               <p>
                 {`${review.date.slice(0, 10)}\xa0|\xa0 by `}
-                <Link to={`/profile/${review.userId}`}>
-                  {review.userName}
-                </Link>
+                <Link to={`/profile/${review.userId}`}>{review.userName}</Link>
               </p>
               <p>{review.body}</p>
             </div>
@@ -185,28 +179,28 @@ export default function Movie() {
   }
 
   async function handleSubmit() {
-    // todo: let server handle duplicates
-    setIsLoading(true);
-    setIsLoadingReviews(true);
-    const { rating, title, body } = fields;
-    const newReview = {
-      movie: movie.title,
-      rating: rating,
-      title: title,
-      body: body,
-      user: username, // todo: appcontext stores username
-      date: "31/12/20", // todo: generate date (momentjs?), formatdate function
-    };
-    try {
-      // sampleReviews.reviews.push(newReview);
-    } catch (e) {
-      console.log(e);
-    }
-    handleCloseBasic();
-    handleCloseFull();
-    setIsLoading(false);
-    // loadReviews(sampleReviews);
-    return;
+    // // todo: let server handle duplicates
+    // setIsLoading(true);
+    // setIsLoadingReviews(true);
+    // const { rating, title, body } = fields;
+    // const newReview = {
+    //   movie: movie.title,
+    //   rating: rating,
+    //   title: title,
+    //   body: body,
+    //   user: username, // todo: appcontext stores username
+    //   date: "31/12/20", // todo: generate date (momentjs?), formatdate function
+    // };
+    // try {
+    //   // sampleReviews.reviews.push(newReview);
+    // } catch (e) {
+    //   console.log(e);
+    // }
+    // handleCloseBasic();
+    // handleCloseFull();
+    // setIsLoading(false);
+    // // loadReviews(sampleReviews);
+    // return;
   }
 
   function validateForm() {
@@ -239,8 +233,7 @@ export default function Movie() {
               isLoading={isLoading}
               disabled={!validateForm()}
             >
-              {" "}
-              Submit{" "}
+              Submit
             </LoadingButton>
           </Form>
         </Modal.Body>
@@ -294,8 +287,7 @@ export default function Movie() {
               isLoading={isLoading}
               disabled={!validateForm()}
             >
-              {" "}
-              Submit{" "}
+              Submit
             </LoadingButton>
           </Form>
         </Modal.Body>
@@ -442,7 +434,7 @@ export default function Movie() {
             {reviews.length > 0 ? (
               <>
                 <h1>★{movie.Rating}</h1>
-                <p>{`\xa0\xa0(${reviews.length} ratings)`}</p>{" "}
+                <p>{`\xa0\xa0(${reviews.length} ratings)`}</p>
               </>
             ) : (
               <h3>No ratings </h3>

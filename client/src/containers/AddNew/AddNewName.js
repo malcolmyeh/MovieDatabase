@@ -60,7 +60,6 @@ export default function AddNewName() {
               type="submit"
               disabled={!validateForm()}
             >
-              {" "}
               Add
             </LoadingButton>
           </Form>

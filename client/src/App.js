@@ -15,7 +15,7 @@ import { useFields } from "./libs/hooks";
 import { formatLink } from "./libs/linkutils";
 
 function App() {
-  const [isAuthenticated, userHasAuthenticated] = useState(true); // todo: default should be false
+  const [isAuthenticated, userHasAuthenticated] = useState(false); // todo: default should be false
   const [username, setUsername] = useState("test-user-1"); // todo: default should be empty
   const [userId, setUserId] = useState("1");
   const [isContributor, setIsContributor] = useState(false);
@@ -41,7 +41,7 @@ function App() {
       alert("Search cannot be empty. ");
     }
   }
-
+  console.log("api url", process.env.REACT_APP_API_URL);
   return (
     <>
       <Navbar bg="light" expand="lg">
@@ -66,14 +66,13 @@ function App() {
           )}
           {isAuthenticated ? (
             <>
-              <NavLink as={Link} to={`/profile/${username}`}>
+              <NavLink disabled={true} as={Link} to={`/profile/${username}`}>
                 Profile
               </NavLink>
               <NavLink onClick={handleLogout}>Log Out</NavLink>
             </>
           ) : (
             <>
-              {" "}
               <NavLink as={Link} to="/signup">
                 Sign Up
               </NavLink>

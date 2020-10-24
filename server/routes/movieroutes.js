@@ -25,12 +25,12 @@ router.get("/movies", async (req, res, next) => {
     let year = req.query.year;
     let minrating = req.query.minrating;
     let query = {};
-    if (title) query.Title = { $regex: `(?i).*${title.replace('-', ' ')}.*` };
+    if (title) query.Title = { $regex: `(?i).*${title.replace("-", " ")}.*` };
     if (genre) query.Genre = { $regex: `(?i).*${genre}.*` };
     if (year) query.Year = year;
     if (minrating) query.Rating = { $gte: minrating };
 
-    const movies = await Movie.find(query).sort([['Year', -1]]);
+    const movies = await Movie.find(query).sort([["Year", -1]]);
     var reducedMovies = movies.map((movie) => {
       const reducedMovie = {
         Title: movie.Title,
@@ -50,21 +50,23 @@ router.get("/movies", async (req, res, next) => {
 router.get("/featuredmovies", async (req, res, next) => {
   console.log("GET featured movies");
   try {
-    const movies = await Movie.find().sort([['Year', -1]]).limit(10);
-    const reducedMovies = movies.map(movie => {
+    const movies = await Movie.find()
+      .sort([["Year", -1]])
+      .limit(10);
+    const reducedMovies = movies.map((movie) => {
       return {
         Title: movie.Title,
         Year: movie.Year,
         Poster: movie.Poster,
-        id: movie._id
-      }
-    })
+        id: movie._id,
+      };
+    });
     res.send(reducedMovies);
   } catch {
     res.status(404);
-    res.send({ error: "No movies found! "})
+    res.send({ error: "No movies found! " });
   }
-})
+});
 
 router.post("/movies", async (req, res, next) => {
   try {
@@ -199,7 +201,7 @@ router.post("/movies", async (req, res, next) => {
 // list of genres
 router.get("/genres", async (req, res, next) => {
   try {
-    if (genreList.length === 0){
+    if (genreList.length === 0) {
       const movies = await Movie.find();
       var genres = [];
       movies.forEach((movie) => {
@@ -208,12 +210,84 @@ router.get("/genres", async (req, res, next) => {
       });
       var uniqueGenres = Array.from(new Set(genres)).sort();
       console.log(uniqueGenres);
-      genreList = uniqueGenres
+      genreList = uniqueGenres;
     }
     res.send({ genres: genreList });
   } catch {
     res.status(500);
     res.send({ error: "Error getting genres!" });
+  }
+});
+
+router.get("/recommended/:movie", async (req, res, next) => {
+  // todo: change to param
+  // /recommended?movie={id}
+  // /recommended?user={id}
+
+  console.log("GET recommended");
+  try {
+    const movie = await Movie.findOne({ _id: req.params.movie });
+    const rated = movie.Rated;
+    const genre = movie.Genre;
+    console.log("rated:", rated);
+    console.log("genre:", genre);
+    var recommended = [];
+    const recommendedMovies = await Movie.find({ Rated: rated, Genre: genre })
+      .sort([["Year", -1]])
+      .limit(5);
+    for (const recommendedMovie of recommendedMovies) {
+      console.log("recommendedid: ", recommendedMovie._id);
+      console.log("movieid: ", movie._id);
+      if (recommendedMovie._id == movie._id) {
+        recommended.push(recommendedMovie);
+      }
+    }
+    console.log("recommended: ", recommended);
+
+    // if initial query doesn't find at least 1 movie, keep trying with less and less genres
+    const broaderGenres = genre.split(", ");
+
+    while (recommended.length < 5) {
+      const remaining = 5 - recommended.length;
+
+      broaderGenres.pop();
+
+      const genres = broaderGenres.join(", ");
+      var newRecommendedMovies;
+      if (genres == "") {
+        newRecommendedMovies = await Movie.find({
+          Rated: rated,
+        })
+          .sort([["Year", -1]])
+          .limit(remaining);
+      } else {
+        newRecommendedMovies = await Movie.find({
+          Rated: rated,
+          Genre: genres,
+        })
+          .sort([["Year", -1]])
+          .limit(remaining);
+      }
+
+      for (const recommendedMovie of newRecommendedMovies) {
+        if (recommendedMovie._id !== movie._id) {
+          recommended.push(recommendedMovie);
+        }
+      }
+    }
+    reducedRecommended = recommended.slice(0, 5).map((movie) => {
+      return {
+        Title: movie.Title,
+        Year: movie.Year,
+        Poster: movie.Poster,
+        _id: movie._id,
+      };
+    });
+    console.log(reducedRecommended);
+    res.send(reducedRecommended);
+  } catch {
+    res.status(500);
+    res.send({ error: "Error getting recommended! " });
   }
 });
 

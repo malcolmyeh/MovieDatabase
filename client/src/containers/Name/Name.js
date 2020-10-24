@@ -23,7 +23,7 @@ export default function Name() {
   async function loadPerson() {
     setIsLoading(true);
     // person
-    const personRes = await axios(`http://localhost:5000/api/people/${id}`);
+    const personRes = await axios(`${process.env.REACT_APP_API_URL}/api/people/${id}`);
     setPerson(personRes.data);
     console.log("personRes.data", personRes.data);
     // movies
@@ -31,7 +31,7 @@ export default function Name() {
     const movieArr = [];
     for (const movieId of movieIds) {
       const movieRes = await axios.get(
-        `http://localhost:5000/api/movies/${movieId}`
+        `${process.env.REACT_APP_API_URL}/api/movies/${movieId}`
       );
       movieArr.push(movieRes.data);
     }

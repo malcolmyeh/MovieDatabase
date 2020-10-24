@@ -57,7 +57,7 @@ async function updateRating(movieId) {
     // get average rating from reviews
     const reviews = await Review.find({ movieId: movieId });
     var average =
-      reviews.reduce((total, next) => total + next.score, 0) / reviews.length;
+      (reviews.reduce((total, next) => total + next.score, 0) / reviews.length).toFixed(1);
     // update rating on movie
     const movie = await Movie.findOne({ _id: movieId });
     movie.Rating = average;

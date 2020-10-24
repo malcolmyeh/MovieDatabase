@@ -24,8 +24,8 @@ export default function Login() {
       password: fields.password,
     };
     try {
-      const resp = await axios.post(
-        "http://localhost:5000/api/auth/signin",
+      const resp = await axios.post(`
+      ${process.env.REACT_APP_API_URL}/api/auth/signin`,
         newPost
       );
       console.log(resp.data);
@@ -73,7 +73,6 @@ export default function Login() {
               type="submit"
               disabled={!validateForm()}
             >
-              {" "}
               Log In
             </LoadingButton>
           </Form>

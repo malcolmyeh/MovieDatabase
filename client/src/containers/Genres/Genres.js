@@ -14,7 +14,7 @@ export default function Genres() {
 
   async function loadGenres() {
     if (genreList.length === 0){
-      const res = await axios('http://localhost:5000/api/genres');
+      const res = await axios(`${process.env.REACT_APP_API_URL}/api/genres`);
       genreList = res.data.genres;
     }
     setGenres(genreList);

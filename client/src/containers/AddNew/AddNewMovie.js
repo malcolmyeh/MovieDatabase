@@ -106,7 +106,6 @@ export default function AddNewMovie() {
               type="submit"
               disabled={!validateForm()}
             >
-              {" "}
               Add
             </LoadingButton>
           </Form>
