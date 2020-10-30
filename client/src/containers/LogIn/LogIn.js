@@ -5,9 +5,10 @@ import { useHistory } from "react-router-dom";
 import { useFields } from "../../libs/hooks";
 import { useAppContext } from "../../libs/context";
 import axios from "axios";
+axios.defaults.withCredentials = true;
 
 export default function Login() {
-  const { userHasAuthenticated, setUsername } = useAppContext();
+  const { userHasAuthenticated, setUsername, setUserId } = useAppContext();
   const [isLoading, setIsLoading] = useState(false);
   const history = useHistory();
   var [fields, handleFieldChange] = useFields({
@@ -24,13 +25,16 @@ export default function Login() {
       password: fields.password,
     };
     try {
-      const resp = await axios.post(`
+      const res = await axios.post(
+        `
       ${process.env.REACT_APP_API_URL}/api/auth/signin`,
-        newPost
+        newPost,
+        { withCredentials: true }
       );
-      console.log(resp.data);
+      console.log(res.data);
       userHasAuthenticated(true);
-      setUsername(fields.username);
+      setUsername(res.data.username);
+      setUserId(res.data.userId);
       setIsLoading(false);
       history.push("/");
     } catch (e) {

@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import Loading from "../../components/Loading/Loading";
 import FadeIn from "../../components/Fade/Fade";
 import axios from "axios";
+axios.defaults.withCredentials = true;
 
 var users = [];
 
@@ -15,13 +16,13 @@ export default function Followers(id) {
     setIsLoading(true);
 
     const res = await axios(`${process.env.REACT_APP_API_URL}/api/users/${id}`);
-    const userIds = res.data.followers;
+    const userIds = res.data.user.followers;
     users = [];
     for (const userId of userIds) {
       const user = await axios.get(
         `${process.env.REACT_APP_API_URL}/api/users/${userId}`
       );
-      users.push({username: user.data.username, id: userId});
+      users.push({username: user.data.user.username, id: userId});
     }
     setFollowers(users);
 

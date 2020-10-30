@@ -28,7 +28,8 @@ const MovieSchema = new mongoose.Schema(
       required: [true, 'Genre is required. ']
     },
     Director: {
-      type: ObjectID,
+      type: Array,
+      default: [],
       required: [true, 'Director is required. ']
     },
     Writer: {
@@ -55,10 +56,11 @@ const MovieSchema = new mongoose.Schema(
     },
     Awards: {
       type: String,
+      default: "None"
     },
     Poster: {
       type: String,
-      required: [true, 'Poster is required. ']
+      default: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAMAAAAJbSJIAAAAA1BMVEX8/P75qMbEAAAASElEQVR4nO3BgQAAAADDoPlTX+AIVQEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwDcaiAAFXD1ujAAAAAElFTkSuQmCC"
     },
     Ratings: {
       type: Array,
@@ -66,26 +68,31 @@ const MovieSchema = new mongoose.Schema(
     },
     Metascore: {
       type: String,
-      default: 0
+      default: "N/A"
     },
     imdbRating: {
       type: String,
-      default: 0
+      default: "N/A"
     },
     imdbId: {
       type: String,
+      default: "N/A"
     },
     Type: {
       type: String,
+      required: [true, 'type is required. ']
     },
     DVD: {
       type: String,
+      default: "N/A"
     },
     BoxOffice: {
       type: String,
+      default: "N/A"
     },
     Production: {
       type: String,
+      default: "N/A"
     },
     Rating: {
       type: Number,

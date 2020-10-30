@@ -7,8 +7,7 @@ import Loading from "../../components/Loading/Loading";
 
 import FadeIn from "../../components/Fade/Fade";
 import axios from "axios";
-
-
+axios.defaults.withCredentials = true;
 
 export default function Name() {
   const [isLoading, setIsLoading] = useState(false);
@@ -23,22 +22,25 @@ export default function Name() {
   async function loadPerson() {
     setIsLoading(true);
     // person
-    const personRes = await axios(`${process.env.REACT_APP_API_URL}/api/people/${id}`);
-    setPerson(personRes.data);
+    const personRes = await axios(
+      `${process.env.REACT_APP_API_URL}/api/people/${id}`
+    );
+    setPerson(personRes.data.person);
     console.log("personRes.data", personRes.data);
     // movies
-    const movieIds = personRes.data.movies;
+    const movieIds = personRes.data.person.movies;
     const movieArr = [];
     for (const movieId of movieIds) {
       const movieRes = await axios.get(
         `${process.env.REACT_APP_API_URL}/api/movies/${movieId}`
       );
-      movieArr.push(movieRes.data);
+      movieArr.push(movieRes.data.movie);
     }
+    console.log("movieArr:", movieArr);
     setMovies(movieArr);
     // frequent collaborators
     // sort collaborators by count and return top 10
-    const collaboratorArr = personRes.data.frequentCollaborators
+    const collaboratorArr = personRes.data.person.frequentCollaborators
       .sort((a, b) => a.count - b.count)
       .slice(0, 10);
     setCollaborators(collaboratorArr);
@@ -57,11 +59,33 @@ export default function Name() {
   }, [id]);
 
   async function handleFollow() {
-    setIsFollowing(!isFollowing);
+    if (!isFollowing) {
+      try {
+        const res = await axios(
+          `${process.env.REACT_APP_API_URL}/api/followperson/${id}`
+        );
+        console.log(res);
+        setIsFollowing(true);
+      } catch (e) {
+        console.log(e);
+      }
+    } else {
+      try {
+        const res = await axios(
+          `${process.env.REACT_APP_API_URL}/api/unfollowperson/${id}`
+        );
+        console.log(res);
+        setIsFollowing(false);
+      } catch (e) {
+        console.log(e);
+      }
+    }
   }
 
   function renderMovies() {
-    return  isLoading? (Loading("movies")) : (
+    return isLoading ? (
+      Loading("movies")
+    ) : (
       <FadeIn>
         <Row>
           <h3>Movies</h3>
@@ -95,7 +119,9 @@ export default function Name() {
   }
 
   function renderInfo() {
-    return  isLoading? (Loading("info")) : (
+    return isLoading ? (
+      Loading("info")
+    ) : (
       <>
         <Row>
           <Col sm={2}>
@@ -123,7 +149,9 @@ export default function Name() {
   }
 
   function renderCollaborators() {
-    return isLoading? (Loading("collaborators")) : (
+    return isLoading ? (
+      Loading("collaborators")
+    ) : (
       <FadeIn>
         <Row>
           <h3>Frequent Collaborators</h3>
@@ -133,10 +161,7 @@ export default function Name() {
             collaborators.map((collaborator, i) => {
               if (collaborators.length === i + 1) {
                 return (
-                  <Link
-                    to={`/name/${collaborator.id}`}
-                    key={collaborator.id}
-                  >
+                  <Link to={`/name/${collaborator.id}`} key={collaborator.id}>
                     {collaborator.name}
                   </Link>
                 );

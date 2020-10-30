@@ -9,14 +9,14 @@ mongoose.connect("mongodb://127.0.0.1:27017/", { useNewUrlParser: true });
 async function insertMovies() {
   console.log("Inserting movies...");
   var db = mongoose.connection;
-  
+
   db.on("error", console.error.bind(console, "connection error: "));
 
   for (const movie of movies) {
-    var directorName;
+    var directorNames = [];
     var writerNames = [];
     var actorNames = [];
-    var director;
+    var directors = [];
     var writers = [];
     var actors = [];
     var people = [];
@@ -45,47 +45,54 @@ async function insertMovies() {
     });
 
     // Get people from each movie object
-    directorName = [movie.Director];
-    movie.Writer.replace(/ *\([^)]*\) */g, "")
+    movie.Director.replace(/ *\([^)]*\) */g, "")
       .split(", ")
       .forEach((writer) => {
         // remove brackets
+        directorNames.push(writer);
+      });
+    directorNames = Array.from(new Set(directorNames)).sort();
+
+    movie.Writer.replace(/ *\([^)]*\) */g, "")
+      .split(", ")
+      .forEach((writer) => {
         writerNames.push(writer);
       });
-    writerNames = Array.from(new Set(writerNames)).sort(); // some writers listed multiple times
+    writerNames = Array.from(new Set(writerNames)).sort();
     movie.Actors.split(", ").forEach((actor) => {
       actorNames.push(actor);
     });
     actorNames = Array.from(new Set(actorNames)).sort();
 
     // Create person document if doesn't exist, get array of {String, ObjectIds}
-    director = await getPeopleIds(directorName);
-    director = director[0]; // only one director
+    directors = await getPeopleIds(directorNames);
     writers = await getPeopleIds(writerNames);
     actors = await getPeopleIds(actorNames);
-    people.push(director, ...writers, ...actors);
+    people.push(...directors, ...writers, ...actors);
 
     // update Director
-    const directorDocument = await People.findOne({ _id: director.id });
-    directorDocument.movies.push(newMovie._id);
-    for (const person of people.filter((ele) => ele.name != director.name)) {
-      // get all other people
-      var collaborator = directorDocument.frequentCollaborators.find(
-        (ele) => ele.name === person.name
-      );
-      if (collaborator) {
-        // if collaborator already exists, increase the count
-        ++collaborator.count;
-      } else {
-        // if collaborator doesn't exist, add new collaborator
-        directorDocument.frequentCollaborators.push({
-          name: person.name,
-          id: person.id,
-          count: 1,
-        });
+    for (const director of directors) {
+      const directorDocument = await People.findOne({ _id: director.id });
+      directorDocument.movies.push(newMovie._id);
+      for (const person of people.filter((ele) => ele.name != director.name)) {
+        // get all other people
+        var collaborator = directorDocument.frequentCollaborators.find(
+          (ele) => ele.name === person.name
+        );
+        if (collaborator) {
+          // if collaborator already exists, increase the count
+          ++collaborator.count;
+        } else {
+          // if collaborator doesn't exist, add new collaborator
+          directorDocument.frequentCollaborators.push({
+            name: person.name,
+            id: person.id,
+            count: 1,
+          });
+        }
       }
+      await directorDocument.save();
     }
-    await directorDocument.save();
 
     // update Writers
     for (const writer of writers) {
@@ -130,7 +137,7 @@ async function insertMovies() {
     }
 
     // add people Ids to movie
-    newMovie.Director = director.id;
+    newMovie.Director = directors.map((director) => director.id);
     newMovie.Writer = writers.map((writer) => writer.id);
     newMovie.Actors = actors.map((actor) => actor.id);
     await newMovie.save();
@@ -170,4 +177,4 @@ async function getPeopleIds(people) {
 
 // insertMovies();
 
-module.exports = { insertMovies }
+module.exports = { insertMovies };

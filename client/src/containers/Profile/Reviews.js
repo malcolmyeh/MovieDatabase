@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Row, Col } from "react-bootstrap";
+import { Row, Col, ResponsiveEmbed } from "react-bootstrap";
 import LoadingButton from "../../components/LoadingButton/LoadingButton";
 import Loading from "../../components/Loading/Loading";
 import FadeIn from "../../components/Fade/Fade";
 import axios from "axios";
-
-var sampleReviews = require("./sample-reviews.json");
+axios.defaults.withCredentials = true;
 
 export default function Reviews(ownPage, id) {
   const [isDeleting, setIsDeleting] = useState(false);
@@ -14,10 +13,13 @@ export default function Reviews(ownPage, id) {
   const [reviews, setReviews] = useState([{}]);
 
   async function loadReviews() {
+    console.log("loadReviews");
     setIsLoading(true);
-    const res = await axios(`${process.env.REACT_APP_API_URL}/api/reviews?userId=${id}`);
+    const res = await axios(
+      `${process.env.REACT_APP_API_URL}/api/reviews?userId=${id}`
+    );
     const reviews = res.data;
-    console.log("reviews:", reviews)
+    console.log("reviews:", reviews);
     setReviews(reviews);
     setIsLoading(false);
   }
@@ -44,31 +46,15 @@ export default function Reviews(ownPage, id) {
     }
     setIsDeleting(true);
     try {
-      //////////////////////////////// delete from sampleReviews
-      function findIndexFromAttr(array, attr, value) {
-        for (var i = 0; i < array.length; i += 1) {
-          if (array[i][attr] === value) {
-            return i;
-          }
-        }
-        return -1;
-      }
-      function deleteReview(title) {
-        var arr = sampleReviews.reviews;
-        var index = findIndexFromAttr(arr, "title", title);
-        if (index > -1) {
-          arr.splice(index, 1);
-        }
-        sampleReviews.reviews = arr;
-      }
-      deleteReview(event.target.id);
-      ////////////////////////////////////////////////////////////////
-      await loadReviews(id);
-      setIsDeleting(false);
+      const res = await axios.delete(
+        `${process.env.REACT_APP_API_URL}/api/reviews/${event.target.id}`
+      );
+      console.log(res);
+      loadReviews(id);
     } catch (e) {
       console.log(e);
-      setIsDeleting(false);
     }
+    setIsDeleting(false);
   }
   function renderReviews() {
     function displayReview(review) {
@@ -79,7 +65,7 @@ export default function Reviews(ownPage, id) {
             {ownPage ? (
               <LoadingButton
                 variant="outline-dark"
-                id={review.title}
+                id={review._id}
                 type="submit"
                 onClick={handleDelete}
                 isLoading={isDeleting}
@@ -109,7 +95,7 @@ export default function Reviews(ownPage, id) {
             {reviews.slice(0, numReviews).map((review) => {
               return displayReview(review);
             })}
-            {numReviews !== reviews.length ? (
+            {numReviews !== reviews.length && reviews.length > numReviews ? (
               <p
                 type="submit"
                 onClick={() => {

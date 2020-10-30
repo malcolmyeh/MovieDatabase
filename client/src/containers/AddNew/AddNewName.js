@@ -4,13 +4,14 @@ import LoadingButton from "../../components/LoadingButton/LoadingButton";
 import { useHistory } from "react-router-dom";
 import { useFields } from "../../libs/hooks";
 import { useAppContext } from "../../libs/context";
-
+import axios from "axios";
+axios.defaults.withCredentials = true;
 export default function AddNewName() {
   const { isContributor, isAuthenticated } = useAppContext();
   const [isLoading, setIsLoading] = useState(false);
   const history = useHistory();
   var [fields, handleFieldChange] = useFields({
-    Name: "",
+    name: "",
   });
   function validateForm() {
     for (const field in fields) {
@@ -20,10 +21,17 @@ export default function AddNewName() {
   }
   async function handleSubmit(event) {
     event.preventDefault();
+    const newName = {
+      name: fields.name,
+    };
+    console.log("newName:", newName);
     try {
-      alert("Creating name...");
-      console.log("name: ", fields);
-      // await login user
+      const res = await axios.post(
+        `
+      ${process.env.REACT_APP_API_URL}/api/people`,
+        newName
+      );
+      console.log(res.data);
       setIsLoading(false);
       history.push("/");
     } catch (e) {

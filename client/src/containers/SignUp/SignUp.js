@@ -5,6 +5,7 @@ import { useAppContext } from "../../libs/context";
 import LoadingButton from "../../components/LoadingButton/LoadingButton";
 import { useHistory } from "react-router-dom";
 import axios from "axios";
+axios.defaults.withCredentials = true;
 
 export default function Signup() {
   const [isLoading, setIsLoading] = useState(false);
@@ -13,7 +14,7 @@ export default function Signup() {
     password: "",
     confirmPassword: "",
   });
-  const { userHasAuthenticated, setUsername } = useAppContext();
+  const { userHasAuthenticated, setUsername, setUserId } = useAppContext();
   const history = useHistory();
 
   function validateForm() {
@@ -38,7 +39,8 @@ export default function Signup() {
       );
       console.log(resp.data);
       userHasAuthenticated(true);
-      setUsername(fields.username);
+      setUsername(resp.data.username);
+      setUserId(resp.data.userId);
       setIsLoading(false);
       history.push("/");
     } catch (e) {

@@ -4,6 +4,7 @@ import MovieCard from "../../components/MovieCard/MovieCard";
 import Loading from "../../components/Loading/Loading";
 import FadeIn from "../../components/Fade/Fade";
 import axios from "axios";
+axios.defaults.withCredentials = true;
 
 export default function Reviews(id) {
   const [moviesWatched, setMoviesWatched] = useState([]);
@@ -14,13 +15,13 @@ export default function Reviews(id) {
     setIsLoading(true);
 
     const res = await axios(`${process.env.REACT_APP_API_URL}/api/users/${id}`);
-    const movieIds = res.data.moviesWatched;
+    const movieIds = res.data.user.moviesWatched;
     var movieList = [];
     for (const movieId of movieIds) {
       const movie = await axios.get(
         `${process.env.REACT_APP_API_URL}/api/movies/${movieId}`
       );
-      movieList.push(movie.data);
+      movieList.push(movie.data.movie);
     }
 
     setMoviesWatched(movieList);

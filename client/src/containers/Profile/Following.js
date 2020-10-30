@@ -4,12 +4,10 @@ import { Link } from "react-router-dom";
 import Loading from "../../components/Loading/Loading";
 import FadeIn from "../../components/Fade/Fade";
 import axios from "axios";
+axios.defaults.withCredentials = true;
 
 var users = [];
 var names = [];
-
-var sampleFollowingUsers = require("./sample-following-users.json");
-var sampleFollowingNames = require("./sample-following-names.json");
 
 export default function Following(id, ownPage, type) {
   const [following, setFollowing] = useState([]);
@@ -19,15 +17,15 @@ export default function Following(id, ownPage, type) {
   async function loadFollowing() {
     setIsLoading(true);
     const res = await axios(`${process.env.REACT_APP_API_URL}/api/users/${id}`);
-    const userIds = res.data.followingUsers;
-    const nameIds = res.data.followingPeople;
+    const userIds = res.data.user.followingUsers;
+    const nameIds = res.data.user.followingPeople;
     if (type === "user") {
       users = [];
       for (const userId of userIds) {
         const user = await axios.get(
           `${process.env.REACT_APP_API_URL}/api/users/${userId}`
         );
-        users.push({username: user.data.username, id: userId});
+        users.push({username: user.data.user.username, id: userId});
       }
       setFollowing(users);
     } else if (type === "name") {
@@ -53,7 +51,7 @@ export default function Following(id, ownPage, type) {
     }
     onLoad();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id]); // todo: specify functions that will trigger this
+  }, [id]);
 
   async function handleUnfollow(event) {
     event.preventDefault();
@@ -65,27 +63,26 @@ export default function Following(id, ownPage, type) {
       return;
     }
     try {
-      ////////////////////////////////////////////////////////////////
-      function unfollowName(name) {
-        var arr = sampleFollowingNames.names;
-        var index = arr.indexOf(name);
-        if (index > -1) {
-          arr.splice(index, 1);
+      async function unfollowName(name) {
+        console.log("name: ", name);
+        try {
+          const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/unfollowperson/${name}`);
+          console.log(res);
+        } catch (e){
+          console.log(e);
         }
-        sampleFollowingNames.names = arr;
       }
-      ////////////////////////////////////////////////////////////////
-      function unfollowUser(user) {
-        var arr = sampleFollowingUsers.users;
-        var index = arr.indexOf(user);
-        if (index > -1) {
-          arr.splice(index, 1);
+      async function unfollowUser(user) {
+        console.log("user: ", user);
+        try {
+          const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/unfollowuser/${user}`);
+          console.log(res);
+        } catch (e){
+          console.log(e);
         }
-        sampleFollowingUsers.users = arr;
       }
-      ////////////////////////////////////////////////////////////////
-      if (type === "user") unfollowUser(event.target.id);
-      else if (type === "name") unfollowName(event.target.id);
+      if (type === "user") await unfollowUser(event.target.id);
+      else if (type === "name") await unfollowName(event.target.id);
       loadFollowing();
     } catch (e) {
       console.log(e);
@@ -104,7 +101,7 @@ export default function Following(id, ownPage, type) {
         {ownPage ? (
           <Link
             to="/#"
-            id={user}
+            id={user.id}
             type="submit"
             onClick={handleUnfollow}
             style={{

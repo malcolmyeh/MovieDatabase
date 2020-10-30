@@ -10,52 +10,60 @@ import FadeIn from "../../components/Fade/Fade";
 import Trailer from "../../components/Trailer/Trailer";
 import axios from "axios";
 import { loremIpsum } from "lorem-ipsum";
-
-const sampleMovieList = require("./sample-movie-list.json");
+axios.defaults.withCredentials = true;
 
 var reviewList = [];
-var currentId = "";
+// var currentId = "";
 
 export default function Movie() {
-  const { isAuthenticated, username } = useAppContext();
+  const { isAuthenticated, username, userId } = useAppContext();
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingMovie, setIsLoadingMovie] = useState(true);
   const [isLoadingReviews, setIsLoadingReviews] = useState(true);
   const [isLoadingRecommended, setIsLoadingRecommended] = useState(true);
   const [reviews, setReviews] = useState([]);
   const [movie, setMovie] = useState({});
-  const [director, setDirector] = useState("");
+  const [directors, setDirectors] = useState([]);
   const [writers, setWriters] = useState([]);
   const [actors, setActors] = useState([]);
   const [recommended, setRecommended] = useState([]);
   const [watched, setWatched] = useState(false);
-
   const { id } = useParams();
+
   async function loadReviews() {
-    if (reviewList.length === 0 || id !== currentId) {
-      const res = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api/reviews?movieId=${id}`
-      );
-      console.log("reviewList: ", res.data);
-      reviewList = res.data;
-      currentId = id;
-    }
+    // if (reviewList.length === 0 || id !== currentId) {
+    const res = await axios.get(
+      `${process.env.REACT_APP_API_URL}/api/reviews?movieId=${id}`,
+      { credentials: "include" }
+    );
+    console.log("reviewList: ", res.data);
+    reviewList = res.data;
+    // currentId = id;
+    // }
     setReviews(reviewList);
     setIsLoadingReviews(false);
   }
-  console.log("username: ", username);
 
   async function loadMovie() {
     // movie
-    const movieRes = await axios.get(`${process.env.REACT_APP_API_URL}/api/movies/${id}`);
-    setMovie(movieRes.data);
-    // director name from id
-    const directorId = movieRes.data.Director;
-    const directorRes = await axios.get(
-      `${process.env.REACT_APP_API_URL}/api/people/${directorId}`
+    const movieRes = await axios.get(
+      `${process.env.REACT_APP_API_URL}/api/movies/${id}`
     );
-    setDirector(directorRes.data.name);
-    const writerIds = movieRes.data.Writer;
+    console.log("movieRes,", movieRes);
+    setMovie(movieRes.data.movie);
+    setWatched(movieRes.data.isWatched);
+    // director name from id
+    const directorIds = movieRes.data.movie.Director;
+    const directorArr = [];
+    for (const directorId of directorIds) {
+      const directorRes = await axios.get(
+        `${process.env.REACT_APP_API_URL}/api/people/${directorId}`
+      );
+      directorArr.push(directorRes.data.person.name);
+    }
+    setDirectors(directorArr);
+
+    const writerIds = movieRes.data.movie.Writer;
     // writer names from id
     const writerArr = [];
     for (const writerId of writerIds) {
@@ -63,25 +71,27 @@ export default function Movie() {
         `${process.env.REACT_APP_API_URL}/api/people/${writerId}`
       );
       // setWriters(...writers, writerRes.data.name);
-      writerArr.push(writerRes.data.name);
+      writerArr.push(writerRes.data.person.name);
     }
     setWriters(writerArr);
     // actor names from id
     const actorArr = [];
-    const actorIds = movieRes.data.Actors;
+    const actorIds = movieRes.data.movie.Actors;
     for (const actorId of actorIds) {
       const actorRes = await axios.get(
         `${process.env.REACT_APP_API_URL}/api/people/${actorId}`
       );
       // setActors(...actors, actorRes.data.name);
-      actorArr.push(actorRes.data.name);
+      actorArr.push(actorRes.data.person.name);
     }
     setActors(actorArr);
     setIsLoadingMovie(false);
   }
 
   async function loadRecommended() {
-    const res = await axios(`${process.env.REACT_APP_API_URL}/api/recommended/${id}`);
+    const res = await axios(
+      `${process.env.REACT_APP_API_URL}/api/recommended/${id}`
+    );
     console.log("recommended: ", res.data);
     setRecommended(res.data);
     setIsLoadingRecommended(false);
@@ -95,7 +105,7 @@ export default function Movie() {
       try {
         await loadMovie(); // load movie first so visual transition isn't as jarring
         loadReviews();
-        loadRecommended(sampleMovieList);
+        loadRecommended();
       } catch (e) {
         console.log(e);
       }
@@ -104,27 +114,42 @@ export default function Movie() {
     onLoad();
   }, [id]);
 
-  function handleWatched() {
-    const w = watched;
-    setWatched(!w);
+  async function handleWatched() {
+    try {
+      if (watched) {
+        const res = await axios.get(
+          `${process.env.REACT_APP_API_URL}/api/removemoviewatched/${id}`
+        );
+        console.log(res);
+        setWatched(false);
+      } else {
+        const res = await axios.get(
+          `${process.env.REACT_APP_API_URL}/api/addmoviewatched/${id}`
+        );
+        console.log(res);
+        setWatched(true);
+      }
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   // Review form fields
   var [fields, handleFieldChange] = useFields({
     title: "",
-    rating: "",
+    score: "",
     body: "",
   });
 
   function generateReview() {
     fields.title = loremIpsum().slice(0, -1);
     fields.body = loremIpsum({ count: 3, units: "paragraph" });
-    fields.rating = Math.floor(Math.random() * 11).toString();
+    fields.score = Math.floor(Math.random() * 11).toString();
     handleSubmit();
   }
 
   function generateRating() {
-    fields.rating = Math.floor(Math.random() * 11).toString();
+    fields.score = Math.floor(Math.random() * 11).toString();
     handleSubmit();
   }
 
@@ -143,7 +168,7 @@ export default function Movie() {
   const handleShowBasic = () => setShowBasicReview(true);
   function resetReview() {
     fields.title = "";
-    fields.rating = "";
+    fields.score = "";
     fields.body = "";
   }
 
@@ -156,7 +181,7 @@ export default function Movie() {
       <FadeIn>
         <h2>User Reviews</h2>
         {reviews.map((review) => {
-          return review.title !== "" && review.body !== "" ? ( // don't display basic review/rating
+          return review.title !== "" && review.body !== "" ? ( // don't display basic review/score
             <div key={review.user + review.title}>
               <h5>{`${review.score}/10\xa0\xa0${review.title}`}</h5>
               <p>
@@ -166,7 +191,7 @@ export default function Movie() {
               <p>{review.body}</p>
             </div>
           ) : (
-            <h3>No reviews</h3>
+            <></>
           );
         })}
       </FadeIn>
@@ -179,32 +204,35 @@ export default function Movie() {
   }
 
   async function handleSubmit() {
-    // // todo: let server handle duplicates
-    // setIsLoading(true);
-    // setIsLoadingReviews(true);
-    // const { rating, title, body } = fields;
-    // const newReview = {
-    //   movie: movie.title,
-    //   rating: rating,
-    //   title: title,
-    //   body: body,
-    //   user: username, // todo: appcontext stores username
-    //   date: "31/12/20", // todo: generate date (momentjs?), formatdate function
-    // };
-    // try {
-    //   // sampleReviews.reviews.push(newReview);
-    // } catch (e) {
-    //   console.log(e);
-    // }
-    // handleCloseBasic();
-    // handleCloseFull();
-    // setIsLoading(false);
-    // // loadReviews(sampleReviews);
-    // return;
+    setIsLoadingReviews(true);
+    const { score, title, body } = fields;
+    const newReview = {
+      userId: userId,
+      userName: username,
+      movieTitle: movie.Title,
+      movieId: id,
+      score: score,
+      title: title,
+      body: body,
+    };
+    try {
+      const res = await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/reviews`,
+        newReview
+      );
+      console.log(res);
+    } catch (e) {
+      console.log(e);
+    }
+    handleCloseBasic();
+    handleCloseFull();
+    loadMovie();
+    loadReviews();
+    return;
   }
 
   function validateForm() {
-    return Number(fields.rating) > 0 && Number(fields.rating <= 10);
+    return Number(fields.score) > 0 && Number(fields.score <= 10);
   }
 
   function renderBasicReviewForm() {
@@ -222,8 +250,8 @@ export default function Movie() {
               <Form.Group as={Col} sm={2}>
                 <Form.Label>Rating</Form.Label>
                 <Form.Control
-                  id="rating"
-                  value={fields.rating}
+                  id="score"
+                  value={fields.score}
                   onChange={handleFieldChange}
                 />
               </Form.Group>
@@ -256,8 +284,8 @@ export default function Movie() {
               <Form.Group as={Col} sm={2}>
                 <Form.Label>Rating</Form.Label>
                 <Form.Control
-                  id="rating"
-                  value={fields.rating}
+                  id="score"
+                  value={fields.score}
                   onChange={handleFieldChange}
                 />
               </Form.Group>
@@ -322,8 +350,22 @@ export default function Movie() {
     );
   }
 
-  function getDirector() {
-    return <Link to={`/name/${movie.Director}`}>{director}</Link>;
+  function getDirectors() {
+    return directors.map((director, index) => {
+      if (directors.length === index + 1) {
+        return (
+          <Link key={director} to={`/name/${movie.Director[index]}`}>
+            {director}
+          </Link>
+        );
+      } else {
+        return (
+          <React.Fragment key={director}>
+            <Link to={`/name/${movie.Director[index]}`}>{director}</Link> {`,\xa0`}
+          </React.Fragment>
+        );
+      }
+    });
   }
 
   function getWriters() {
@@ -366,7 +408,7 @@ export default function Movie() {
     // todo:
     // 3 or 6 recommended movies
     // search with title (sequels/prequels)
-    // match same rating and match all genres -> removing last genre if no match
+    // match same score and match all genres -> removing last genre if no match
     return (
       <Row className="mt-3">
         <Col>
@@ -457,7 +499,7 @@ export default function Movie() {
               <Col>{movie.Plot}</Col>
             </Row>
             <Row>
-              <Col>Director: {getDirector()}</Col>
+              <Col>Director: {getDirectors()}</Col>
             </Row>
             <Row>
               <Col style={{ display: "inline-block", overflow: "hidden" }}>

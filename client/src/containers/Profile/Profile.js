@@ -9,6 +9,7 @@ import Followers from "./Followers";
 import Following from "./Following";
 import axios from "axios";
 import Loading from "../../components/Loading/Loading";
+axios.defaults.withCredentials = true;
 
 export default function Profile() {
   const { userId, isContributor, setIsContributor } = useAppContext();
@@ -22,27 +23,71 @@ export default function Profile() {
   } else {
     ownPage = false;
   }
-  // todo: load isFollowing
 
   async function upgradeAccount() {
-    setIsContributor(true);
+    try {
+      const res = await axios.get(
+        `${process.env.REACT_APP_API_URL}/api/contributor`
+      );
+      console.log(res);
+      setIsContributor(true);
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   async function downgradeAccount() {
+    try {
+      const res = await axios.get(
+        `${process.env.REACT_APP_API_URL}/api/regular`
+      );
+      console.log(res);
+      setIsContributor(false);
+    } catch (e) {
+      console.log(e);
+    }
     setIsContributor(false);
   }
 
   async function handleFollow() {
-    setIsFollowing(!isFollowing);
+    if (!isFollowing) {
+      try {
+        const res = await axios.get(
+          `${process.env.REACT_APP_API_URL}/api/followuser/${id}`
+        );
+        console.log(res);
+        setIsFollowing(true);
+      } catch (e) {
+        console.log(e);
+      }
+    } else {
+      try {
+        const res = await axios.get(
+          `${process.env.REACT_APP_API_URL}/api/unfollowuser/${id}`
+        );
+        console.log(res);
+        setIsFollowing(false);
+      } catch (e) {
+        console.log(e);
+      }
+    }
   }
 
-  async function loadUsername(id){
+  async function loadUsername(id) {
     setIsLoading(true);
     const res = await axios(`${process.env.REACT_APP_API_URL}/api/users/${id}`);
-    console.log("res.data", res.data.username);
-    setUsername(res.data.username);
+    console.log("res.data", res.data);
+    setUsername(res.data.user.username);
+    setIsFollowing(res.data.isFollowing);
+    if(res.data.user.accountType == "Contributor")
+      setIsContributor(true);
+    else 
+      setIsContributor(false);
+    console.log("res.data.isFollowing:", res.data.isFollowing);
+    console.log("isFollowing:", isFollowing);
     setIsLoading(false);
   }
+
   useEffect(() => {
     async function onLoad() {
       try {
@@ -55,7 +100,9 @@ export default function Profile() {
   }, [id]);
 
   function renderUserInfo() {
-    return isLoading? (Loading("user")): (
+    return isLoading ? (
+      Loading("user")
+    ) : (
       <Row>
         <Col sm={3}>
           <img

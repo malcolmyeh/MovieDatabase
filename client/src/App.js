@@ -13,35 +13,40 @@ import Routes from "./Routes";
 import { AppContext } from "./libs/context";
 import { useFields } from "./libs/hooks";
 import { formatLink } from "./libs/linkutils";
+import axios from "axios";
+axios.defaults.withCredentials = true;
 
 function App() {
-  const [isAuthenticated, userHasAuthenticated] = useState(false); // todo: default should be false
-  const [username, setUsername] = useState("test-user-1"); // todo: default should be empty
-  const [userId, setUserId] = useState("1");
+  const [isAuthenticated, userHasAuthenticated] = useState(false);
+  const [username, setUsername] = useState("");
+  const [userId, setUserId] = useState("");
   const [isContributor, setIsContributor] = useState(false);
   const history = useHistory();
   var [fields, handleFieldChange] = useFields({
     searchTerm: "",
   });
 
-  function handleLogout() {
-    // does this need to make any call to server? delete session?
+  async function handleLogout() {
+    const res = await axios.get(
+      `${process.env.REACT_APP_API_URL}/api/auth/logout`
+    );
+    console.log(res);
     userHasAuthenticated(false);
     setUsername("");
+    setUserId("");
     history.push("/");
   }
 
   function handleSearchSubmit(event) {
     event.preventDefault();
     if (fields.searchTerm !== "") {
-      console.log("searching for ", fields.searchTerm, "...");
       const term = fields.searchTerm;
       history.push(`/search?q=${formatLink(term)}`);
     } else {
       alert("Search cannot be empty. ");
     }
   }
-  console.log("api url", process.env.REACT_APP_API_URL);
+
   return (
     <>
       <Navbar bg="light" expand="lg">
@@ -66,7 +71,7 @@ function App() {
           )}
           {isAuthenticated ? (
             <>
-              <NavLink disabled={true} as={Link} to={`/profile/${username}`}>
+              <NavLink disabled={false} as={Link} to={`/profile/${userId}`}>
                 Profile
               </NavLink>
               <NavLink onClick={handleLogout}>Log Out</NavLink>

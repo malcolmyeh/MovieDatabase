@@ -5,6 +5,7 @@ import Loading from "../../components/Loading/Loading";
 import Trailer from "../../components/Trailer/Trailer";
 import FadeIn from "../../components/Fade/Fade";
 import axios from "axios";
+axios.defaults.withCredentials = true;
 
 var movieList = [];
 

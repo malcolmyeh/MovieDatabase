@@ -6,6 +6,7 @@ import Filter from "../../components/Filter/Filter";
 import Loading from "../../components/Loading/Loading";
 import FadeIn from "../../components/Fade/Fade";
 import axios from "axios";
+axios.defaults.withCredentials = true;
 
 var movieList = [];
 var currentId = "";

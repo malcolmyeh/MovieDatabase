@@ -1,5 +1,6 @@
 const express = require("express");
 const session = require("express-session");
+const cookieParser = require("cookie-parser");
 const MongoStore = require("connect-mongo")(session);
 const mongoose = require("mongoose");
 
@@ -14,7 +15,8 @@ const app = express();
 const PORT = 5000;
 const MONGO_URI = "mongodb://127.0.0.1:27017/";
 
-app.use(cors());
+app.use(cors({ origin: true, credentials: true }));
+
 
 mongoose
   .connect(MONGO_URI, {
@@ -26,17 +28,16 @@ mongoose
     // Bodyparser middleware, extended false does not allow nested payloads
     app.use(express.json());
     app.use(express.urlencoded({ extended: false }));
-
+    app.use(cookieParser());
     // Express Session
     app.use(
       session({
         secret: "secret",
-        resave: false,
+        resave: true,
         saveUninitialized: true,
         store: new MongoStore({ mongooseConnection: mongoose.connection }),
       })
     );
-
     // Passport middleware
     app.use(passport.initialize());
     app.use(passport.session());

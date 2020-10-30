@@ -4,7 +4,9 @@ import LoadingButton from "../../components/LoadingButton/LoadingButton";
 import { useHistory } from "react-router-dom";
 import { useFields } from "../../libs/hooks";
 import { useAppContext } from "../../libs/context";
-import { delay } from "../../libs/otherutils";
+import axios from "axios"
+
+axios.defaults.withCredentials = true;
 
 export default function AddNewMovie() {
   const { isContributor, isAuthenticated } = useAppContext();
@@ -23,18 +25,16 @@ export default function AddNewMovie() {
     Plot: "",
     Language: "",
     Country: "",
-    Awards: "",
-    Poster: "",
-    Ratings: [],
-    Metascore: "",
-    imdbRating: "",
+    Awards: "None",
+    Poster: " ",
+    Metascore: "N/A",
+    imdbRating: "N/A",
     imdbVotes: "",
     imdbId: "",
     Type: "",
-    DVD: "",
-    BoxOffice: "",
+    DVD: "N/A",
+    BoxOffice: "N/A",
     Production: "",
-    Website: "",
   });
 
   function validateForm() {
@@ -44,32 +44,16 @@ export default function AddNewMovie() {
     return true;
   }
 
-  async function verifyNames() {
-    // todo: return bool
-    const director = fields.Director;
-    const writers = fields.Writer.split(", ");
-    const actors = fields.Actors.split(", ");
-    console.log("Verifying director ", director, "...");
-    await delay(100);
-    console.log(director, " verified. ");
-    for (const writer of writers) {
-      console.log("Verifying writer ", writer, "...");
-      await delay(100);
-      console.log(writer, " verified. ");
-    }
-    for (const actor of actors) {
-      console.log("Verifying actor, ", actor, "...");
-      await delay(100);
-      console.log(actor, " verified. ");
-    }
-  }
   async function handleSubmit(event) {
     event.preventDefault();
-    await verifyNames();
+    const newMovie = fields;
     try {
-      alert("Creating movie...");
-      console.log("movie: ", fields);
-      // await login user
+      const res = await axios.post(
+        `
+        ${process.env.REACT_APP_API_URL}/api/people`,
+        newMovie
+      );
+      console.log(res.data);
       setIsLoading(false);
       history.push("/");
     } catch (e) {
