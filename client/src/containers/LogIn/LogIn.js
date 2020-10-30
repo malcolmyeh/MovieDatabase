@@ -8,7 +8,12 @@ import axios from "axios";
 axios.defaults.withCredentials = true;
 
 export default function Login() {
-  const { userHasAuthenticated, setUsername, setUserId } = useAppContext();
+  const {
+    userHasAuthenticated,
+    setUsername,
+    setUserId,
+    setIsContributor,
+  } = useAppContext();
   const [isLoading, setIsLoading] = useState(false);
   const history = useHistory();
   var [fields, handleFieldChange] = useFields({
@@ -35,6 +40,8 @@ export default function Login() {
       userHasAuthenticated(true);
       setUsername(res.data.username);
       setUserId(res.data.userId);
+
+      setIsContributor(res.data.accountType === "Contributor");
       setIsLoading(false);
       history.push("/");
     } catch (e) {

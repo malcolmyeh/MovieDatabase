@@ -7,7 +7,6 @@ const router = express.Router();
 
 router.get("/reviews", async (req, res, next) => {
   console.log("GET reviews");
-  // console.log(req.query);
   try {
     var userId = req.query.userId;
     var movieId = req.query.movieId;
@@ -26,7 +25,6 @@ router.get("/reviews", async (req, res, next) => {
 // Post new review
 router.post("/reviews", async (req, res, next) => {
   console.log("POST review");
-  console.log("req.body", req.body);
   if (req.session.loggedIn) {
     try {
       const review = new Review({
@@ -40,7 +38,6 @@ router.post("/reviews", async (req, res, next) => {
       });
       await review.save();
       console.log("REVIEW ID:", review._id);
-      // const user = User.findOne({_id: req.user._id});
       await User.updateOne(
         { _id: req.user._id },
         { $push: { reviews: review._id } }
@@ -87,7 +84,6 @@ async function updateRating(movieId) {
   try {
     // get average rating from reviews
     const reviews = await Review.find({ movieId: movieId });
-    // console.log("reviews:", reviews);
     var average;
     if (reviews.length == 0) average = 0;
     else
@@ -97,7 +93,6 @@ async function updateRating(movieId) {
 
     // update rating on movie
     const movie = await Movie.findOne({ _id: movieId });
-    // console.log("movie:", movie);
     movie.Rating = average;
     await movie.save();
   } catch (e) {

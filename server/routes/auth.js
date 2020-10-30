@@ -20,8 +20,9 @@ router.post("/signin", (req, res, next) => {
       }
       req.session.loggedIn = true;
       console.log("req.session: ", req.session);
+      console.log("req.user.accountType", req.user.accountType);
       req.session.save();
-      return res.status(200).json({ userId: user.id, username: user.username });
+      return res.status(200).json({ userId: user.id, username: user.username, accountType: req.user.accountType });
     });
   })(req, res, next);
 });

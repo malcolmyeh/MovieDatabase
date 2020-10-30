@@ -3,7 +3,6 @@ import { useLocation } from "react-router-dom";
 import { Container, Row, Col, Pagination } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import MovieCard from "../../components/MovieCard/MovieCard";
-import Filter from "../../components/Filter/Filter";
 import Loading from "../../components/Loading/Loading";
 import FadeIn from "../../components/Fade/Fade";
 import axios from "axios";
@@ -257,7 +256,6 @@ export default function Search() {
     <Container>
       <h1>Search: {queryString.replace(/-/g, " ")}</h1>
       <h3>Movies</h3>
-      {Filter(movies, setMovies)}
       {isLoadingMovies ? (
         Loading("movies")
       ) : (

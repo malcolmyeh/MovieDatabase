@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { Container, Row, Pagination } from "react-bootstrap";
 import MovieCard from "../../components/MovieCard/MovieCard";
-import Filter from "../../components/Filter/Filter";
 import Loading from "../../components/Loading/Loading";
 import FadeIn from "../../components/Fade/Fade";
 import axios from "axios";
@@ -80,7 +79,6 @@ export default function Genre() {
   return (
     <Container>
       <h1>{id.charAt(0).toUpperCase() + id.slice(1)}</h1>
-      {Filter(movies, setMovies)}
       {isLoading ? (
         Loading()
       ) : (

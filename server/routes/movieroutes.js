@@ -77,6 +77,9 @@ router.get("/featuredmovies", async (req, res, next) => {
 });
 
 router.post("/movies", async (req, res, next) => {
+  console.log("POST movies");
+  console.log("req.body:", req.body);
+  const movie = req.body;
   if (req.session.loggedIn && req.user.accountType == "Contributor") {
     try {
       var directorNames = [];
@@ -113,9 +116,9 @@ router.post("/movies", async (req, res, next) => {
       // Get people from each movie object
       movie.Director.replace(/ *\([^)]*\) */g, "")
         .split(", ")
-        .forEach((writer) => {
+        .forEach((director) => {
           // remove brackets
-          directorNames.push(writer);
+          directorNames.push(director);
         });
       directorNames = Array.from(new Set(directorNames)).sort();
 
@@ -212,7 +215,8 @@ router.post("/movies", async (req, res, next) => {
       console.log(movie.Title, " saved.");
 
       res.send(movie);
-    } catch {
+    } catch (e) {
+      console.log(e);
       res.status(500);
       res.send({ error: "Error adding new movie. " });
     }
@@ -311,6 +315,128 @@ router.get("/recommended/:movie", async (req, res, next) => {
   } catch {
     res.status(500);
     res.send({ error: "Error getting recommended! " });
+  }
+});
+
+router.post("/addPeople/:movie", async (req, res, next) => {
+  console.log("POST addPeople");
+  if (req.session.loggedIn && req.user.accountType == "Contributor") {
+    console.log(req.body);
+    var directorNames = [];
+    var writerNames = [];
+    var actorNames = [];
+    var directors = [];
+    var writers = [];
+    var actors = [];
+    var people = [];
+
+    if (req.body.Director) {
+      req.body.Director.split(", ").forEach((director) => {
+        directorNames.push(director);
+      });
+      directorNames = Array.from(new Set(directorNames)).sort();
+    }
+    if (req.body.Writer) {
+      req.body.Writer.split(", ").forEach((writer) => {
+        writerNames.push(writer);
+      });
+      writerNames = Array.from(new Set(writerNames)).sort();
+    }
+    if (req.body.Actors) {
+      req.body.Actors.split(", ").forEach((actor) => {
+        actorNames.push(actor);
+      });
+      actorNames = Array.from(new Set(actorNames)).sort();
+    }
+
+     directors = await getPeopleIds(directorNames);
+     writers = await getPeopleIds(writerNames);
+     actors = await getPeopleIds(actorNames);
+     console.log("people:", directorNames, writerNames, actorNames);
+     people.push(...directors, ...writers, ...actors);
+
+     for (const director of directors) {
+       const directorDocument = await People.findOne({ _id: director.id });
+       directorDocument.movies.push(req.params.movie);
+       for (const person of people.filter(
+         (ele) => ele.name != director.name
+       )) {
+         var collaborator = directorDocument.frequentCollaborators.find(
+           (ele) => ele.name === person.name
+         );
+         if (collaborator) {
+           ++collaborator.count;
+         } else {
+           directorDocument.frequentCollaborators.push({
+             name: person.name,
+             id: person.id,
+             count: 1,
+           });
+         }
+       }
+       await directorDocument.save();
+     }
+     for (const writer of writers) {
+       const writerDocument = await People.findOne({ _id: writer.id });
+       writerDocument.movies.push(req.params.movie);
+       for (const person of people.filter((ele) => ele.name != writer.name)) {
+         var collaborator = writerDocument.frequentCollaborators.find(
+           (ele) => ele.name === person.name
+         );
+         if (collaborator) {
+           ++collaborator.count;
+         } else {
+           writerDocument.frequentCollaborators.push({
+             name: person.name,
+             id: person.id,
+             count: 1,
+           });
+         }
+       }
+       await writerDocument.save();
+     }
+     for (const actor of actors) {
+       const actorDocument = await People.findOne({ _id: actor.id });
+       actorDocument.movies.push(req.params.movie);
+       for (const person of people.filter((ele) => ele.name != actor.name)) {
+         var collaborator = actorDocument.frequentCollaborators.find(
+           (ele) => ele.name === person.name
+         );
+         if (collaborator) {
+           ++collaborator.count;
+         } else {
+           actorDocument.frequentCollaborators.push({
+             name: person.name,
+             id: person.id,
+             count: 1,
+           });
+         }
+       }
+       await actorDocument.save();
+     }
+     for (const director of directors){
+        await Movie.updateOne(
+          {_id: req.params.movie },
+          {$addToSet: {Director: director.id}}
+        )
+     }
+     for (const writer of writers){
+      await Movie.updateOne(
+        {_id: req.params.movie },
+        {$addToSet: {Writer: writer.id}}
+      )
+     }
+     for (const actor of actors){
+      await Movie.updateOne(
+        {_id: req.params.movie },
+        {$addToSet: {Actors: actor.id}}
+      )
+     }
+    res.status(200).send("Movie udpated.");
+  } else {
+    res
+      .status(401)
+      .send("Cannot create movie - must be logged in and contributing user. ");
   }
 });
 

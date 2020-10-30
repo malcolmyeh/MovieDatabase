@@ -16,8 +16,7 @@ var reviewList = [];
 // var currentId = "";
 
 export default function Movie() {
-  const { isAuthenticated, username, userId } = useAppContext();
-  const [isLoading, setIsLoading] = useState(true);
+  const { isAuthenticated, username, userId, isContributor } = useAppContext();
   const [isLoadingMovie, setIsLoadingMovie] = useState(true);
   const [isLoadingReviews, setIsLoadingReviews] = useState(true);
   const [isLoadingRecommended, setIsLoadingRecommended] = useState(true);
@@ -31,21 +30,19 @@ export default function Movie() {
   const { id } = useParams();
 
   async function loadReviews() {
-    // if (reviewList.length === 0 || id !== currentId) {
     const res = await axios.get(
       `${process.env.REACT_APP_API_URL}/api/reviews?movieId=${id}`,
       { credentials: "include" }
     );
     console.log("reviewList: ", res.data);
     reviewList = res.data;
-    // currentId = id;
-    // }
     setReviews(reviewList);
     setIsLoadingReviews(false);
   }
 
   async function loadMovie() {
     // movie
+    setIsLoadingMovie(true);
     const movieRes = await axios.get(
       `${process.env.REACT_APP_API_URL}/api/movies/${id}`
     );
@@ -109,7 +106,6 @@ export default function Movie() {
       } catch (e) {
         console.log(e);
       }
-      setIsLoading(false);
     }
     onLoad();
   }, [id]);
@@ -139,6 +135,9 @@ export default function Movie() {
     title: "",
     score: "",
     body: "",
+    director: "",
+    writer: "",
+    actors: "",
   });
 
   function generateReview() {
@@ -156,6 +155,7 @@ export default function Movie() {
   // Review Modals state
   const [showFullReview, setShowFullReview] = useState(false);
   const [showBasicReview, setShowBasicReview] = useState(false);
+  const [showAddPerson, setShowAddPerson] = useState(false);
   const handleCloseFull = () => {
     setShowFullReview(false);
     resetReview();
@@ -164,19 +164,29 @@ export default function Movie() {
     setShowBasicReview(false);
     resetReview();
   };
+  const handleCloseAddPerson = () => {
+    setShowAddPerson(false);
+    resetAddPerson();
+  };
   const handleShowFull = () => setShowFullReview(true);
   const handleShowBasic = () => setShowBasicReview(true);
+  const handleShowAddPerson = () => setShowAddPerson(true);
   function resetReview() {
     fields.title = "";
     fields.score = "";
     fields.body = "";
   }
 
+  function resetAddPerson() {
+    fields.director = "";
+    fields.writer = "";
+    fields.actors = "";
+  }
+
   function getReviews() {
     return isLoadingReviews ? (
       Loading("reviews")
     ) : (
-      // todo: read more accordion or separate page
       // todo: sort by date
       <FadeIn>
         <h2>User Reviews</h2>
@@ -226,13 +236,86 @@ export default function Movie() {
     }
     handleCloseBasic();
     handleCloseFull();
-    loadMovie();
+    // loadMovie();
     loadReviews();
     return;
   }
 
-  function validateForm() {
+  function validateReviewForm() {
     return Number(fields.score) > 0 && Number(fields.score <= 10);
+  }
+
+  function validateAddPersonForm() {
+    return (
+      fields.director.length > 0 ||
+      fields.writer.length > 0 ||
+      fields.actors.length > 0
+    );
+  }
+
+  async function handleAddPerson(event) {
+    event.preventDefault();
+    const { director, writer, actors } = fields;
+    const newPeople = {
+      Director: director.length > 0 ? director : null,
+      Writer: writer.length > 0 ? writer : null,
+      Actors: actors.length > 0 ? actors : null,
+    };
+    try {
+      const res = await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/addPeople/${id}`,
+        newPeople
+      );
+      console.log(res);
+    } catch (e) {
+      console.log(e);
+    }
+    handleCloseAddPerson();
+    loadMovie();
+    return;
+  }
+
+  function renderAddPersonForm() {
+    return (
+      <Modal show={showAddPerson} onHide={handleCloseAddPerson}>
+        <Modal.Header closeButton>
+          <Modal.Title>Edit Movie</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form onSubmit={handleAddPerson}>
+            <Form.Row>
+              <Form.Group>
+                <Form.Label>Director</Form.Label>
+                <Form.Control
+                  id="director"
+                  value={fields.director}
+                  onChange={handleFieldChange}
+                />
+                <Form.Label>Writer</Form.Label>
+                <Form.Control
+                  id="writer"
+                  value={fields.writer}
+                  onChange={handleFieldChange}
+                />
+                <Form.Label>Actors</Form.Label>
+                <Form.Control
+                  id="actors"
+                  value={fields.actors}
+                  onChange={handleFieldChange}
+                />
+              </Form.Group>
+            </Form.Row>
+            <LoadingButton
+              type="submit"
+              // isLoading={isLoading}
+              disabled={!validateAddPersonForm()}
+            >
+              Submit
+            </LoadingButton>
+          </Form>
+        </Modal.Body>
+      </Modal>
+    );
   }
 
   function renderBasicReviewForm() {
@@ -258,8 +341,8 @@ export default function Movie() {
             </Form.Row>
             <LoadingButton
               type="submit"
-              isLoading={isLoading}
-              disabled={!validateForm()}
+              // isLoading={isLoading}
+              disabled={!validateReviewForm()}
             >
               Submit
             </LoadingButton>
@@ -309,11 +392,10 @@ export default function Movie() {
                 />
               </Form.Group>
             </Form.Row>
-
             <LoadingButton
               type="submit"
-              isLoading={isLoading}
-              disabled={!validateForm()}
+              // isLoading={isLoading}
+              disabled={!validateReviewForm()}
             >
               Submit
             </LoadingButton>
@@ -361,7 +443,8 @@ export default function Movie() {
       } else {
         return (
           <React.Fragment key={director}>
-            <Link to={`/name/${movie.Director[index]}`}>{director}</Link> {`,\xa0`}
+            <Link to={`/name/${movie.Director[index]}`}>{director}</Link>{" "}
+            {`,\xa0`}
           </React.Fragment>
         );
       }
@@ -487,8 +570,8 @@ export default function Movie() {
           <Col sm={2}>
             <img
               src={movie.Poster}
-              alt="Poster"
-              style={{ maxHeight: "30vh" }}
+              alt={movie.Poster}
+              style={{ height: "30vh" }}
             />
           </Col>
           <Col sm={6}>{Trailer(movie)}</Col>
@@ -513,6 +596,7 @@ export default function Movie() {
                 {getActors()}
               </Col>
             </Row>
+
             <Row>
               <Col>
                 {`Metascore:\xa0`}
@@ -523,6 +607,24 @@ export default function Movie() {
             </Row>
             <Row>
               <Col>{movie.Awards}</Col>
+            </Row>
+            <Row>
+              <Col>
+                {isContributor ? (
+                  <>
+                    {renderAddPersonForm()}
+                    <Button
+                      className="mr-1"
+                      variant="outline-dark"
+                      onClick={handleShowAddPerson}
+                    >
+                      Edit Movie
+                    </Button>
+                  </>
+                ) : (
+                  <></>
+                )}
+              </Col>
             </Row>
           </Col>
         </Row>

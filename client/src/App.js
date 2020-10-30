@@ -32,6 +32,7 @@ function App() {
     );
     console.log(res);
     userHasAuthenticated(false);
+    setIsContributor(false);
     setUsername("");
     setUserId("");
     history.push("/");

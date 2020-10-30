@@ -2,7 +2,6 @@ const express = require("express");
 const router = express.Router();
 const People = require("../models/People");
 const User = require("../models/User");
-const follow = require("../utils/follow");
 
 router.get("/people/:person", async (req, res, next) => {
   console.log("GET person", req.params.person);
@@ -48,7 +47,7 @@ router.get("/people", async (req, res, next) => {
 
 router.post("/people", async (req, res, next) => {
   console.log("POST people");
-  console.log("req.body.name:", req);
+  // console.log("req.body.name:", req);
   if (req.session.loggedIn && req.user.accountType == "Contributor") {
     try {
       const exists = await People.exists({ name: req.body.name });
