@@ -24,7 +24,6 @@ export default function AddNewName() {
     const newName = {
       name: fields.name,
     };
-    console.log("newName:", newName);
     try {
       const res = await axios.post(
         `

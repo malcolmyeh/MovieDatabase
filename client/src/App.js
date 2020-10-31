@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Navbar,
   NavLink,
@@ -7,12 +7,16 @@ import {
   Button,
   FormControl,
   Nav,
+  ResponsiveEmbed,
 } from "react-bootstrap";
 import { Link, useHistory } from "react-router-dom";
 import Routes from "./Routes";
 import { AppContext } from "./libs/context";
 import { useFields } from "./libs/hooks";
 import { formatLink } from "./libs/linkutils";
+import socketIOClient from "socket.io-client";
+
+import ButterToast, { Cinnamon } from "butter-toast";
 import axios from "axios";
 axios.defaults.withCredentials = true;
 
@@ -21,6 +25,52 @@ function App() {
   const [username, setUsername] = useState("");
   const [userId, setUserId] = useState("");
   const [isContributor, setIsContributor] = useState(false);
+
+  async function loadSession(){
+    try{
+      const res = await axios.get(
+        `${process.env.REACT_APP_API_URL}/api/auth/session`
+      );
+      if (res.data.session){
+        console.log("res.data.session:", res.data);
+        userHasAuthenticated(true);
+        setUsername(res.data.username);
+        setUserId(res.data.userId);
+        if (res.data.isContributor==="Contributor")
+          setIsContributor(true);
+        else
+          setIsContributor(false);
+      }
+    } catch (e){
+      console.log(e);
+    }
+  }
+  useEffect(() => {
+    loadSession();
+    var socket = socketIOClient(`${process.env.REACT_APP_API_URL}`);
+    console.log("Socket listening to room:", userId);
+    socket.on(userId, (data) => {
+      console.log("Socket ON");
+      ButterToast.raise({
+        content: (
+          <Cinnamon.Crisp
+            scheme={Cinnamon.Crisp.SCHEME_BLUE}
+            content={() => <div>{data.body}</div>}
+            title={data.name}
+          />
+        ),
+        timeout: Infinity
+
+      });
+    });
+
+    return () => {
+      console.log("Socket DISCONNECT");
+      socket.disconnect();
+    };
+    //
+  }, [isAuthenticated, userId]);
+
   const history = useHistory();
   var [fields, handleFieldChange] = useFields({
     searchTerm: "",
@@ -103,6 +153,7 @@ function App() {
         </Form>
       </Navbar>
       <Container style={{ marginBottom: "30px" }}>
+        <ButterToast as={Link} position={{ vertical: 0, horizontal: 0 }} />
         <AppContext.Provider
           value={{
             isAuthenticated,

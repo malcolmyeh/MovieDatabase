@@ -22,31 +22,29 @@ export default function AddNewMovie() {
   const [isLoading, setIsLoading] = useState(false);
   const history = useHistory();
   var [fields, handleFieldChange] = useFields({
-    Title: "",
-    Year: "",
-    Rated: "",
-    Released: "",
-    Runtime: "",
-    Genre: "",
+    Title: "Test",
+    Year: "2020",
+    Rated: "R",
+    Released: "1 Jan 2020",
+    Runtime: "100 min",
+    Genre: "Action",
     Director: "",
     Writer: "",
     Actors: "",
-    Plot: "",
-    Language: "",
-    Country: "",
+    Plot: "Test",
+    Language: "English",
+    Country: "Canada",
     Awards: "None",
     Poster: "",
     Metascore: "N/A",
     imdbRating: "N/A",
     imdbId: "",
-    Type: "",
+    Type: "movie",
     DVD: "N/A",
     BoxOffice: "N/A",
-    Production: "",
+    Production: "Test",
   });
-  for (const field in fields) {
-    console.log("field:", field);
-  }
+
   function validateForm() {
     for (const field in fields) {
       if (field !== "Poster" && field.length === 0) return false;

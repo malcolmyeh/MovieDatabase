@@ -5,9 +5,9 @@ const People = require("../models/People");
 const User = require("../models/User");
 
 var genreList = []; // save genres in memory as it is not likely to change
+const MAX_RETRIES = 10;
 
 router.get("/movies/:movie", async (req, res, next) => {
-  console.log("req sessionID : ", req.sessionID);
   console.log("GET movie", req.params.movie);
   try {
     var isWatched = false;
@@ -16,17 +16,15 @@ router.get("/movies/:movie", async (req, res, next) => {
       const user = await User.findOne({ _id: req.user._id });
       isWatched = user.moviesWatched.includes(req.params.movie);
     }
-    res.send({ movie: movie, isWatched: isWatched });
+    res.status(200).send({ movie: movie, isWatched: isWatched });
   } catch (e) {
     console.log(e);
-    res.status(404);
-    res.send({ error: "Movie doesn't exist!" });
+    res.status(404).send({ error: "Movie doesn't exist!" });
   }
 });
 
 router.get("/movies", async (req, res, next) => {
-  console.log("GET movies");
-  console.log(req.query);
+  console.log("GET movies", req.query);
   try {
     let genre = req.query.genre;
     let title = req.query.title;
@@ -48,10 +46,10 @@ router.get("/movies", async (req, res, next) => {
       };
       return reducedMovie;
     });
-    res.send(reducedMovies);
-  } catch {
-    res.status(404);
-    res.send({ error: "No movies found!" });
+    res.status(200).send(reducedMovies);
+  } catch (e) {
+    console.log(e);
+    res.status(404).send({ error: "No movies found!" });
   }
 });
 
@@ -60,7 +58,7 @@ router.get("/featuredmovies", async (req, res, next) => {
   try {
     const movies = await Movie.find()
       .sort([["Year", -1]])
-      .limit(10);
+      .limit(5);
     const reducedMovies = movies.map((movie) => {
       return {
         Title: movie.Title,
@@ -69,10 +67,10 @@ router.get("/featuredmovies", async (req, res, next) => {
         id: movie._id,
       };
     });
-    res.send(reducedMovies);
-  } catch {
-    res.status(404);
-    res.send({ error: "No movies found! " });
+    res.status(200).send(reducedMovies);
+  } catch (e) {
+    console.log(e);
+    res.status(404).send({ error: "No movies found! " });
   }
 });
 
@@ -143,6 +141,13 @@ router.post("/movies", async (req, res, next) => {
       for (const director of directors) {
         const directorDocument = await People.findOne({ _id: director.id });
         directorDocument.movies.push(newMovie._id);
+        for (const follower of directorDocument.followers) {
+          console.log("Notifying", follower);
+          req.app.io.emit(follower, {
+            name: directorDocument.name,
+            body: `directed in ${newMovie.Title}.`,
+          });
+        }
         for (const person of people.filter(
           (ele) => ele.name != director.name
         )) {
@@ -169,6 +174,13 @@ router.post("/movies", async (req, res, next) => {
       for (const writer of writers) {
         const writerDocument = await People.findOne({ _id: writer.id });
         writerDocument.movies.push(newMovie._id);
+        for (const follower of writerDocument.followers) {
+          console.log("Notifying", follower);
+          req.app.io.emit(follower, {
+            name: writerDocument.name,
+            body: `wrote in ${newMovie.Title}.`,
+          });
+        }
         for (const person of people.filter((ele) => ele.name != writer.name)) {
           var collaborator = writerDocument.frequentCollaborators.find(
             (ele) => ele.name === person.name
@@ -190,6 +202,13 @@ router.post("/movies", async (req, res, next) => {
       for (const actor of actors) {
         const actorDocument = await People.findOne({ _id: actor.id });
         actorDocument.movies.push(newMovie._id);
+        for (const follower of actorDocument.followers) {
+          console.log("Notifying", follower);
+          req.app.io.emit(follower, {
+            name: actorDocument.name,
+            body: `acted in ${newMovie.Title}.`,
+          });
+        }
         for (const person of people.filter((ele) => ele.name != actor.name)) {
           var collaborator = actorDocument.frequentCollaborators.find(
             (ele) => ele.name === person.name
@@ -213,108 +232,221 @@ router.post("/movies", async (req, res, next) => {
       newMovie.Actors = actors.map((actor) => actor.id);
       await newMovie.save();
       console.log(movie.Title, " saved.");
-
-      res.send(movie);
+      res.status(204).send(movie);
     } catch (e) {
       console.log(e);
-      res.status(500);
-      res.send({ error: "Error adding new movie. " });
+      res.status(500).send({ error: "Error adding new movie. " });
     }
   } else {
-    res
-      .status(401)
-      .send("Cannot create movie - must be logged in and contributing user. ");
+    res.status(401).send({
+      error: "Cannot create movie - must be logged in and contributing user. ",
+    });
   }
 });
 
 // list of genres
 router.get("/genres", async (req, res, next) => {
-  try {
-    if (genreList.length === 0) {
-      const movies = await Movie.find();
-      var genres = [];
-      movies.forEach((movie) => {
-        var arr = movie.Genre.split(", ");
-        genres = [...arr, ...genres];
-      });
-      var uniqueGenres = Array.from(new Set(genres)).sort();
-      console.log(uniqueGenres);
-      genreList = uniqueGenres;
-    }
-    res.send({ genres: genreList });
-  } catch {
-    res.status(500);
-    res.send({ error: "Error getting genres!" });
-  }
+  // try {
+  //   if (genreList.length === 0) {
+  //     const movies = await Movie.find();
+  //     var genres = [];
+  //     movies.forEach((movie) => {
+  //       var arr = movie.Genre.split(", ");
+  //       genres = [...arr, ...genres];
+  //     });
+  //     var uniqueGenres = Array.from(new Set(genres)).sort();
+  //     console.log(uniqueGenres);
+  //     genreList = uniqueGenres;
+  //   }
+  //   res.status(200).send({ genres: genreList });
+  // } catch (e) {
+  //   console.log(e);
+  //   res.status(500).send({ error: "Error getting genres." });
+  // }
+  res
+    .status(200)
+    .send({
+      genres: [
+        "Action",
+        "Adventure",
+        "Animation",
+        "Biography",
+        "Comedy",
+        "Crime",
+        "Documentary",
+        "Drama",
+        "Family",
+        "Fantasy",
+        "Film-Noir",
+        "History",
+        "Horror",
+        "Music",
+        "Musical",
+        "Mystery",
+        "N/A",
+        "News",
+        "Romance",
+        "Sci-Fi",
+        "Short",
+        "Sport",
+        "Thriller",
+        "War",
+        "Western",
+      ],
+    });
 });
 
-router.get("/recommended/:movie", async (req, res, next) => {
-  // todo: change to param
-  // /recommended?movie={id}
-  // /recommended?user={id}
-
+router.get("/recommended", async (req, res, next) => {
   console.log("GET recommended");
-  try {
-    const movie = await Movie.findOne({ _id: req.params.movie });
-    const rated = movie.Rated;
-    const genre = movie.Genre;
-    // console.log("rated:", rated);
-    // console.log("genre:", genre);
-    var recommended = [];
-    const recommendedMovies = await Movie.find({ Rated: rated, Genre: genre })
-      .sort([["Year", -1]])
-      .limit(5);
-    for (const recommendedMovie of recommendedMovies) {
-      // console.log("recommendedid: ", recommendedMovie._id);
-      // console.log("movieid: ", movie._id);
-      if (recommendedMovie._id == movie._id) {
-        recommended.push(recommendedMovie);
-      }
-    }
-    // console.log("recommended: ", recommended);
-
-    // if initial query doesn't find at least 1 movie, keep trying with less and less genres
-    const broaderGenres = genre.split(", ");
-
-    while (recommended.length < 5) {
-      const remaining = 5 - recommended.length;
-      broaderGenres.pop();
-      const genres = broaderGenres.join(", ");
-      var newRecommendedMovies;
-      if (genres == "") {
-        newRecommendedMovies = await Movie.find({
-          Rated: rated,
-        })
-          .sort([["Year", -1]])
-          .limit(remaining);
-      } else {
-        newRecommendedMovies = await Movie.find({
-          Rated: rated,
-          Genre: genres,
-        })
-          .sort([["Year", -1]])
-          .limit(remaining);
-      }
-
-      for (const recommendedMovie of newRecommendedMovies) {
-        if (recommendedMovie._id !== movie._id) {
+  let queryMovie = req.query.movie;
+  let queryUser = req.query.user;
+  if (queryMovie) {
+    // match rating and as many genres as possible
+    try {
+      const movie = await Movie.findOne({ _id: queryMovie });
+      const rated = movie.Rated;
+      const genre = movie.Genre;
+      var recommended = [];
+      var recommendedId = [];
+      const recommendedMovies = await Movie.find({ Rated: rated, Genre: genre })
+        .sort([["Year", -1]])
+        .limit(5);
+      for (const recommendedMovie of recommendedMovies) {
+        if (
+          recommendedMovie._id.toString() !== queryMovie &&
+          !recommendedId.includes(recommendedMovie._id.toString())
+        ) {
           recommended.push(recommendedMovie);
+          recommendedId.push(recommendedMovie._id.toString());
         }
       }
+
+      // if initial query doesn't find at least 1 movie, keep trying with less and less genres
+      const broaderGenres = genre.split(", ");
+      var counter = 0;
+      while (recommended.length < 5 && counter < MAX_RETRIES) {
+        const remaining = 5 - recommended.length;
+        broaderGenres.pop();
+        const genres = broaderGenres.join(", ");
+        var newRecommendedMovies;
+        if (genres == "") {
+          newRecommendedMovies = await Movie.find({
+            Rated: rated,
+          })
+            .sort([["Year", -1]])
+            .limit(remaining);
+        } else {
+          newRecommendedMovies = await Movie.find({
+            Rated: rated,
+            Genre: genres,
+          })
+            .sort([["Year", -1]])
+            .limit(remaining);
+        }
+        for (const recommendedMovie of newRecommendedMovies) {
+          if (
+            recommendedMovie._id.toString() !== queryMovie &&
+            !recommendedId.includes(recommendedMovie._id.toString())
+          ) {
+            recommended.push(recommendedMovie);
+            recommendedId.push(recommendedMovie._id.toString());
+          }
+        }
+        ++counter;
+      }
+      reducedRecommended = recommended.slice(0, 5).map((movie) => {
+        return {
+          Title: movie.Title,
+          Year: movie.Year,
+          Poster: movie.Poster,
+          _id: movie._id,
+        };
+      });
+      res.status(200).send(reducedRecommended);
+    } catch (e) {
+      console.log(e);
+      res.status(500).send({ error: "Error getting recommended! " });
     }
-    reducedRecommended = recommended.slice(0, 5).map((movie) => {
-      return {
-        Title: movie.Title,
-        Year: movie.Year,
-        Poster: movie.Poster,
-        _id: movie._id,
-      };
-    });
-    // console.log(reducedRecommended);
-    res.send(reducedRecommended);
-  } catch {
-    res.status(500);
-    res.send({ error: "Error getting recommended! " });
+  } else if (queryUser) {
+    try {
+      const user = await User.findOne({ _id: queryUser });
+      var recommended = [];
+      var recommendedId = [];
+      if (user.moviesWatched.length === 0 && user.followingPeople.length == 0) {
+        // if no movies watched or people followed, send featured movies
+        console.log("User hasn't watched any movies or followed any people.");
+        const movies = await Movie.find()
+          .sort([["Year", -1]])
+          .limit(5);
+        recommended.push(...movies);
+      }
+      if (user.followingPeople.length > 0) {
+        // get movies from following people
+        console.log("User follows at least one person.");
+        for (const personId of user.followingPeople) {
+          const person = await People.findOne({ _id: personId });
+          for (const movieId of person.movies) {
+            const movie = await Movie.findOne({ _id: movieId });
+            if (!recommendedId.includes(movie._id.toString())) {
+              recommended.push(movie);
+              recommendedId.push(movie._id.toString());
+            }
+          }
+        }
+      }
+      if (user.moviesWatched.length > 0) {
+        // get most popular genre
+        var genres = [];
+        console.log("User has watched at least one movie.");
+        for (const movieId of user.moviesWatched) {
+          const movie = await Movie.findOne({ _id: movieId });
+          movie.Genre.split(", ").forEach((genre) => {
+            genres.push(genre);
+          });
+        }
+        genres = Array.from(new Set(genres)).sort();
+        var max = 0,
+          result,
+          freq = 0;
+        for (var i = 0; i < genres.length; i++) {
+          if (genres[i] === genres[i + 1]) {
+            freq++;
+          } else {
+            freq = 0;
+          }
+          if (freq >= max) {
+            result = genres[i];
+            max = freq;
+          }
+        }
+        const recommendedMovies = await Movie.find({ Genre: result })
+          .sort([["Year", -1]])
+          .limit(5);
+        for (const recommendedMovie of recommendedMovies) {
+          if (
+            recommendedMovie._id.toString() !== queryMovie &&
+            !recommendedId.includes(recommendedMovie._id.toString())
+          ) {
+            recommended.push(recommendedMovie);
+            recommendedId.push(recommendedMovie._id.toString());
+          }
+        }
+      }
+      const reducedRecommended = recommended.slice(0, 5).map((movie) => {
+        return {
+          Title: movie.Title,
+          Year: movie.Year,
+          Poster: movie.Poster,
+          id: movie._id,
+        };
+      });
+      res.status(200).send(reducedRecommended);
+    } catch (e) {
+      console.log(e);
+      res.status(500).send({ error: "Error getting recommended! " });
+    }
+  } else {
+    res.status(400).send({ error: "Invalid query params. " });
   }
 });
 
@@ -349,94 +481,113 @@ router.post("/addPeople/:movie", async (req, res, next) => {
       actorNames = Array.from(new Set(actorNames)).sort();
     }
 
-     directors = await getPeopleIds(directorNames);
-     writers = await getPeopleIds(writerNames);
-     actors = await getPeopleIds(actorNames);
-     console.log("people:", directorNames, writerNames, actorNames);
-     people.push(...directors, ...writers, ...actors);
+    directors = await getPeopleIds(directorNames);
+    writers = await getPeopleIds(writerNames);
+    actors = await getPeopleIds(actorNames);
+    console.log("people:", directorNames, writerNames, actorNames);
+    people.push(...directors, ...writers, ...actors);
 
-     for (const director of directors) {
-       const directorDocument = await People.findOne({ _id: director.id });
-       directorDocument.movies.push(req.params.movie);
-       for (const person of people.filter(
-         (ele) => ele.name != director.name
-       )) {
-         var collaborator = directorDocument.frequentCollaborators.find(
-           (ele) => ele.name === person.name
-         );
-         if (collaborator) {
-           ++collaborator.count;
-         } else {
-           directorDocument.frequentCollaborators.push({
-             name: person.name,
-             id: person.id,
-             count: 1,
-           });
-         }
-       }
-       await directorDocument.save();
-     }
-     for (const writer of writers) {
-       const writerDocument = await People.findOne({ _id: writer.id });
-       writerDocument.movies.push(req.params.movie);
-       for (const person of people.filter((ele) => ele.name != writer.name)) {
-         var collaborator = writerDocument.frequentCollaborators.find(
-           (ele) => ele.name === person.name
-         );
-         if (collaborator) {
-           ++collaborator.count;
-         } else {
-           writerDocument.frequentCollaborators.push({
-             name: person.name,
-             id: person.id,
-             count: 1,
-           });
-         }
-       }
-       await writerDocument.save();
-     }
-     for (const actor of actors) {
-       const actorDocument = await People.findOne({ _id: actor.id });
-       actorDocument.movies.push(req.params.movie);
-       for (const person of people.filter((ele) => ele.name != actor.name)) {
-         var collaborator = actorDocument.frequentCollaborators.find(
-           (ele) => ele.name === person.name
-         );
-         if (collaborator) {
-           ++collaborator.count;
-         } else {
-           actorDocument.frequentCollaborators.push({
-             name: person.name,
-             id: person.id,
-             count: 1,
-           });
-         }
-       }
-       await actorDocument.save();
-     }
-     for (const director of directors){
-        await Movie.updateOne(
-          {_id: req.params.movie },
-          {$addToSet: {Director: director.id}}
-        )
-     }
-     for (const writer of writers){
+    for (const director of directors) {
+      const directorDocument = await People.findOne({ _id: director.id });
+      directorDocument.movies.push(req.params.movie);
+      for (const follower of directorDocument.followers) {
+        console.log("Notifying", follower);
+        req.app.io.emit(follower, {
+          name: directorDocument.name,
+          body: `directed in ${newMovie.Title}.`,
+        });
+      }
+      for (const person of people.filter((ele) => ele.name != director.name)) {
+        var collaborator = directorDocument.frequentCollaborators.find(
+          (ele) => ele.name === person.name
+        );
+        if (collaborator) {
+          ++collaborator.count;
+        } else {
+          directorDocument.frequentCollaborators.push({
+            name: person.name,
+            id: person.id,
+            count: 1,
+          });
+        }
+      }
+      await directorDocument.save();
+    }
+    for (const writer of writers) {
+      const writerDocument = await People.findOne({ _id: writer.id });
+      writerDocument.movies.push(req.params.movie);
+      for (const follower of writerDocument.followers) {
+        console.log("Notifying", follower);
+        req.app.io.emit(follower, {
+          name: writerDocument.name,
+          body: `wrote in ${newMovie.Title}.`,
+        });
+      }
+      for (const person of people.filter((ele) => ele.name != writer.name)) {
+        var collaborator = writerDocument.frequentCollaborators.find(
+          (ele) => ele.name === person.name
+        );
+        if (collaborator) {
+          ++collaborator.count;
+        } else {
+          writerDocument.frequentCollaborators.push({
+            name: person.name,
+            id: person.id,
+            count: 1,
+          });
+        }
+      }
+      await writerDocument.save();
+    }
+    for (const actor of actors) {
+      const actorDocument = await People.findOne({ _id: actor.id });
+      actorDocument.movies.push(req.params.movie);
+      for (const follower of actorDocument.followers) {
+        console.log("Notifying", follower);
+        req.app.io.emit(follower, {
+          name: actorDocument.name,
+          body: `acted in ${newMovie.Title}.`,
+        });
+      }
+      for (const person of people.filter((ele) => ele.name != actor.name)) {
+        var collaborator = actorDocument.frequentCollaborators.find(
+          (ele) => ele.name === person.name
+        );
+        if (collaborator) {
+          ++collaborator.count;
+        } else {
+          actorDocument.frequentCollaborators.push({
+            name: person.name,
+            id: person.id,
+            count: 1,
+          });
+        }
+      }
+      await actorDocument.save();
+    }
+    for (const director of directors) {
       await Movie.updateOne(
-        {_id: req.params.movie },
-        {$addToSet: {Writer: writer.id}}
-      )
-     }
-     for (const actor of actors){
+        { _id: req.params.movie },
+        { $addToSet: { Director: director.id } }
+      );
+    }
+    for (const writer of writers) {
       await Movie.updateOne(
-        {_id: req.params.movie },
-        {$addToSet: {Actors: actor.id}}
-      )
-     }
-    res.status(200).send("Movie udpated.");
+        { _id: req.params.movie },
+        { $addToSet: { Writer: writer.id } }
+      );
+    }
+    for (const actor of actors) {
+      await Movie.updateOne(
+        { _id: req.params.movie },
+        { $addToSet: { Actors: actor.id } }
+      );
+    }
+    res.status(204).send("Movie udpated.");
   } else {
-    res
-      .status(401)
-      .send("Cannot create movie - must be logged in and contributing user. ");
+    res.status(401).send({
+      error: "Cannot update movie - must be logged in and contributing user. ",
+    });
   }
 });
 

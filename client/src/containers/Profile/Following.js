@@ -34,8 +34,9 @@ export default function Following(id, ownPage, type) {
         const person = await axios.get(
           `${process.env.REACT_APP_API_URL}/api/people/${nameId}`
         );
-        names.push({name: person.data.name, id: nameId});
+        names.push({name: person.data.person.name, id: nameId});
       }
+      console.log(names);
       setFollowing(names);
     }
     setIsLoading(false);

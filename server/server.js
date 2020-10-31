@@ -3,6 +3,9 @@ const session = require("express-session");
 const cookieParser = require("cookie-parser");
 const MongoStore = require("connect-mongo")(session);
 const mongoose = require("mongoose");
+const socketIo = require("socket.io");
+var passportSocketIo = require("passport.socketio");
+const http = require("http");
 
 const passport = require("./passport/setup");
 const auth = require("./routes/auth");
@@ -17,7 +20,6 @@ const MONGO_URI = "mongodb://127.0.0.1:27017/";
 
 app.use(cors({ origin: true, credentials: true }));
 
-
 mongoose
   .connect(MONGO_URI, {
     useUnifiedTopology: true,
@@ -30,12 +32,15 @@ mongoose
     app.use(express.urlencoded({ extended: false }));
     app.use(cookieParser());
     // Express Session
+    var mongoStore = new MongoStore({
+      mongooseConnection: mongoose.connection,
+    });
     app.use(
       session({
         secret: "secret",
         resave: true,
-        saveUninitialized: true,
-        store: new MongoStore({ mongooseConnection: mongoose.connection }),
+        saveUninitialized: false,
+        store: mongoStore,
       })
     );
     // Passport middleware
@@ -50,6 +55,28 @@ mongoose
     app.use("/api", peopleroutes);
     app.get("/", (req, res) => res.send("Backend is healthy."));
 
-    app.listen(PORT, () => console.log(`Backend listening on port ${PORT}`));
+    const server = http.createServer(app);
+    const io = socketIo(server);
+
+    io.use(
+      passportSocketIo.authorize({
+        key: "connect.sid",
+        secret: "secret",
+        passport: passport,
+        store: mongoStore,
+        cookieParser: cookieParser,
+      })
+    );
+    io.on("connection", async (socket) => {
+      if (socket.request.user && socket.request.user.logged_in) {
+        console.log(socket.request.user.username, "is logged in.");
+      }
+
+      socket.on("disconnect", () => {
+        console.log("Client disconnected");
+      });
+    });
+    app.io = io;
+    server.listen(PORT, () => console.log(`Backend listening on port ${PORT}`));
   })
   .catch((err) => console.log(err));

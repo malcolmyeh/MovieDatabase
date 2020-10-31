@@ -5,6 +5,7 @@ import Loading from "../../components/Loading/Loading";
 import Trailer from "../../components/Trailer/Trailer";
 import FadeIn from "../../components/Fade/Fade";
 import axios from "axios";
+import { useAppContext } from "../../libs/context";
 axios.defaults.withCredentials = true;
 
 var movieList = [];
@@ -12,14 +13,16 @@ var movieList = [];
 export default function Home() {
   const [isLoadingRecommended, setIsLoadingRecommended] = useState(true);
   const [featuredMovies, setFeaturedMovies] = useState([]);
+  const { isAuthenticated, userId } = useAppContext();
 
   async function loadFeatured() {
-    if (movieList.length === 0) {
-      setIsLoadingRecommended(true);
-      const res = await axios(`${process.env.REACT_APP_API_URL}/api/featuredmovies`);
-      movieList = res.data;
-    }
-    console.log("movieList: ", movieList);
+    setIsLoadingRecommended(true);
+    var endpoint;
+    if (isAuthenticated) endpoint = `/api/recommended?user=${userId}`;
+    else endpoint = `/api/featuredmovies`;
+    const res = await axios(`${process.env.REACT_APP_API_URL}${endpoint}`);
+    movieList = res.data;
+    console.log("movieList:", movieList);
     setFeaturedMovies(movieList);
     setIsLoadingRecommended(false);
   }
@@ -35,7 +38,6 @@ export default function Home() {
       if (prev > 5) prev = 5;
     }
     var iframes = document.querySelectorAll("iframe");
-
     const src = iframes[prev].src;
     iframes[prev].src = src;
   }
@@ -49,12 +51,11 @@ export default function Home() {
       }
     }
     onLoad();
-  }, []);
+  }, [isAuthenticated, userId]);
 
   return (
     <Container>
-      <Jumbotron style={{ marginTop: "15px" }}>
-      </Jumbotron>
+      <Jumbotron style={{ marginTop: "15px" }}></Jumbotron>
       {isLoadingRecommended ? (
         Loading()
       ) : (
@@ -72,7 +73,7 @@ export default function Home() {
                 style={{ top: "0", bottom: "auto" }}
               >
                 <Row style={{ maxHeight: "440px" }}>
-                  <Col md="auto" style={{ padding: "0" }}>
+                  <Col md="auto" style={{ maxWidth: "300px", padding: "0" }}>
                     <img src={movie.Poster} alt="Poster" />
                   </Col>
                   <Col style={{ padding: "0" }}>{Trailer(movie)}</Col>
@@ -99,9 +100,6 @@ export default function Home() {
           </Carousel>
         </FadeIn>
       )}
-      <h3>Feed (not yet implemented)</h3>
-      <p>Followed name in Movie at xx/yy/zzzz</p>
-      <p>Followed user posted Review at xx/yy/zzzz</p>
     </Container>
   );
 }

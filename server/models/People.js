@@ -14,6 +14,10 @@ const PeopleSchema = new mongoose.Schema(
     frequentCollaborators: {
         type: Array, 
         default: []
+    },
+    followers: {
+      type: Array,
+      default: []
     }
   },
   { strict: false }

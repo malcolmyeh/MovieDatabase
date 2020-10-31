@@ -12,10 +12,9 @@ router.get("/users/:user", async (req, res, next) => {
       // console.log("user:", req.params.user ,"logged in:", req.user.id);
       isFollowing = user.followers.includes(req.user.id);
     }
-    res.send({ user: user, isFollowing: isFollowing });
+    res.status(200).send({ user: user, isFollowing: isFollowing });
   } catch {
-    res.status(404);
-    res.send({ error: "User doesn't exist!" });
+    res.status(404).send({ error: "User doesn't exist!" });
   }
 });
 
@@ -35,10 +34,9 @@ router.get("/users", async (req, res, next) => {
       return reducedUser;
     });
     console.log("reducedUsers: ", reducedUsers);
-    res.send(reducedUsers);
+    res.status(200).send(reducedUsers);
   } catch {
-    res.status(404);
-    res.send({ error: "No users found!" });
+    res.status(404).send({ error: "No users found!" });
   }
 });
 
@@ -52,12 +50,35 @@ router.get("/followuser/:user", async (req, res, next) => {
     res.status(401).send("Cannot follow user - not logged in. ");
   }
 });
+
 // unfollow user
 router.get("/unfollowuser/:user", async (req, res, next) => {
   console.log("GET unfollow user");
   if (req.session.loggedIn) {
     await follow.unfollowUser(req.user._id, req.params.user);
     res.status(200).send(`${req.user._id} unfollowed ${req.params.user}`);
+  } else {
+    res.status(401).send("Cannot unfollow user - not logged in. ");
+  }
+});
+
+// follow person
+router.get("/followperson/:name", async (req, res, next) => {
+  console.log("GET follow name");
+  if (req.session.loggedIn) {
+    await follow.followPerson(req.user._id, req.params.name);
+    res.status(200).send(`${req.user._id} is following ${req.params.name}`);
+  } else {
+    res.status(401).send("Cannot follow name - not logged in. ");
+  }
+});
+
+// unfollow person
+router.get("/unfollowperson/:name", async (req, res, next) => {
+  console.log("GET unfollow name");
+  if (req.session.loggedIn) {
+    await follow.unfollowPerson(req.user._id, req.params.name);
+    res.status(200).send(`${req.user._id} unfollowed ${req.params.name}`);
   } else {
     res.status(401).send("Cannot unfollow user - not logged in. ");
   }
@@ -89,28 +110,6 @@ router.get("/regular", async (req, res, next) => {
   }
 });
 
-// follow person
-router.get("/followperson/:name", async (req, res, next) => {
-  console.log("GET follow name");
-  if (req.session.loggedIn) {
-    await follow.followPerson(req.user._id, req.params.name);
-    res.status(200).send(`${req.user._id} is following ${req.params.name}`);
-  } else {
-    res.status(401).send("Cannot follow name - not logged in. ");
-  }
-});
-
-// unfollow person
-router.get("/unfollowperson/:name", async (req, res, next) => {
-  console.log("GET unfollow name");
-  if (req.session.loggedIn) {
-    await follow.unfollowPerson(req.user._id, req.params.name);
-    res.status(200).send(`${req.user._id} unfollowed ${req.params.name}`);
-  } else {
-    res.status(401).send("Cannot unfollow user - not logged in. ");
-  }
-});
-
 // add to movies watched
 router.get("/addmoviewatched/:movie", async (req, res, next) => {
   console.log("GET add movie watched");
@@ -119,7 +118,9 @@ router.get("/addmoviewatched/:movie", async (req, res, next) => {
       { _id: req.user._id },
       { $push: { moviesWatched: req.params.movie } }
     );
-    res.status(200).send(`${req.user._id} added ${req.params.movies} to movies watched.`);
+    res
+      .status(200)
+      .send(`${req.user._id} added ${req.params.movies} to movies watched.`);
   } else {
     res.status(401).send("Cannot add to movies watched - not logged in. ");
   }
@@ -133,7 +134,11 @@ router.get("/removemoviewatched/:movie", async (req, res, next) => {
       { _id: req.user._id },
       { $pull: { moviesWatched: { $in: [req.params.movie] } } }
     );
-    res.status(200).send(`${req.user._id} removed ${req.params.movies} from movies watched.`);
+    res
+      .status(200)
+      .send(
+        `${req.user._id} removed ${req.params.movies} from movies watched.`
+      );
   } else {
     res.status(401).send("Cannot remove from movies watched - not logged in. ");
   }

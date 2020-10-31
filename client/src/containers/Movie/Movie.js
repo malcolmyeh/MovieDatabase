@@ -34,7 +34,6 @@ export default function Movie() {
       `${process.env.REACT_APP_API_URL}/api/reviews?movieId=${id}`,
       { credentials: "include" }
     );
-    console.log("reviewList: ", res.data);
     reviewList = res.data;
     setReviews(reviewList);
     setIsLoadingReviews(false);
@@ -46,7 +45,7 @@ export default function Movie() {
     const movieRes = await axios.get(
       `${process.env.REACT_APP_API_URL}/api/movies/${id}`
     );
-    console.log("movieRes,", movieRes);
+    console.log("movieRes", movieRes);
     setMovie(movieRes.data.movie);
     setWatched(movieRes.data.isWatched);
     // director name from id
@@ -87,7 +86,7 @@ export default function Movie() {
 
   async function loadRecommended() {
     const res = await axios(
-      `${process.env.REACT_APP_API_URL}/api/recommended/${id}`
+      `${process.env.REACT_APP_API_URL}/api/recommended?movie=${id}`
     );
     console.log("recommended: ", res.data);
     setRecommended(res.data);
@@ -236,7 +235,7 @@ export default function Movie() {
     }
     handleCloseBasic();
     handleCloseFull();
-    // loadMovie();
+    loadMovie();
     loadReviews();
     return;
   }

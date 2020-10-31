@@ -19,10 +19,12 @@ router.post("/signin", (req, res, next) => {
         return res.status(400).json({ errors: err });
       }
       req.session.loggedIn = true;
-      console.log("req.session: ", req.session);
-      console.log("req.user.accountType", req.user.accountType);
       req.session.save();
-      return res.status(200).json({ userId: user.id, username: user.username, accountType: req.user.accountType });
+      return res.status(200).json({
+        userId: user.id,
+        username: user.username,
+        accountType: req.user.accountType,
+      });
     });
   })(req, res, next);
 });
@@ -37,6 +39,20 @@ router.get("/logout", (req, res, next) => {
     res.status(200).send("Logged out.");
   } else {
     res.status(200).send("You cannot log out because you aren't logged in.");
+  }
+});
+
+router.get("/session", (req, res, next) => {
+  console.log("Checking for session. ");
+  if (req.session.loggedIn) {
+    res.status(200).send({
+      session: true,
+      userId: req.user._id,
+      username: req.user.username,
+      isContributor: req.user.accountType,
+    });
+  } else {
+    res.status(200).send({ session: false });
   }
 });
 

@@ -40,7 +40,6 @@ export default function Login() {
       userHasAuthenticated(true);
       setUsername(res.data.username);
       setUserId(res.data.userId);
-
       setIsContributor(res.data.accountType === "Contributor");
       setIsLoading(false);
       history.push("/");
