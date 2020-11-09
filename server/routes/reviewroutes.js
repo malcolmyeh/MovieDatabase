@@ -4,7 +4,7 @@ const Movie = require("../models/Movie");
 const User = require("../models/User");
 const router = express.Router();
 
-router.get("/reviews", async (req, res, next) => {
+router.get("/", async (req, res, next) => {
   console.log("GET reviews");
   try {
     var userId = req.query.userId;

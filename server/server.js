@@ -81,3 +81,5 @@ mongoose
     server.listen(PORT, () => console.log(`Backend listening on port ${PORT}`));
   })
   .catch((err) => console.log(err));
+
+exports.app = app;

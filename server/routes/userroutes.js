@@ -4,7 +4,7 @@ const User = require("../models/User");
 const follow = require("../utils/follow");
 
 router.get("/:user", async (req, res, next) => {
-  // console.log("GET user: ", req.params.user);
+  console.log("GET user: ", req.params.user);
   try {
     const user = await User.findOne({ _id: req.params.user });
     var isFollowing = false;
@@ -19,13 +19,14 @@ router.get("/:user", async (req, res, next) => {
 });
 
 router.get("/", async (req, res, next) => {
+  console.log("GET users");
   try {
     let name = req.query.name;
     let query = {};
     if (name) query.username = { $regex: `(?i).*${name}.*` };
-    console.log("query: ", query);
+    // console.log("query: ", query);
     const users = await User.find(query);
-    console.log("users: ", users);
+    // console.log("users: ", users);
     var reducedUsers = users.map((user) => {
       const reducedUser = {
         username: user.username,
@@ -33,7 +34,7 @@ router.get("/", async (req, res, next) => {
       };
       return reducedUser;
     });
-    console.log("reducedUsers: ", reducedUsers);
+    // console.log("reducedUsers: ", reducedUsers);
     res.status(200).send(reducedUsers);
   } catch {
     res.status(404).send({ error: "No users found!" });
@@ -90,7 +91,7 @@ router.get("/contributor", async (req, res, next) => {
   if (req.session.loggedIn) {
     req.user.accountType = "Contributor";
     req.user.save();
-    console.log(req.user);
+    // console.log(req.user);
     res.status(200).send(`${req.user.username} is a contributor. `);
   } else {
     res.status(401).send("Cannot become contributor - not logged in. ");
