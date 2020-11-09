@@ -37,9 +37,16 @@ export default function Genre() {
 
   async function loadMovies(id) {
     if (movieList.length === 0 || id !== currentId) {
-      const res = await axios(`${process.env.REACT_APP_API_URL}/api/movies?genre=${id}`);
-      movieList = res.data;
-      currentId = id;
+      try {
+        const res = await axios(
+          `${process.env.REACT_APP_API_URL}/api/movies?genre=${id}`
+        );
+        movieList = res.data;
+        currentId = id;
+      } catch (e) {
+        console.log(e);
+        alert(e);
+      }
     }
     setMovies(movieList);
     setIsLoading(false);
@@ -47,11 +54,7 @@ export default function Genre() {
 
   useEffect(() => {
     async function onLoad() {
-      try {
-        loadMovies(id);
-      } catch (e) {
-        console.log(e);
-      }
+      loadMovies(id);
     }
     onLoad();
   }, [id]);
@@ -71,7 +74,9 @@ export default function Genre() {
     const currentMovies = movies.slice(firstIndex, lastIndex + 1);
     return (
       <FadeIn>
-        <Row className="justify-content-md-center">{currentMovies.map((movie) => MovieCard(movie))}</Row>
+        <Row className="justify-content-md-center">
+          {currentMovies.map((movie) => MovieCard(movie))}
+        </Row>
       </FadeIn>
     );
   }

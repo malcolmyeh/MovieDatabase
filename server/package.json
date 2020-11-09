@@ -4,8 +4,11 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
     "start": "node server.js"
+  },
+  "jest": {
+    "verbose": true
   },
   "author": "",
   "license": "ISC",
@@ -24,5 +27,9 @@
     "passport-local": "^1.0.0",
     "passport.socketio": "^3.7.0",
     "socket.io": "^2.3.0"
+  },
+  "devDependencies": {
+    "@shelf/jest-mongodb": "^1.2.3",
+    "jest": "^26.6.3"
   }
 }

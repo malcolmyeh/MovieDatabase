@@ -4,10 +4,13 @@ const UserSchema = new mongoose.Schema(
   {
     username: {
       type: String,
-      unique: [true, 'Username already taken. ']
+      unique: [true, 'Username already taken. '],
+      required: [true, 'Username is required. '],
+
     },
     password: {
       type: String,
+      required: [true, 'Password is required. '],
     },
     date: {
       type: Date,
@@ -38,7 +41,7 @@ const UserSchema = new mongoose.Schema(
       default: [],
     },
   },
-  { strict: false }
+  // { strict: false }
 );
 
 module.exports = User = mongoose.model("users", UserSchema);

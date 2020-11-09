@@ -18,12 +18,17 @@ export default function Home() {
   async function loadFeatured() {
     setIsLoadingRecommended(true);
     var endpoint;
-    if (isAuthenticated) endpoint = `/api/recommended?user=${userId}`;
+    if (isAuthenticated) endpoint = `/api/movies/recommended?user=${userId}`;
     else endpoint = `/api/featuredmovies`;
-    const res = await axios(`${process.env.REACT_APP_API_URL}${endpoint}`);
-    movieList = res.data;
-    console.log("movieList:", movieList);
-    setFeaturedMovies(movieList);
+    try {
+      const res = await axios(`${process.env.REACT_APP_API_URL}${endpoint}`);
+      movieList = res.data;
+      console.log("movieList:", movieList);
+      setFeaturedMovies(movieList);
+    } catch (e) {
+      console.log(e);
+      alert(e);
+    }
     setIsLoadingRecommended(false);
   }
 
@@ -44,13 +49,10 @@ export default function Home() {
 
   useEffect(() => {
     async function onLoad() {
-      try {
-        loadFeatured();
-      } catch (e) {
-        console.log(e);
-      }
+      loadFeatured();
     }
     onLoad();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, userId]);
 
   return (

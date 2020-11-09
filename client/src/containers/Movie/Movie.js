@@ -13,7 +13,6 @@ import { loremIpsum } from "lorem-ipsum";
 axios.defaults.withCredentials = true;
 
 var reviewList = [];
-// var currentId = "";
 
 export default function Movie() {
   const { isAuthenticated, username, userId, isContributor } = useAppContext();
@@ -86,7 +85,7 @@ export default function Movie() {
 
   async function loadRecommended() {
     const res = await axios(
-      `${process.env.REACT_APP_API_URL}/api/recommended?movie=${id}`
+      `${process.env.REACT_APP_API_URL}/api/movies/recommended?movie=${id}`
     );
     console.log("recommended: ", res.data);
     setRecommended(res.data);
@@ -107,19 +106,20 @@ export default function Movie() {
       }
     }
     onLoad();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   async function handleWatched() {
     try {
       if (watched) {
         const res = await axios.get(
-          `${process.env.REACT_APP_API_URL}/api/removemoviewatched/${id}`
+          `${process.env.REACT_APP_API_URL}/api/users/removemoviewatched/${id}`
         );
         console.log(res);
         setWatched(false);
       } else {
         const res = await axios.get(
-          `${process.env.REACT_APP_API_URL}/api/addmoviewatched/${id}`
+          `${process.env.REACT_APP_API_URL}/api/users/addmoviewatched/${id}`
         );
         console.log(res);
         setWatched(true);
@@ -262,7 +262,7 @@ export default function Movie() {
     };
     try {
       const res = await axios.post(
-        `${process.env.REACT_APP_API_URL}/api/addPeople/${id}`,
+        `${process.env.REACT_APP_API_URL}/api/movies/addPeople/${id}`,
         newPeople
       );
       console.log(res);

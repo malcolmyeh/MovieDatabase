@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Row, Col, ResponsiveEmbed } from "react-bootstrap";
+import { Row, Col } from "react-bootstrap";
 import LoadingButton from "../../components/LoadingButton/LoadingButton";
 import Loading from "../../components/Loading/Loading";
 import FadeIn from "../../components/Fade/Fade";
@@ -15,24 +15,26 @@ export default function Reviews(ownPage, id) {
   async function loadReviews() {
     console.log("loadReviews");
     setIsLoading(true);
-    const res = await axios(
-      `${process.env.REACT_APP_API_URL}/api/reviews?userId=${id}`
-    );
-    const reviews = res.data;
-    console.log("reviews:", reviews);
-    setReviews(reviews);
+    try {
+      const res = await axios(
+        `${process.env.REACT_APP_API_URL}/api/reviews?userId=${id}`
+      );
+      const reviews = res.data;
+      console.log("reviews:", reviews);
+      setReviews(reviews);
+    } catch (e) {
+      console.log(e);
+      alert(e);
+    }
     setIsLoading(false);
   }
 
   useEffect(() => {
     async function onLoad() {
-      try {
-        loadReviews();
-      } catch (e) {
-        console.log(e);
-      }
+      loadReviews();
     }
     onLoad();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   async function handleDelete(event) {

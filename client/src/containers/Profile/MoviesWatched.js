@@ -13,27 +13,28 @@ export default function Reviews(id) {
 
   async function loadMoviesWatched(id) {
     setIsLoading(true);
-
-    const res = await axios(`${process.env.REACT_APP_API_URL}/api/users/${id}`);
-    const movieIds = res.data.user.moviesWatched;
-    var movieList = [];
-    for (const movieId of movieIds) {
-      const movie = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api/movies/${movieId}`
+    try {
+      const res = await axios(
+        `${process.env.REACT_APP_API_URL}/api/users/${id}`
       );
-      movieList.push(movie.data.movie);
+      const movieIds = res.data.user.moviesWatched;
+      var movieList = [];
+      for (const movieId of movieIds) {
+        const movie = await axios.get(
+          `${process.env.REACT_APP_API_URL}/api/movies/${movieId}`
+        );
+        movieList.push(movie.data.movie);
+      }
+      setMoviesWatched(movieList);
+    } catch (e) {
+      console.log(e);
+      alert(e);
     }
-
-    setMoviesWatched(movieList);
     setIsLoading(false);
   }
   useEffect(() => {
     async function onLoad() {
-      try {
-        loadMoviesWatched(id);
-      } catch (e) {
-        console.log(e);
-      }
+      loadMoviesWatched(id);
     }
     onLoad();
   }, [id]);

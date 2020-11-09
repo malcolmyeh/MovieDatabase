@@ -20,7 +20,7 @@ const PeopleSchema = new mongoose.Schema(
       default: []
     }
   },
-  { strict: false }
+  // { strict: false }
 );
 
 module.exports = People = mongoose.model("people", PeopleSchema);

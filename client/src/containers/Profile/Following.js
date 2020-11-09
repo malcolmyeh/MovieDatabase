@@ -16,39 +16,42 @@ export default function Following(id, ownPage, type) {
 
   async function loadFollowing() {
     setIsLoading(true);
-    const res = await axios(`${process.env.REACT_APP_API_URL}/api/users/${id}`);
-    const userIds = res.data.user.followingUsers;
-    const nameIds = res.data.user.followingPeople;
-    if (type === "user") {
-      users = [];
-      for (const userId of userIds) {
-        const user = await axios.get(
-          `${process.env.REACT_APP_API_URL}/api/users/${userId}`
-        );
-        users.push({username: user.data.user.username, id: userId});
+    try {
+      const res = await axios(
+        `${process.env.REACT_APP_API_URL}/api/users/${id}`
+      );
+      const userIds = res.data.user.followingUsers;
+      const nameIds = res.data.user.followingPeople;
+      if (type === "user") {
+        users = [];
+        for (const userId of userIds) {
+          const user = await axios.get(
+            `${process.env.REACT_APP_API_URL}/api/users/${userId}`
+          );
+          users.push({ username: user.data.user.username, id: userId });
+        }
+        setFollowing(users);
+      } else if (type === "name") {
+        names = [];
+        for (const nameId of nameIds) {
+          const person = await axios.get(
+            `${process.env.REACT_APP_API_URL}/api/people/${nameId}`
+          );
+          names.push({ name: person.data.person.name, id: nameId });
+        }
+        console.log(names);
+        setFollowing(names);
       }
-      setFollowing(users);
-    } else if (type === "name") {
-      names = [];
-      for (const nameId of nameIds) {
-        const person = await axios.get(
-          `${process.env.REACT_APP_API_URL}/api/people/${nameId}`
-        );
-        names.push({name: person.data.person.name, id: nameId});
-      }
-      console.log(names);
-      setFollowing(names);
+    } catch (e) {
+      console.log(e);
+      alert(e);
     }
     setIsLoading(false);
   }
 
   useEffect(() => {
     async function onLoad() {
-      try {
-        loadFollowing(id);
-      } catch (e) {
-        console.log(e);
-      }
+      loadFollowing(id);
     }
     onLoad();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -67,18 +70,22 @@ export default function Following(id, ownPage, type) {
       async function unfollowName(name) {
         console.log("name: ", name);
         try {
-          const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/unfollowperson/${name}`);
+          const res = await axios.get(
+            `${process.env.REACT_APP_API_URL}/api/unfollowperson/${name}`
+          );
           console.log(res);
-        } catch (e){
+        } catch (e) {
           console.log(e);
         }
       }
       async function unfollowUser(user) {
         console.log("user: ", user);
         try {
-          const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/unfollowuser/${user}`);
+          const res = await axios.get(
+            `${process.env.REACT_APP_API_URL}/api/unfollowuser/${user}`
+          );
           console.log(res);
-        } catch (e){
+        } catch (e) {
           console.log(e);
         }
       }

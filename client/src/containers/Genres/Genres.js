@@ -14,9 +14,16 @@ export default function Genres() {
   const [isLoading, setIsLoading] = useState(true);
 
   async function loadGenres() {
-    if (genreList.length === 0){
-      const res = await axios(`${process.env.REACT_APP_API_URL}/api/genres`);
-      genreList = res.data.genres;
+    if (genreList.length === 0) {
+      try {
+        const res = await axios(
+          `${process.env.REACT_APP_API_URL}/api/movies/genres`
+        );
+        genreList = res.data.genres;
+      } catch (e) {
+        console.log(e);
+        alert(e);
+      }
     }
     setGenres(genreList);
     setIsLoading(false);
@@ -24,14 +31,10 @@ export default function Genres() {
 
   useEffect(() => {
     async function onLoad() {
-      try {
-        loadGenres();
-      } catch (e) {
-        console.log(e);
-      }
+      loadGenres();
     }
     onLoad();
-  },[]);
+  }, []);
 
   function listGenres() {
     return isLoading ? (

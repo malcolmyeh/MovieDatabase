@@ -6,6 +6,7 @@ const mongoose = require("mongoose");
 const socketIo = require("socket.io");
 var passportSocketIo = require("passport.socketio");
 const http = require("http");
+const cors = require("cors");
 
 const passport = require("./passport/setup");
 const auth = require("./routes/auth");
@@ -13,7 +14,7 @@ const movieroutes = require("./routes/movieroutes");
 const peopleroutes = require("./routes/peopleroutes");
 const reviewroutes = require("./routes/reviewroutes");
 const userroutes = require("./routes/userroutes");
-const cors = require("cors");
+
 const app = express();
 const PORT = 5000;
 const MONGO_URI = "mongodb://127.0.0.1:27017/";
@@ -49,10 +50,10 @@ mongoose
 
     // Routes
     app.use("/api/auth", auth);
-    app.use("/api", movieroutes);
-    app.use("/api", userroutes);
-    app.use("/api", reviewroutes);
-    app.use("/api", peopleroutes);
+    app.use("/api/movies", movieroutes);
+    app.use("/api/users", userroutes);
+    app.use("/api/reviews", reviewroutes);
+    app.use("/api/people", peopleroutes);
     app.get("/", (req, res) => res.send("Backend is healthy."));
 
     const server = http.createServer(app);

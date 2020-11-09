@@ -7,7 +7,6 @@ import {
   Button,
   FormControl,
   Nav,
-  ResponsiveEmbed,
 } from "react-bootstrap";
 import { Link, useHistory } from "react-router-dom";
 import Routes from "./Routes";

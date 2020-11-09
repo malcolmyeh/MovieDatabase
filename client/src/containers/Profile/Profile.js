@@ -27,7 +27,7 @@ export default function Profile() {
   async function upgradeAccount() {
     try {
       const res = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api/contributor`
+        `${process.env.REACT_APP_API_URL}/api/users/contributor`
       );
       console.log(res);
       setIsContributor(true);
@@ -39,7 +39,7 @@ export default function Profile() {
   async function downgradeAccount() {
     try {
       const res = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api/regular`
+        `${process.env.REACT_APP_API_URL}/api/users/regular`
       );
       console.log(res);
       setIsContributor(false);
@@ -53,7 +53,7 @@ export default function Profile() {
     if (!isFollowing) {
       try {
         const res = await axios.get(
-          `${process.env.REACT_APP_API_URL}/api/followuser/${id}`
+          `${process.env.REACT_APP_API_URL}/api/users/followuser/${id}`
         );
         console.log(res);
         setIsFollowing(true);
@@ -63,7 +63,7 @@ export default function Profile() {
     } else {
       try {
         const res = await axios.get(
-          `${process.env.REACT_APP_API_URL}/api/unfollowuser/${id}`
+          `${process.env.REACT_APP_API_URL}/api/users/unfollowuser/${id}`
         );
         console.log(res);
         setIsFollowing(false);
@@ -75,28 +75,30 @@ export default function Profile() {
 
   async function loadUsername(id) {
     setIsLoading(true);
-    const res = await axios(`${process.env.REACT_APP_API_URL}/api/users/${id}`);
-    console.log("res.data", res.data);
-    setUsername(res.data.user.username);
-    setIsFollowing(res.data.isFollowing);
-    if(res.data.user.accountType == "Contributor")
-      setIsContributor(true);
-    else 
-      setIsContributor(false);
-    console.log("res.data.isFollowing:", res.data.isFollowing);
-    console.log("isFollowing:", isFollowing);
+    try {
+      const res = await axios(
+        `${process.env.REACT_APP_API_URL}/api/users/${id}`
+      );
+      console.log("res.data", res.data);
+      setUsername(res.data.user.username);
+      setIsFollowing(res.data.isFollowing);
+      if (res.data.user.accountType === "Contributor") setIsContributor(true);
+      else setIsContributor(false);
+      console.log("res.data.isFollowing:", res.data.isFollowing);
+      console.log("isFollowing:", isFollowing);
+    } catch (e) {
+      console.log(e);
+      alert(e);
+    }
     setIsLoading(false);
   }
 
   useEffect(() => {
     async function onLoad() {
-      try {
-        loadUsername(id);
-      } catch (e) {
-        console.log(e);
-      }
+      loadUsername(id);
     }
     onLoad();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   function renderUserInfo() {

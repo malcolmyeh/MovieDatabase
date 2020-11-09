@@ -3,7 +3,7 @@ const router = express.Router();
 const User = require("../models/User");
 const follow = require("../utils/follow");
 
-router.get("/users/:user", async (req, res, next) => {
+router.get("/:user", async (req, res, next) => {
   // console.log("GET user: ", req.params.user);
   try {
     const user = await User.findOne({ _id: req.params.user });
@@ -18,7 +18,7 @@ router.get("/users/:user", async (req, res, next) => {
   }
 });
 
-router.get("/users", async (req, res, next) => {
+router.get("/", async (req, res, next) => {
   try {
     let name = req.query.name;
     let query = {};

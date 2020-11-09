@@ -22,47 +22,49 @@ export default function Name() {
   async function loadPerson() {
     setIsLoading(true);
     // person
-    const personRes = await axios(
-      `${process.env.REACT_APP_API_URL}/api/people/${id}`
-    );
-    setPerson(personRes.data.person);
-    console.log("personRes.data", personRes.data);
-    // movies
-    const movieIds = personRes.data.person.movies;
-    const movieArr = [];
-    for (const movieId of movieIds) {
-      const movieRes = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api/movies/${movieId}`
+    try {
+      const personRes = await axios(
+        `${process.env.REACT_APP_API_URL}/api/people/${id}`
       );
-      movieArr.push(movieRes.data.movie);
+      setPerson(personRes.data.person);
+      console.log("personRes.data", personRes.data);
+      // movies
+      const movieIds = personRes.data.person.movies;
+      const movieArr = [];
+      for (const movieId of movieIds) {
+        const movieRes = await axios.get(
+          `${process.env.REACT_APP_API_URL}/api/movies/${movieId}`
+        );
+        movieArr.push(movieRes.data.movie);
+      }
+      console.log("movieArr:", movieArr);
+      setMovies(movieArr);
+      // frequent collaborators
+      // sort collaborators by count and return top 10
+      const collaboratorArr = personRes.data.person.frequentCollaborators
+        .sort((a, b) => a.count - b.count)
+        .slice(0, 10);
+      setCollaborators(collaboratorArr);
+    } catch (e) {
+      console.log(e);
+      alert(e);
     }
-    console.log("movieArr:", movieArr);
-    setMovies(movieArr);
-    // frequent collaborators
-    // sort collaborators by count and return top 10
-    const collaboratorArr = personRes.data.person.frequentCollaborators
-      .sort((a, b) => a.count - b.count)
-      .slice(0, 10);
-    setCollaborators(collaboratorArr);
     setIsLoading(false);
   }
 
   useEffect(() => {
     async function onLoad() {
-      try {
-        loadPerson();
-      } catch (e) {
-        console.log(e);
-      }
+      loadPerson();
     }
     onLoad();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   async function handleFollow() {
     if (!isFollowing) {
       try {
         const res = await axios(
-          `${process.env.REACT_APP_API_URL}/api/followperson/${id}`
+          `${process.env.REACT_APP_API_URL}/api/users/followperson/${id}`
         );
         console.log(res);
         setIsFollowing(true);
@@ -72,7 +74,7 @@ export default function Name() {
     } else {
       try {
         const res = await axios(
-          `${process.env.REACT_APP_API_URL}/api/unfollowperson/${id}`
+          `${process.env.REACT_APP_API_URL}/api/users/unfollowperson/${id}`
         );
         console.log(res);
         setIsFollowing(false);

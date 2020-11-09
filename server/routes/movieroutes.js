@@ -7,7 +7,7 @@ const User = require("../models/User");
 var genreList = []; // save genres in memory as it is not likely to change
 const MAX_RETRIES = 10;
 
-router.get("/movies/:movie", async (req, res, next) => {
+router.get("/:movie", async (req, res, next) => {
   console.log("GET movie", req.params.movie);
   try {
     var isWatched = false;
@@ -23,7 +23,7 @@ router.get("/movies/:movie", async (req, res, next) => {
   }
 });
 
-router.get("/movies", async (req, res, next) => {
+router.get("/", async (req, res, next) => {
   console.log("GET movies", req.query);
   try {
     let genre = req.query.genre;
@@ -74,7 +74,7 @@ router.get("/featuredmovies", async (req, res, next) => {
   }
 });
 
-router.post("/movies", async (req, res, next) => {
+router.post("/", async (req, res, next) => {
   console.log("POST movies");
   console.log("req.body:", req.body);
   const movie = req.body;
@@ -583,7 +583,7 @@ router.post("/addPeople/:movie", async (req, res, next) => {
         { $addToSet: { Actors: actor.id } }
       );
     }
-    res.status(204).send("Movie udpated.");
+    res.status(204).send("Movie updated.");
   } else {
     res.status(401).send({
       error: "Cannot update movie - must be logged in and contributing user. ",

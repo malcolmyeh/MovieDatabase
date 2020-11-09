@@ -101,7 +101,7 @@ const MovieSchema = new mongoose.Schema(
       default: 0
     }
   },
-  { strict: false }
+  // { strict: false }
 );
 
 module.exports = Movie = mongoose.model("movies", MovieSchema);

@@ -88,53 +88,64 @@ export default function Search() {
   let queryString = new URLSearchParams(location.search).get("q");
   async function loadMovies() {
     setIsLoadingMovies(true);
-
-    if (movieList.length === 0 || queryString !== currentQuery) {
-      const res = await axios(
-        `${process.env.REACT_APP_API_URL}/api/movies?title=${queryString}`
-      );
-      movieList = res.data;
-      currentQuery = queryString;
+    try {
+      if (movieList.length === 0 || queryString !== currentQuery) {
+        const res = await axios(
+          `${process.env.REACT_APP_API_URL}/api/movies?title=${queryString}`
+        );
+        movieList = res.data;
+        currentQuery = queryString;
+      }
+      setMovies(movieList);
+    } catch (e) {
+      console.log(e);
+      alert(e);
     }
-    setMovies(movieList);
     setIsLoadingMovies(false);
   }
 
   async function loadNames() {
     setIsLoadingNames(true);
-    if (nameList.length === 0 || queryString !== currentQuery) {
-      const res = await axios(
-        `${process.env.REACT_APP_API_URL}/api/people?name=${queryString}`
-      );
-      nameList = res.data;
-      currentQuery = queryString;
+    try {
+      if (nameList.length === 0 || queryString !== currentQuery) {
+        const res = await axios(
+          `${process.env.REACT_APP_API_URL}/api/people?name=${queryString}`
+        );
+        nameList = res.data;
+        currentQuery = queryString;
+      }
+      setNames(nameList);
+    } catch (e) {
+      console.log(e);
+      alert(e);
     }
-    setNames(nameList);
     setIsLoadingNames(false);
   }
 
   async function loadUsers() {
     setIsLoadingUsers(true);
-    if (userList.length === 0 || queryString !== currentQuery) {
-      const res = await axios(
-        `${process.env.REACT_APP_API_URL}/api/users?name=${queryString}`
-      );
-      userList = res.data;
-      currentQuery = queryString;
+    try {
+      if (userList.length === 0 || queryString !== currentQuery) {
+        const res = await axios(
+          `${process.env.REACT_APP_API_URL}/api/users?name=${queryString}`
+        );
+        userList = res.data;
+        currentQuery = queryString;
+      }
+      setUsers(userList);
+    } catch (e) {
+      console.log(e);
+      alert(e);
     }
-    setUsers(userList);
+
     setIsLoadingUsers(false);
   }
 
   useEffect(() => {
     async function onLoad() {
-      try {
-        loadMovies();
-        loadNames();
-        loadUsers();
-      } catch (e) {
-        console.log(e);
-      }
+      loadMovies();
+      loadNames();
+      loadUsers();
     }
     onLoad();
     // eslint-disable-next-line react-hooks/exhaustive-deps

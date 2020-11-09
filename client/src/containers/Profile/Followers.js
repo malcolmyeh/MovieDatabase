@@ -14,27 +14,28 @@ export default function Followers(id) {
   const [isLoading, setIsLoading] = useState(true);
   async function loadFollowers(id) {
     setIsLoading(true);
-
-    const res = await axios(`${process.env.REACT_APP_API_URL}/api/users/${id}`);
-    const userIds = res.data.user.followers;
-    users = [];
-    for (const userId of userIds) {
-      const user = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api/users/${userId}`
+    try {
+      const res = await axios(
+        `${process.env.REACT_APP_API_URL}/api/users/${id}`
       );
-      users.push({username: user.data.user.username, id: userId});
+      const userIds = res.data.user.followers;
+      users = [];
+      for (const userId of userIds) {
+        const user = await axios.get(
+          `${process.env.REACT_APP_API_URL}/api/users/${userId}`
+        );
+        users.push({ username: user.data.user.username, id: userId });
+      }
+      setFollowers(users);
+    } catch (e) {
+      console.log(e);
+      alert(e);
     }
-    setFollowers(users);
-
     setIsLoading(false);
   }
   useEffect(() => {
     async function onLoad() {
-      try {
-        loadFollowers(id);
-      } catch (e) {
-        console.log(e);
-      }
+      loadFollowers(id);
     }
     onLoad();
   }, [id]);
@@ -48,11 +49,7 @@ export default function Followers(id) {
           {followers.slice(0, numFollowers).map((user) => {
             return (
               <div key={user.id}>
-                <Link
-                  to={`/profile/${user.id}`}
-                >
-                  {user.username}
-                </Link>
+                <Link to={`/profile/${user.id}`}>{user.username}</Link>
               </div>
             );
           })}
