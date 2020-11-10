@@ -17,7 +17,7 @@ export default function Genres() {
     if (genreList.length === 0) {
       try {
         const res = await axios(
-          `${process.env.REACT_APP_API_URL}/api/movies/genres`
+          `${process.env.REACT_APP_API_URL}/api/genres`
         );
         genreList = res.data.genres;
       } catch (e) {

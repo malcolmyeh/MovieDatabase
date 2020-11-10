@@ -50,10 +50,10 @@ mongoose
 
     // Routes
     app.use("/api/auth", auth);
-    app.use("/api/movies", movieroutes);
-    app.use("/api/users", userroutes);
-    app.use("/api/reviews", reviewroutes);
-    app.use("/api/people", peopleroutes);
+    app.use("/api/", movieroutes);
+    app.use("/api/", userroutes);
+    app.use("/api/", reviewroutes);
+    app.use("/api/", peopleroutes);
     app.get("/", (req, res) => res.send("Backend is healthy."));
 
     const server = http.createServer(app);

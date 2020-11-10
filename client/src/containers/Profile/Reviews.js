@@ -4,6 +4,8 @@ import LoadingButton from "../../components/LoadingButton/LoadingButton";
 import Loading from "../../components/Loading/Loading";
 import FadeIn from "../../components/Fade/Fade";
 import axios from "axios";
+import { Link } from "react-router-dom";
+
 axios.defaults.withCredentials = true;
 
 export default function Reviews(ownPage, id) {
@@ -63,7 +65,7 @@ export default function Reviews(ownPage, id) {
       return review.title !== "" && review.body !== "" ? (
         <div key={review.movie + review.title}>
           <div style={{ display: "flex" }}>
-            <h4>{`${review.movieTitle}\xa0|\xa0${review.title}`}</h4>
+            <h4>{`${review.score}/10\xa0\xa0${review.title}`}</h4>
             {ownPage ? (
               <LoadingButton
                 variant="outline-dark"
@@ -79,7 +81,8 @@ export default function Reviews(ownPage, id) {
               <></>
             )}
           </div>
-          <p>{`${review.date.slice(0, 10)}`}</p>
+          <p>{`${review.date.slice(0, 10)}\xa0|\xa0`}
+          <Link to={`/movie/${review.movieId}`}>{review.movieTitle}</Link></p>
           <div>{review.body}</div>
         </div>
       ) : (

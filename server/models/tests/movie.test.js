@@ -8,13 +8,13 @@ const movieData = {
   Released: "1 Jan 2020",
   Runtime: "99 min",
   Genre: "Action, Comedy",
-  Director: [mongoose.Types.ObjectId('4edd40c86762e0fb12000005')],
-  Writer: [mongoose.Types.ObjectId('4edd40c86762e0fb12000006')],
-  Actors: [mongoose.Types.ObjectId('4edd40c86762e0fb12000007')],
+  Director: [mongoose.Types.ObjectId("4edd40c86762e0fb12000005")],
+  Writer: [mongoose.Types.ObjectId("4edd40c86762e0fb12000006")],
+  Actors: [mongoose.Types.ObjectId("4edd40c86762e0fb12000007")],
   Plot: "is a cool movie",
   Language: "English",
   Country: "Canada",
-  Type: "movie"
+  Type: "movie",
 };
 
 describe("Movie Model Unit Test", () => {
@@ -61,7 +61,6 @@ describe("Movie Model Unit Test", () => {
     expect(savedMovie.BoxOffice).toBeDefined();
     expect(savedMovie.Production).toBeDefined();
     expect(savedMovie.Rating).toBeDefined();
-
   });
 
   it("inserts movie successfully but ignores fields not defined in schema", async () => {
@@ -85,4 +84,32 @@ describe("Movie Model Unit Test", () => {
     expect(err).toBeInstanceOf(mongoose.Error.ValidationError);
   });
 
+  it("does not create movie without valid fields", async () => {
+    // validation on Rated and Type
+    var invalidMovieData1 = movieData;
+    invalidMovieData1.Rated = "invalid";
+    const invalidMovie1 = new Movie(invalidMovieData1);
+
+    var invalidMovieData2 = movieData;
+    invalidMovieData2.Type = "invalid";
+    const invalidMovie2 = new Movie(invalidMovieData2);
+
+    var err;
+
+    try {
+      const savedMovie1 = await invalidMovie1.save();
+      e = savedMovie1;
+    } catch (e) {
+      err = e;
+    }
+    expect(err).toBeInstanceOf(mongoose.Error.ValidationError);
+
+    try {
+      const savedMovie2 = await invalidMovie2.save();
+      e = savedMovie2;
+    } catch (e) {
+      err = e;
+    }
+    expect(err).toBeInstanceOf(mongoose.Error.ValidationError);
+  });
 });

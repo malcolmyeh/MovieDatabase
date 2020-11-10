@@ -18,7 +18,7 @@ export default function Home() {
   async function loadFeatured() {
     setIsLoadingRecommended(true);
     var endpoint;
-    if (isAuthenticated) endpoint = `/api/movies/recommended?user=${userId}`;
+    if (isAuthenticated) endpoint = `/api/recommended?user=${userId}`;
     else endpoint = `/api/featuredmovies`;
     try {
       const res = await axios(`${process.env.REACT_APP_API_URL}${endpoint}`);

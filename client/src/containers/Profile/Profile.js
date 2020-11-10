@@ -27,7 +27,7 @@ export default function Profile() {
   async function upgradeAccount() {
     try {
       const res = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api/users/contributor`
+        `${process.env.REACT_APP_API_URL}/api/contributor`
       );
       console.log(res);
       setIsContributor(true);
@@ -39,7 +39,7 @@ export default function Profile() {
   async function downgradeAccount() {
     try {
       const res = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api/users/regular`
+        `${process.env.REACT_APP_API_URL}/api/regular`
       );
       console.log(res);
       setIsContributor(false);
@@ -53,7 +53,7 @@ export default function Profile() {
     if (!isFollowing) {
       try {
         const res = await axios.get(
-          `${process.env.REACT_APP_API_URL}/api/users/followuser/${id}`
+          `${process.env.REACT_APP_API_URL}/api/followuser/${id}`
         );
         console.log(res);
         setIsFollowing(true);
@@ -63,7 +63,7 @@ export default function Profile() {
     } else {
       try {
         const res = await axios.get(
-          `${process.env.REACT_APP_API_URL}/api/users/unfollowuser/${id}`
+          `${process.env.REACT_APP_API_URL}/api/unfollowuser/${id}`
         );
         console.log(res);
         setIsFollowing(false);

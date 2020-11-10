@@ -17,10 +17,68 @@ import axios from "axios";
 
 axios.defaults.withCredentials = true;
 
+const ratedArr = [
+  "APPROVED",
+  "Approved",
+  "G",
+  "GP",
+  "M",
+  "M/PG",
+  "N/A",
+  "NC-17",
+  "NOT RATED",
+  "Not Rated",
+  "PASSED",
+  "PG",
+  "PG-13",
+  "Passed",
+  "R",
+  "TV-13",
+  "TV-14",
+  "TV-G",
+  "TV-MA",
+  "TV-PG",
+  "TV-Y7",
+  "UNRATED",
+  "Unrated",
+  "X",
+];
+
+const typeArr = ["episode", "movie", "series"];
+
+const genreArr = [
+  "Action",
+  "Adventure",
+  "Animation",
+  "Biography",
+  "Comedy",
+  "Crime",
+  "Documentary",
+  "Drama",
+  "Family",
+  "Fantasy",
+  "Film-Noir",
+  "History",
+  "Horror",
+  "Music",
+  "Musical",
+  "Mystery",
+  "News",
+  "Romance",
+  "Sci-Fi",
+  "Short",
+  "Sport",
+  "Thriller",
+  "War",
+  "Western",
+];
+
 export default function AddNewMovie() {
   const { isContributor, isAuthenticated } = useAppContext();
   const [isLoading, setIsLoading] = useState(false);
   const history = useHistory();
+
+  // todo: remove default values
   var [fields, handleFieldChange] = useFields({
     Title: "Test",
     Year: "2020",
@@ -53,7 +111,6 @@ export default function AddNewMovie() {
   }
 
   function generateMovie() {
-    const ratedArr = ["G", "PG", "PG-13", "R", "NC-17"];
     const months = [
       "Jan",
       "Feb",
@@ -68,32 +125,7 @@ export default function AddNewMovie() {
       "Nov",
       "Dec",
     ];
-    const genres = [
-      "Action",
-      "Adventure",
-      "Animation",
-      "Biography",
-      "Comedy",
-      "Crime",
-      "Documentary",
-      "Drama",
-      "Family",
-      "Fantasy",
-      "Film-Noir",
-      "History",
-      "Horror",
-      "Music",
-      "Musical",
-      "Mystery",
-      "News",
-      "Romance",
-      "Sci-Fi",
-      "Short",
-      "Sport",
-      "Thriller",
-      "War",
-      "Western",
-    ];
+
     fields.Title = loremIpsum({ count: 1, units: "words" });
     fields.Country = loremIpsum({ count: 1, units: "words" });
     fields.imdbId = loremIpsum({ count: 1, units: "words" });
@@ -106,7 +138,7 @@ export default function AddNewMovie() {
       Math.floor(Math.random() * 120) + 1900
     ).toString()}`;
     fields.Runtime = `${Math.floor(Math.random() * 200).toString()} min`;
-    fields.Genre = genres[Math.floor(Math.random() * genres.length)];
+    fields.Genre = genreArr[Math.floor(Math.random() * genreArr.length)];
     fields.Director = loremIpsum({ count: 1, units: "words" });
     fields.Writer = `${loremIpsum({ count: 1, units: "words" })}, ${loremIpsum({
       count: 1,
@@ -133,6 +165,7 @@ export default function AddNewMovie() {
     if (newMovie.Poster === "")
       newMovie.Poster =
         "https://i.pinimg.com/originals/ae/9f/73/ae9f732d6094233e902ca2bfdc8e2a84.jpg";
+    console.log(newMovie);
     try {
       const res = await axios.post(
         `
@@ -159,20 +192,62 @@ export default function AddNewMovie() {
               Generate
             </Button>
             {Object.keys(fields).map((property) => {
-              return (
-                <Form.Group as={Row} key={property}>
-                  <Form.Label column sm={2}>
-                    {property}
-                  </Form.Label>
-                  <Col sm={10}>
-                    <FormControl
-                      id={property}
-                      value={fields[`${property}`]}
-                      onChange={handleFieldChange}
-                    />
-                  </Col>
-                </Form.Group>
-              );
+              if (property === "Rated") {
+                return (
+                  <Form.Group as={Row} key={property}>
+                    <Form.Label column sm={2}>
+                      {property}
+                    </Form.Label>
+                    <Col sm={10}>
+                      <FormControl
+                        as="select"
+                        id={property}
+                        value={fields[`${property}`]}
+                        onChange={handleFieldChange}
+                      >
+                        {ratedArr.map((rated) => (
+                          <option key={rated}>{rated}</option>
+                        ))}
+                      </FormControl>
+                    </Col>
+                  </Form.Group>
+                );
+              } else if (property === "Type") {
+                return (
+                  <Form.Group as={Row} key={property}>
+                    <Form.Label column sm={2}>
+                      {property}
+                    </Form.Label>
+                    <Col sm={10}>
+                      <FormControl
+                        as="select"
+                        id={property}
+                        value={fields[`${property}`]}
+                        onChange={handleFieldChange}
+                      >
+                        {typeArr.map((type) => (
+                          <option key={type}>{type}</option>
+                        ))}
+                      </FormControl>
+                    </Col>
+                  </Form.Group>
+                );
+              } else {
+                return (
+                  <Form.Group as={Row} key={property}>
+                    <Form.Label column sm={2}>
+                      {property}
+                    </Form.Label>
+                    <Col sm={10}>
+                      <FormControl
+                        id={property}
+                        value={fields[`${property}`]}
+                        onChange={handleFieldChange}
+                      />
+                    </Col>
+                  </Form.Group>
+                );
+              }
             })}
             <LoadingButton
               isLoading={isLoading}

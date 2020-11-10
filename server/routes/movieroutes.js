@@ -7,7 +7,7 @@ const User = require("../models/User");
 var genreList = []; // save genres in memory as it is not likely to change
 const MAX_RETRIES = 10;
 
-router.get("/:movie", async (req, res, next) => {
+router.get("/movies/:movie", async (req, res, next) => {
   console.log("GET movie", req.params.movie);
   try {
     var isWatched = false;
@@ -23,7 +23,7 @@ router.get("/:movie", async (req, res, next) => {
   }
 });
 
-router.get("/", async (req, res, next) => {
+router.get("/movies", async (req, res, next) => {
   console.log("GET movies", req.query);
   try {
     let genre = req.query.genre;
@@ -74,7 +74,7 @@ router.get("/featuredmovies", async (req, res, next) => {
   }
 });
 
-router.post("/", async (req, res, next) => {
+router.post("/movies", async (req, res, next) => {
   console.log("POST movies");
   console.log("req.body:", req.body);
   const movie = req.body;
@@ -244,8 +244,11 @@ router.post("/", async (req, res, next) => {
   }
 });
 
-// list of genres
 router.get("/genres", async (req, res, next) => {
+
+  // this goes through every movie and returns array of unique genres but is very slow (2000+ ms)
+  // should it be hard coded?
+
   // try {
   //   if (genreList.length === 0) {
   //     const movies = await Movie.find();
@@ -450,7 +453,7 @@ router.get("/recommended", async (req, res, next) => {
   }
 });
 
-router.post("/addPeople/:movie", async (req, res, next) => {
+router.post("/movies/addPeople/:movie", async (req, res, next) => {
   console.log("POST addPeople");
   if (req.session.loggedIn && req.user.accountType == "Contributor") {
     console.log(req.body);

@@ -3,7 +3,7 @@ const router = express.Router();
 const People = require("../models/People");
 const User = require("../models/User");
 
-router.get("/:person", async (req, res, next) => {
+router.get("/people/:person", async (req, res, next) => {
   console.log("GET person", req.params.person);
   try {
     const person = await People.findOne({ _id: req.params.person });
@@ -19,7 +19,7 @@ router.get("/:person", async (req, res, next) => {
   }
 });
 
-router.get("/", async (req, res, next) => {
+router.get("/people", async (req, res, next) => {
   try {
     let name = req.query.name;
     let query = {};
@@ -38,7 +38,7 @@ router.get("/", async (req, res, next) => {
   }
 });
 
-router.post("/", async (req, res, next) => {
+router.post("/people", async (req, res, next) => {
   console.log("POST people");
   if (req.session.loggedIn && req.user.accountType == "Contributor") {
     try {

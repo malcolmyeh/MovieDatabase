@@ -26,7 +26,6 @@ describe("Integration Tests", () => {
   });
   it("is healthy", async () => {
     const res = await request(server.app).get("/");
-    console.log(res.text);
     expect(res.statusCode).toEqual(200);
   });
   describe("Authentication Integration", () => {

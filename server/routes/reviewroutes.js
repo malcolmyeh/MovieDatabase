@@ -4,7 +4,7 @@ const Movie = require("../models/Movie");
 const User = require("../models/User");
 const router = express.Router();
 
-router.get("/", async (req, res, next) => {
+router.get("/reviews", async (req, res, next) => {
   console.log("GET reviews");
   try {
     var userId = req.query.userId;
@@ -22,7 +22,7 @@ router.get("/", async (req, res, next) => {
 });
 
 // Post new review
-router.post("/", async (req, res, next) => {
+router.post("/reviews", async (req, res, next) => {
   console.log("POST review");
   if (req.session.loggedIn) {
     try {
@@ -64,7 +64,7 @@ router.post("/", async (req, res, next) => {
 });
 
 // Delete review by id
-router.delete("/:id", async (req, res) => {
+router.delete("/reviews/:id", async (req, res) => {
   // todo: match userid with review.userid
   console.log("DELETE review", req.params.id);
   if (req.session.loggedIn) {

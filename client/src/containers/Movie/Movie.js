@@ -85,7 +85,7 @@ export default function Movie() {
 
   async function loadRecommended() {
     const res = await axios(
-      `${process.env.REACT_APP_API_URL}/api/movies/recommended?movie=${id}`
+      `${process.env.REACT_APP_API_URL}/api/recommended?movie=${id}`
     );
     console.log("recommended: ", res.data);
     setRecommended(res.data);
@@ -113,13 +113,13 @@ export default function Movie() {
     try {
       if (watched) {
         const res = await axios.get(
-          `${process.env.REACT_APP_API_URL}/api/users/removemoviewatched/${id}`
+          `${process.env.REACT_APP_API_URL}/api/removemoviewatched/${id}`
         );
         console.log(res);
         setWatched(false);
       } else {
         const res = await axios.get(
-          `${process.env.REACT_APP_API_URL}/api/users/addmoviewatched/${id}`
+          `${process.env.REACT_APP_API_URL}/api/addmoviewatched/${id}`
         );
         console.log(res);
         setWatched(true);
@@ -262,7 +262,7 @@ export default function Movie() {
     };
     try {
       const res = await axios.post(
-        `${process.env.REACT_APP_API_URL}/api/movies/addPeople/${id}`,
+        `${process.env.REACT_APP_API_URL}/api/addPeople/${id}`,
         newPeople
       );
       console.log(res);
@@ -487,10 +487,6 @@ export default function Movie() {
   }
 
   function renderMoreLike() {
-    // todo:
-    // 3 or 6 recommended movies
-    // search with title (sequels/prequels)
-    // match same score and match all genres -> removing last genre if no match
     return (
       <Row className="mt-3">
         <Col>
