@@ -1,5 +1,3 @@
-const { TestScheduler } = require("jest");
-const { ObjectID } = require("mongodb");
 const mongoose = require("mongoose");
 
 // validation for Rated and Type
@@ -55,7 +53,7 @@ const MovieSchema = new mongoose.Schema(
     },
     Runtime: {
       type: String,
-      required: [true, "Runtime is required. "],
+      default: "N/A",
     },
     Genre: {
       type: String,

@@ -1,98 +1,53 @@
 1. Movie Database
 2. N/A
 3. 
-    Server is running on an OpenStack instance. It can be run locally but requires a MongoDB database named "test".
+    - React frontend framework
+    - Automated testing of Mongoose Schemas and API integration
+        - npm test (from MovieDatabase/server)
+    - Basic IMDB Webscraper (WIP)
+        - searches for imdbID
+        - gets movie data from imdbID
+        - works with movie, series, episode
+        - not implemented with server yet
+            - need to update POST to be able to take input from scraper or directly interact via Mongoose
+            - need to automate/crawl
+4. 
+    PassportJS middleware for authentication:
+        - encapsulates authentication flow which increases maintainability for rest of the server
+        - Although only the local strategy has been used for this checkin, it is easy to integrated with other OAuth providers like Google and Facebook, which has become an increasingly popular method of user authentication for web applications
+        - Session support is built into PassportJS middleware and integrates with Mongoose and MongoDB, which where sessions are stored
 
-    Connect to OpenStack instance:
-    1. ssh -L 9999:localhost:5000 student@134.117.128.136 (password is 'test123')
-    2. // (should already be done) check that client/.env points to localhost:9999
+    Combining Log In/Signup
+        - Apart from password comfirmation (entering same password twice), which can be handled very easily on the frontend, there is very little difference between the sign in flow of log in and sign up, so I chose to combine the functionality into a single route and PassportJS authenticate call. 
 
-    Run server locally (assuming database 'test' exists):
-    1. cd server
-    2. npm i 
-    3. cd init
-    4. node initdatabase // NOTE: will take several minutes!!! please be patient :D
-    5. cd ..
-    6. node server.js
+    React framework over Template Engine such as Pug or EJS
+        - MVC pattern utilizing RESTful API
+            - server is only responsible for sending JSON data while the frontend will parse it for a view
+            - clearer distinction between responsibility of client and server
+        - The movie database has a lot of dynamic pages (~10,000 movies, ~26,000,000 people and potentially many users) and within those pages, components can update (follow/unfollow, add/remove review, add movie, etc), which makes client side rendering faster and more maintainable as it scales
+        - reusability of functional components leads to less redundant code, especially if there are only minor differences in specific use cases
+    
+    Setting Many-To-Many relationships in database 
+        - Importing movie data from JSON to MongoDB can be done with a single call insertMany() which is very fast. Instead, I chose to loop through each movie, checking if each person already exists, creating them if they don't exist, and linking everything together via ObjectId. This causes the initdabase.js to take several minutes instead of a few seconds
+        - _id is the primary key which is indexed. Since MongoDB uses self-balancing tree indexes, searching for a particular _id will be O(log n) and θ(log n). Thus it is faster to search for a document by its _id rather than another field like its Name or Title
+            - The application will hundreds of searches for every interacting user, so it is important to make sure that querying the database is as fast as possible
+            - the initialization cost is negligeable as it should only be run once (as the server is being deployed into production)
+        
+5. 
+    IP address: 134.117.128.136
+    username: student
+    password: test123
+6. 
+    Connect to Openstack instance and start server:
+
+    1. ssh -L 9999:localhost:5000 student@134.117.128.136
+    2(probably not needed). sudo ./init.sh
+        Note: This process loads the movie data into MongoDB, creating many-to-many relationships for each movie and will take several minutes in OpenStack! Please be patient :D
+    3. ./run.sh
 
     Start React app:
+
     1. cd client
     2. npm i
-    3. (if running locally) set REACT_APP_API_URL=http://localhost:5000 in .env file
-    4. npm start
-
-    *** if OpenStack server is not running, repeat same steps in run server locally ***
-
-4/5.
-
-SERVER-SIDE
-
-│   server.js
-│
-├───data
-│       movie-data.json
-│       small-movie-data.json
-│       user-data.json
-│
-├───init
-│       initdatabase.js
-│       insertMovies.js
-│       insertReviews.js
-│       insertUsers.js
-│
-├───models
-│       Movie.js
-│       People.js
-│       Review.js
-│       User.js
-│
-├───routes
-│       movieroutes.js
-│       peopleroutes.js
-│       reviewroutes.js
-│       userroutes.js
-│
-└───utils
-        follow.js
-
-
-    server.js
-    - Express server
-
-    init
-    - initdatabase.js is wrapper that calls the other files
-    - insertMovie.js inserts each movie from data/movie-data.json into the database "test", creating Movie and People documents, which have a many-to-many relationship.
-        - Movie has Director, Writer, Actor
-        - Person has Movies and FrequentCollaborators
-    - insertUsers.js inserts each User from data/user-data.json and with every user follow each other. 
-    - insertReviews.js creates randomly generated Reviews for the 100 most recent movies,  modifies the rating of each movie
-        - Review has Movie and User
-
-    models
-    - database schemas
-
-    routes
-    - get Movie, User, People by id
-    - get Movie by title, genre, year, minrating
-    - get Recommended Movies by id
-    - get Genres
-    - get People by id
-    - get People by name
-    - get Reviews by user id or movie id
-
-
-
-CLIENT-SIDE
- - everything dynamically generated from data received from server or Youtube
- - searchbar
- - links between pages (Movies, People, User)
-
-Things that are not done:
-
-- User sign in was not integrated, so Profile page has been disabled. Authentication has not been fully implemented. 
-- POST movie/review/name endpoint not integrated in client, but should work as the code is used in server/init/initdatabase.js
-- user movie recommendation based on MoviesWatched
-- follow/unfollow/notification
-- movie filter 
-- edge case where movie has multiple directors
-- error handling if api call fails
+    3. npm start
+    4. If the app cannot connect to server, check that REACT_APP_API_URL=http://localhost:9999 in .env file

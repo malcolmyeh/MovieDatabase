@@ -1,3 +1,5 @@
+// script to check unique values of movie data fields
+
 const movies = require("../data/movie-data.json");
 
 var ratedArr = [];
