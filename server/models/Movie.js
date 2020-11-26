@@ -27,7 +27,7 @@ const rated_enum = [
   "Unrated",
   "X",
 ];
-const type_enum = ["episode", "movie", "series"];
+const type_enum = ["episode", "movie", "series", ""];
 
 const MovieSchema = new mongoose.Schema(
   {
@@ -117,7 +117,7 @@ const MovieSchema = new mongoose.Schema(
       validate: {
         validator: (Type) => type_enum.includes(Type),
       },
-      required: [true, "type is required. "],
+      // required: [true, "type is required. "],
     },
     DVD: {
       type: String,

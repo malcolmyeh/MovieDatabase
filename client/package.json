@@ -9,6 +9,7 @@
     "axios": "^0.20.0",
     "bootstrap": "^4.5.2",
     "butter-toast": "^3.3.5",
+    "cheerio": "^1.0.0-rc.3",
     "lorem-ipsum": "^2.0.3",
     "prettier": "^2.1.2",
     "react": "^16.13.1",

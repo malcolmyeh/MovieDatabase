@@ -223,7 +223,7 @@ async function getMovieData(imdbID) {
 }
 
 // getImdbIDs("test", "series");
-// getMovieData("tt3297776"); // episode
+getMovieData("tt3297776"); // episode
 // getMovieData("tt1520211"); //series
 
 exports.getImdbIDs = getImdbIDs;

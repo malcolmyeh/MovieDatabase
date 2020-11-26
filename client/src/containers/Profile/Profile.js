@@ -106,10 +106,10 @@ export default function Profile() {
       Loading("user")
     ) : (
       <Row>
-        <Col sm={3}>
+        <Col sm={4.5}>
           <img
             alt="user"
-            style={{ height: "15vh" }}
+            style={{ height: "150px" }}
             src="https://www.peerq.com/profilepics/default-profile.png"
           />
         </Col>

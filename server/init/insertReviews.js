@@ -48,7 +48,6 @@ async function insertReviews() {
     }
   }
   console.log("Done inserting reviews. ");
-  // mongoose.disconnect();
 }
 
 // updates Movie rating one review is added or deleted
@@ -66,7 +65,5 @@ async function updateRating(movieId) {
     console.log(e);
   }
 }
-
-// insertReviews();
 
 module.exports = { insertReviews };

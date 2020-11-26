@@ -126,7 +126,7 @@ export default function Name() {
     ) : (
       <>
         <Row>
-          <Col sm={2}>
+          <Col sm={4.5}>
             <img
               alt="user"
               style={{ height: "15vh" }}

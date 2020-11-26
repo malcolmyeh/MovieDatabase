@@ -25,22 +25,20 @@ function App() {
   const [userId, setUserId] = useState("");
   const [isContributor, setIsContributor] = useState(false);
 
-  async function loadSession(){
-    try{
+  async function loadSession() {
+    try {
       const res = await axios.get(
         `${process.env.REACT_APP_API_URL}/api/auth/session`
       );
-      if (res.data.session){
+      if (res.data.session) {
         console.log("res.data.session:", res.data);
         userHasAuthenticated(true);
         setUsername(res.data.username);
         setUserId(res.data.userId);
-        if (res.data.isContributor==="Contributor")
-          setIsContributor(true);
-        else
-          setIsContributor(false);
+        if (res.data.isContributor === "Contributor") setIsContributor(true);
+        else setIsContributor(false);
       }
-    } catch (e){
+    } catch (e) {
       console.log(e);
     }
   }
@@ -58,8 +56,7 @@ function App() {
             title={data.name}
           />
         ),
-        timeout: Infinity
-
+        timeout: Infinity,
       });
     });
 
@@ -103,53 +100,57 @@ function App() {
         <Navbar.Brand as={Link} to="/">
           Movie Database
         </Navbar.Brand>
-        <Nav className="mr-auto">
-          <NavLink as={Link} to="/genres">
-            Genres
-          </NavLink>
-          {isContributor ? (
-            <>
-              <NavLink as={Link} to="/add-movie">
-                Add Movie
-              </NavLink>
-              <NavLink as={Link} to="/add-name">
-                Add Name
-              </NavLink>
-            </>
-          ) : (
-            <></>
-          )}
-          {isAuthenticated ? (
-            <>
-              <NavLink disabled={false} as={Link} to={`/profile/${userId}`}>
-                Profile
-              </NavLink>
-              <NavLink onClick={handleLogout}>Log Out</NavLink>
-            </>
-          ) : (
-            <>
-              <NavLink as={Link} to="/signup">
-                Sign Up
-              </NavLink>
-              <NavLink as={Link} to="/login">
-                Log In
-              </NavLink>
-            </>
-          )}
-        </Nav>
-        <Form inline onSubmit={handleSearchSubmit}>
-          <FormControl
-            className="mr-sm-2"
-            id="searchTerm"
-            autoFocus
-            value={fields.searchTerm}
-            onChange={handleFieldChange}
-            placeholder="Search"
-          />
-          <Button type="submit" variant="outline-primary">
-            Search
-          </Button>
-        </Form>
+        <Navbar.Toggle aria-controls="basic-navbar-nav" />
+
+        <Navbar.Collapse id="basic-navbar-nav">
+          <Nav className="mr-auto">
+            <NavLink as={Link} to="/genres">
+              Genres
+            </NavLink>
+            {isContributor ? (
+              <>
+                <NavLink as={Link} to="/add-movie">
+                  Add Movie
+                </NavLink>
+                <NavLink as={Link} to="/add-name">
+                  Add Name
+                </NavLink>
+              </>
+            ) : (
+              <></>
+            )}
+            {isAuthenticated ? (
+              <>
+                <NavLink disabled={false} as={Link} to={`/profile/${userId}`}>
+                  Profile
+                </NavLink>
+                <NavLink onClick={handleLogout}>Log Out</NavLink>
+              </>
+            ) : (
+              <>
+                <NavLink as={Link} to="/signup">
+                  Sign Up
+                </NavLink>
+                <NavLink as={Link} to="/login">
+                  Log In
+                </NavLink>
+              </>
+            )}
+          </Nav>
+          <Form inline onSubmit={handleSearchSubmit}>
+            <FormControl
+              className="mr-sm-2"
+              id="searchTerm"
+              autoFocus
+              value={fields.searchTerm}
+              onChange={handleFieldChange}
+              placeholder="Search"
+            />
+            <Button type="submit" variant="outline-primary">
+              Search
+            </Button>
+          </Form>
+        </Navbar.Collapse>
       </Navbar>
       <Container style={{ marginBottom: "30px" }}>
         <ButterToast as={Link} position={{ vertical: 0, horizontal: 0 }} />

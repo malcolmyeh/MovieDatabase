@@ -14,6 +14,7 @@ const movieroutes = require("./routes/movieroutes");
 const peopleroutes = require("./routes/peopleroutes");
 const reviewroutes = require("./routes/reviewroutes");
 const userroutes = require("./routes/userroutes");
+const trailerroutes = require("./routes/trailerroutes");
 
 const app = express();
 const PORT = 5000;
@@ -54,7 +55,8 @@ mongoose
     app.use("/api/", userroutes);
     app.use("/api/", reviewroutes);
     app.use("/api/", peopleroutes);
-    app.get("/", (req, res) => res.send("Backend is healthy."));
+    app.use("/api/", trailerroutes);
+    app.get("/health", (req, res) => res.send("Backend is healthy."));
 
     const server = http.createServer(app);
     const io = socketIo(server);

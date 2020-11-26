@@ -6,17 +6,28 @@ import Trailer from "../../components/Trailer/Trailer";
 import FadeIn from "../../components/Fade/Fade";
 import axios from "axios";
 import { useAppContext } from "../../libs/context";
+
 axios.defaults.withCredentials = true;
 
 var movieList = [];
 
+function getWidth() {
+  const { innerWidth: width } = window;
+  if (width > 850) return "visible";
+  else return "hidden";
+}
+
 export default function Home() {
   const [isLoadingRecommended, setIsLoadingRecommended] = useState(true);
+  const [isLoadingTrailer, setIsLoadingTrailer] = useState(true);
   const [featuredMovies, setFeaturedMovies] = useState([]);
+  const [showTrailer, setShowTrailer] = useState(getWidth());
+
   const { isAuthenticated, userId } = useAppContext();
 
   async function loadFeatured() {
     setIsLoadingRecommended(true);
+    setIsLoadingTrailer(true);
     var endpoint;
     if (isAuthenticated) endpoint = `/api/recommended?user=${userId}`;
     else endpoint = `/api/featuredmovies`;
@@ -30,6 +41,26 @@ export default function Home() {
       alert(e);
     }
     setIsLoadingRecommended(false);
+    try {
+      for await (var movie of movieList) {
+        const query =
+          movie.Title.replace(/\s+/g, "+").toLowerCase() +
+          "+" +
+          movie.Year.replace("–", "") +
+          "+trailer";
+        const res = await axios(
+          `${process.env.REACT_APP_API_URL}/api/trailer/${query}`
+        );
+        console.log(res.data);
+        movie.videoSrc = res.data;
+      }
+      console.log("movieList:", movieList);
+      setFeaturedMovies(movieList);
+    } catch (e) {
+      console.log(e);
+      alert(e);
+    }
+    setIsLoadingTrailer(false);
   }
 
   // Stopping trailer by forcing reload
@@ -43,8 +74,10 @@ export default function Home() {
       if (prev > 5) prev = 5;
     }
     var iframes = document.querySelectorAll("iframe");
-    const src = iframes[prev].src;
-    iframes[prev].src = src;
+    if (iframes[prev]) {
+      const src = iframes[prev].src;
+      iframes[prev].src = src;
+    }
   }
 
   useEffect(() => {
@@ -52,9 +85,15 @@ export default function Home() {
       loadFeatured();
     }
     onLoad();
+    function handleResize() {
+      setShowTrailer(getWidth());
+    }
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, userId]);
-
+  console.log("featured Movies:", featuredMovies);
   return (
     <Container>
       <Jumbotron style={{ marginTop: "15px" }}></Jumbotron>
@@ -78,8 +117,18 @@ export default function Home() {
                   <Col md="auto" style={{ maxWidth: "300px", padding: "0" }}>
                     <img src={movie.Poster} alt="Poster" />
                   </Col>
-                  <Col style={{ padding: "0" }}>{Trailer(movie)}</Col>
+                  {showTrailer === "visible" ? (
+                    <Col style={{ padding: "0", visibility: showTrailer }}>
+                      {isLoadingTrailer
+                        ? Loading("trailer")
+                        : Trailer(movie.videoSrc)}
+                    </Col>
+                  ) : (
+                    <></>
+                  )}
+                  {/* <Col style={{ padding: "0", visibility: showTrailer }}>{isLoadingTrailer ? (Loading("trailer")) : Trailer(movie.videoSrc)}</Col> */}
                 </Row>
+
                 <Carousel.Caption
                   as={Link}
                   style={{

@@ -19,6 +19,8 @@ export default function Movie() {
   const [isLoadingMovie, setIsLoadingMovie] = useState(true);
   const [isLoadingReviews, setIsLoadingReviews] = useState(true);
   const [isLoadingRecommended, setIsLoadingRecommended] = useState(true);
+  const [isLoadingTrailer, setIsLoadingTrailer] = useState(true);
+  const [trailer, setTrailer] = useState("");
   const [reviews, setReviews] = useState([]);
   const [movie, setMovie] = useState({});
   const [directors, setDirectors] = useState([]);
@@ -27,7 +29,7 @@ export default function Movie() {
   const [recommended, setRecommended] = useState([]);
   const [watched, setWatched] = useState(false);
   const { id } = useParams();
-
+  console.log("isAuthenticated:", isAuthenticated);
   async function loadReviews() {
     const res = await axios.get(
       `${process.env.REACT_APP_API_URL}/api/reviews?movieId=${id}`,
@@ -81,6 +83,7 @@ export default function Movie() {
     }
     setActors(actorArr);
     setIsLoadingMovie(false);
+    return movieRes.data;
   }
 
   async function loadRecommended() {
@@ -92,15 +95,31 @@ export default function Movie() {
     setIsLoadingRecommended(false);
   }
 
+  async function loadTrailer(movieRes) {
+    const query =
+      movieRes.movie.Title.replace(/\s+/g, "+").toLowerCase() +
+      "+" +
+      movieRes.movie.Year.replace("–", "") +
+      "+trailer";
+    const trailerRes = await axios(
+      `${process.env.REACT_APP_API_URL}/api/trailer/${query}`
+    );
+    console.log(trailerRes.data);
+    setTrailer(trailerRes.data);
+    setIsLoadingTrailer(false);
+  }
+
   useEffect(() => {
     setIsLoadingMovie(true);
     setIsLoadingReviews(true);
     setIsLoadingRecommended(true);
+    setIsLoadingTrailer(true);
     async function onLoad() {
       try {
-        await loadMovie(); // load movie first so visual transition isn't as jarring
+        const movieRes = await loadMovie(); // load movie first so visual transition isn't as jarring
         loadReviews();
         loadRecommended();
+        loadTrailer(movieRes);
       } catch (e) {
         console.log(e);
       }
@@ -186,7 +205,6 @@ export default function Movie() {
     return isLoadingReviews ? (
       Loading("reviews")
     ) : (
-      // todo: sort by date
       <FadeIn>
         <h2>User Reviews</h2>
         {reviews.map((review) => {
@@ -520,14 +538,9 @@ export default function Movie() {
               {movie.Title} ({movie.Year})
             </h1>
             <Row>
-              <Col style={{ display: "flex" }}>
-                {movie.Rated}
-                {`\xa0\xa0\xa0|\xa0\xa0\xa0`}
-                {movie.Runtime}
-                {`\xa0\xa0\xa0|\xa0\xa0\xa0`}
+              <Col>
+                {`${movie.Rated} | ${movie.Runtime} | ${movie.Released}`}
                 {getGenres()}
-                {`\xa0\xa0\xa0|\xa0\xa0\xa0`}
-                {movie.Released}
               </Col>
             </Row>
             <Row>
@@ -536,6 +549,7 @@ export default function Movie() {
                   <LoadingButton
                     onClick={handleWatched}
                     variant="outline-primary"
+                    disabled={!isAuthenticated}
                   >
                     Add to Watched
                   </LoadingButton>
@@ -550,26 +564,31 @@ export default function Movie() {
               </Col>
             </Row>
           </Col>
-          <Col sm={3} style={{ display: "flex" }}>
+          <Col sm={2} style={{ display: "flex" }}>
             {reviews.length > 0 ? (
               <>
                 <h1>★{movie.Rating}</h1>
-                <p>{`\xa0\xa0(${reviews.length} ratings)`}</p>
+                <nobr>
+                  <p>{`\xa0\xa0(${reviews.length} ratings)`}</p>
+                </nobr>
               </>
             ) : (
-              <h3>No ratings </h3>
+              <nobr><h3>No ratings </h3></nobr>
             )}
           </Col>
         </Row>
         <Row className="mt-3">
-          <Col sm={2}>
+        {/* <Row> */}
+          <Col sm="auto">
             <img
               src={movie.Poster}
               alt={movie.Poster}
-              style={{ height: "30vh" }}
+              style={{ height: "325px", width: "210px" }}
             />
           </Col>
-          <Col sm={6}>{Trailer(movie)}</Col>
+          <Col sm={8} 
+                        style={{ height: "325px"}}
+                        >{isLoadingTrailer ? Loading("trailer") : Trailer(trailer)}</Col>
         </Row>
         <Row className="mt-3">
           <Col sm={8}>

@@ -76,9 +76,10 @@ router.get("/featuredmovies", async (req, res, next) => {
 
 router.post("/movies", async (req, res, next) => {
   console.log("POST movies");
+  console.log("source:", req.get("source"));
   console.log("req.body:", req.body);
   const movie = req.body;
-  if (req.session.loggedIn && req.user.accountType == "Contributor") {
+  if (req.session.loggedIn && req.user.accountType == "Contributor" || req.get("source") == "postman") {
     try {
       var directorNames = [];
       var writerNames = [];
