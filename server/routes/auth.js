@@ -45,6 +45,7 @@ router.get("/logout", (req, res, next) => {
 router.get("/session", (req, res, next) => {
   console.log("Checking for session. ");
   if (req.session.loggedIn) {
+    console.log("userId:", req.user._id);
     res.status(200).send({
       session: true,
       userId: req.user._id,

@@ -2,11 +2,11 @@ const mongoose = require("mongoose");
 const Review = require("../Review");
 
 const reviewData = {
-  userId: mongoose.Types.ObjectId('4edd40c86762e0fb12000003'), 
+  userId: mongoose.Types.ObjectId("4edd40c86762e0fb12000003"),
   userName: "test-user",
-  movieId: mongoose.Types.ObjectId('4edd40c86762e0fb12000004'),
+  movieId: mongoose.Types.ObjectId("4edd40c86762e0fb12000004"),
   movieTitle: "test-movie",
-  score: 10
+  score: 10,
 };
 
 describe("Review Model Unit Test", () => {
@@ -22,10 +22,9 @@ describe("Review Model Unit Test", () => {
     );
   });
 
-  afterAll(async() => {
-    //   mongoose.connection.close()
-      mongoose.disconnect();
-  })
+  afterAll(async () => {
+    mongoose.disconnect();
+  });
 
   it("creates and saves review successfully", async () => {
     const validReview = new Review(reviewData);
@@ -56,7 +55,7 @@ describe("Review Model Unit Test", () => {
   });
 
   it("does not create review without required fields", async () => {
-    const invalidReview = new Review({ userName: "test-user"});
+    const invalidReview = new Review({ userName: "test-user" });
     var err;
     try {
       const savedReview = await invalidReview.save();
@@ -66,5 +65,4 @@ describe("Review Model Unit Test", () => {
     }
     expect(err).toBeInstanceOf(mongoose.Error.ValidationError);
   });
-
 });

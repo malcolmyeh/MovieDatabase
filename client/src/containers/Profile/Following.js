@@ -60,7 +60,6 @@ export default function Following(id, ownPage, type) {
   async function handleUnfollow(event) {
     event.preventDefault();
     const confirmed = window.confirm(
-      // todo: turn into modal
       "Unfollow?"
     );
     if (!confirmed) {

@@ -42,7 +42,6 @@ export default function Reviews(ownPage, id) {
   async function handleDelete(event) {
     event.preventDefault();
     const confirmed = window.confirm(
-      // todo: turn into modal
       "Delete this review?"
     );
     if (!confirmed) {
@@ -92,7 +91,6 @@ export default function Reviews(ownPage, id) {
     return isLoading ? (
       Loading("reviews")
     ) : (
-      // todo: sort by date
       <FadeIn>
         <Row>
           <Col>

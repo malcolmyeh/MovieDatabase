@@ -26,6 +26,7 @@ export default function Name() {
       const personRes = await axios(
         `${process.env.REACT_APP_API_URL}/api/people/${id}`
       );
+      setIsFollowing(personRes.data.isFollowing)
       setPerson(personRes.data.person);
       console.log("personRes.data", personRes.data);
       // movies
@@ -51,6 +52,7 @@ export default function Name() {
     }
     setIsLoading(false);
   }
+  console.log("isFollowing:",isFollowing);
 
   useEffect(() => {
     async function onLoad() {

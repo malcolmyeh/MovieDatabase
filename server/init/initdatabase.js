@@ -7,6 +7,8 @@ const People = require("../models/People");
 const User = require("../models/User");
 const Review = require("../models/Review");
 
+// Script to load movie and user data from json to MongoDB
+
 mongoose.connect("mongodb://127.0.0.1:27017/", { useNewUrlParser: true });
 
 async function init() {

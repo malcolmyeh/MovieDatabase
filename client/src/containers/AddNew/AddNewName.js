@@ -5,7 +5,9 @@ import { useHistory } from "react-router-dom";
 import { useFields } from "../../libs/hooks";
 import { useAppContext } from "../../libs/context";
 import axios from "axios";
+
 axios.defaults.withCredentials = true;
+
 export default function AddNewName() {
   const { isContributor, isAuthenticated } = useAppContext();
   const [isLoading, setIsLoading] = useState(false);

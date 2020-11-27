@@ -20,10 +20,9 @@ describe("User Model Unit Test", () => {
     );
   });
 
-  afterAll(async() => {
-    //   mongoose.connection.close()
-      mongoose.disconnect();
-  })
+  afterAll(async () => {
+    mongoose.disconnect();
+  });
 
   it("creates and saves user successfully", async () => {
     const validUser = new User(userData);

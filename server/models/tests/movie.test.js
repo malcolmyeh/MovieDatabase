@@ -30,6 +30,10 @@ describe("Movie Model Unit Test", () => {
     );
   });
 
+  afterAll(async () => {
+    mongoose.disconnect();
+  });
+
   it("creates and saves movie successfully", async () => {
     const validMovie = new Movie(movieData);
     const savedMovie = await validMovie.save();

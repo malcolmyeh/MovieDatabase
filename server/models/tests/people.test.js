@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const People = require("../People");
 
 const peopleData = {
-  name: "test-person"
+  name: "test-person",
 };
 
 describe("People Model Unit Test", () => {
@@ -19,10 +19,9 @@ describe("People Model Unit Test", () => {
     );
   });
 
-  afterAll(async() => {
-    //   mongoose.connection.close()
-      mongoose.disconnect();
-  })
+  afterAll(async () => {
+    mongoose.disconnect();
+  });
   it("creates and saves person successfully", async () => {
     const validPerson = new People(peopleData);
     const savedPerson = await validPerson.save();
@@ -36,7 +35,6 @@ describe("People Model Unit Test", () => {
     expect(savedPerson.movies).toBeDefined();
     expect(savedPerson.frequentCollaborators).toBeDefined();
     expect(savedPerson.followers).toBeDefined();
-
   });
 
   it("inserts person successfully but ignores fields not defined in schema", async () => {

@@ -3,8 +3,11 @@ const router = express.Router();
 const Movie = require("../models/Movie");
 const People = require("../models/People");
 const User = require("../models/User");
+const scraper = require("../utils/imdbscraper");
+
 
 var genreList = []; // save genres in memory as it is not likely to change
+
 const MAX_RETRIES = 10;
 
 router.get("/movies/:movie", async (req, res, next) => {
@@ -79,161 +82,13 @@ router.post("/movies", async (req, res, next) => {
   console.log("source:", req.get("source"));
   console.log("req.body:", req.body);
   const movie = req.body;
-  if (req.session.loggedIn && req.user.accountType == "Contributor" || req.get("source") == "postman") {
+  if (
+    (req.session.loggedIn && req.user.accountType == "Contributor") ||
+    req.get("source") == "postman"
+  ) {
     try {
-      var directorNames = [];
-      var writerNames = [];
-      var actorNames = [];
-      var directors = [];
-      var writers = [];
-      var actors = [];
-      var people = [];
-
-      var newMovie = new Movie({
-        // everything except people
-        Title: movie.Title,
-        Year: movie.Year,
-        Rated: movie.Rated,
-        Released: movie.Released,
-        Runtime: movie.Runtime,
-        Genre: movie.Genre,
-        Plot: movie.Plot,
-        Language: movie.Language,
-        Country: movie.Country,
-        Awards: movie.Awards,
-        Poster: movie.Poster,
-        Ratings: movie.Ratings,
-        Metascore: movie.Metascore,
-        imdbRating: movie.imdbRating,
-        imdbId: movie.imdbId,
-        Type: movie.Type,
-        DVD: movie.DVD,
-        BoxOffice: movie.BoxOffice,
-        Production: movie.Production,
-      });
-
-      // Get people from each movie object
-      movie.Director.replace(/ *\([^)]*\) */g, "")
-        .split(", ")
-        .forEach((director) => {
-          // remove brackets
-          directorNames.push(director);
-        });
-      directorNames = Array.from(new Set(directorNames)).sort();
-
-      movie.Writer.replace(/ *\([^)]*\) */g, "")
-        .split(", ")
-        .forEach((writer) => {
-          writerNames.push(writer);
-        });
-      writerNames = Array.from(new Set(writerNames)).sort();
-      movie.Actors.split(", ").forEach((actor) => {
-        actorNames.push(actor);
-      });
-      actorNames = Array.from(new Set(actorNames)).sort();
-
-      // Create person document if doesn't exist, get array of {String, ObjectIds}
-      directors = await getPeopleIds(directorNames);
-      writers = await getPeopleIds(writerNames);
-      actors = await getPeopleIds(actorNames);
-      people.push(...directors, ...writers, ...actors);
-
-      // update Director
-      for (const director of directors) {
-        const directorDocument = await People.findOne({ _id: director.id });
-        directorDocument.movies.push(newMovie._id);
-        for (const follower of directorDocument.followers) {
-          console.log("Notifying", follower);
-          req.app.io.emit(follower, {
-            name: directorDocument.name,
-            body: `directed in ${newMovie.Title}.`,
-          });
-        }
-        for (const person of people.filter(
-          (ele) => ele.name != director.name
-        )) {
-          // get all other people
-          var collaborator = directorDocument.frequentCollaborators.find(
-            (ele) => ele.name === person.name
-          );
-          if (collaborator) {
-            // if collaborator already exists, increase the count
-            ++collaborator.count;
-          } else {
-            // if collaborator doesn't exist, add new collaborator
-            directorDocument.frequentCollaborators.push({
-              name: person.name,
-              id: person.id,
-              count: 1,
-            });
-          }
-        }
-        await directorDocument.save();
-      }
-
-      // update Writers
-      for (const writer of writers) {
-        const writerDocument = await People.findOne({ _id: writer.id });
-        writerDocument.movies.push(newMovie._id);
-        for (const follower of writerDocument.followers) {
-          console.log("Notifying", follower);
-          req.app.io.emit(follower, {
-            name: writerDocument.name,
-            body: `wrote in ${newMovie.Title}.`,
-          });
-        }
-        for (const person of people.filter((ele) => ele.name != writer.name)) {
-          var collaborator = writerDocument.frequentCollaborators.find(
-            (ele) => ele.name === person.name
-          );
-          if (collaborator) {
-            ++collaborator.count;
-          } else {
-            writerDocument.frequentCollaborators.push({
-              name: person.name,
-              id: person.id,
-              count: 1,
-            });
-          }
-        }
-        await writerDocument.save();
-      }
-
-      // update Actors
-      for (const actor of actors) {
-        const actorDocument = await People.findOne({ _id: actor.id });
-        actorDocument.movies.push(newMovie._id);
-        for (const follower of actorDocument.followers) {
-          console.log("Notifying", follower);
-          req.app.io.emit(follower, {
-            name: actorDocument.name,
-            body: `acted in ${newMovie.Title}.`,
-          });
-        }
-        for (const person of people.filter((ele) => ele.name != actor.name)) {
-          var collaborator = actorDocument.frequentCollaborators.find(
-            (ele) => ele.name === person.name
-          );
-          if (collaborator) {
-            ++collaborator.count;
-          } else {
-            actorDocument.frequentCollaborators.push({
-              name: person.name,
-              id: person.id,
-              count: 1,
-            });
-          }
-        }
-        await actorDocument.save();
-      }
-
-      // add people Ids to movie
-      newMovie.Director = directors.map((director) => director.id);
-      newMovie.Writer = writers.map((writer) => writer.id);
-      newMovie.Actors = actors.map((actor) => actor.id);
-      await newMovie.save();
-      console.log(movie.Title, " saved.");
-      res.status(204).send(movie);
+      await addMovie(movie);
+      res.status(201).send("Added "+movie.Title);
     } catch (e) {
       console.log(e);
       res.status(500).send({ error: "Error adding new movie. " });
@@ -246,9 +101,7 @@ router.post("/movies", async (req, res, next) => {
 });
 
 router.get("/genres", async (req, res, next) => {
-
   // this goes through every movie and returns array of unique genres but is very slow (2000+ ms)
-  // should it be hard coded?
 
   // try {
   //   if (genreList.length === 0) {
@@ -267,37 +120,35 @@ router.get("/genres", async (req, res, next) => {
   //   console.log(e);
   //   res.status(500).send({ error: "Error getting genres." });
   // }
-  res
-    .status(200)
-    .send({
-      genres: [
-        "Action",
-        "Adventure",
-        "Animation",
-        "Biography",
-        "Comedy",
-        "Crime",
-        "Documentary",
-        "Drama",
-        "Family",
-        "Fantasy",
-        "Film-Noir",
-        "History",
-        "Horror",
-        "Music",
-        "Musical",
-        "Mystery",
-        "N/A",
-        "News",
-        "Romance",
-        "Sci-Fi",
-        "Short",
-        "Sport",
-        "Thriller",
-        "War",
-        "Western",
-      ],
-    });
+  res.status(200).send({
+    genres: [
+      "Action",
+      "Adventure",
+      "Animation",
+      "Biography",
+      "Comedy",
+      "Crime",
+      "Documentary",
+      "Drama",
+      "Family",
+      "Fantasy",
+      "Film-Noir",
+      "History",
+      "Horror",
+      "Music",
+      "Musical",
+      "Mystery",
+      "N/A",
+      "News",
+      "Romance",
+      "Sci-Fi",
+      "Short",
+      "Sport",
+      "Thriller",
+      "War",
+      "Western",
+    ],
+  });
 });
 
 router.get("/recommended", async (req, res, next) => {
@@ -402,7 +253,7 @@ router.get("/recommended", async (req, res, next) => {
         // get most popular genre
         var genres = [];
         console.log("User has watched at least one movie.");
-        for (const movieId of user.moviesWatched) {
+      for (const movieId of user.moviesWatched) {
           const movie = await Movie.findOne({ _id: movieId });
           movie.Genre.split(", ").forEach((genre) => {
             genres.push(genre);
@@ -456,7 +307,10 @@ router.get("/recommended", async (req, res, next) => {
 
 router.post("/movies/addPeople/:movie", async (req, res, next) => {
   console.log("POST addPeople");
-  if (req.session.loggedIn && req.user.accountType == "Contributor") {
+  if (
+    (req.session.loggedIn && req.user.accountType == "Contributor") ||
+    req.get("source") == "postman"
+  ) {
     console.log(req.body);
     var directorNames = [];
     var writerNames = [];
@@ -465,6 +319,9 @@ router.post("/movies/addPeople/:movie", async (req, res, next) => {
     var writers = [];
     var actors = [];
     var people = [];
+
+    const newMovie = await Movie.findOne({ _id: req.params.movie });
+
 
     if (req.body.Director) {
       req.body.Director.split(", ").forEach((director) => {
@@ -587,7 +444,7 @@ router.post("/movies/addPeople/:movie", async (req, res, next) => {
         { $addToSet: { Actors: actor.id } }
       );
     }
-    res.status(204).send("Movie updated.");
+    res.status(201).send("Movie updated.");
   } else {
     res.status(401).send({
       error: "Cannot update movie - must be logged in and contributing user. ",
@@ -595,6 +452,196 @@ router.post("/movies/addPeople/:movie", async (req, res, next) => {
   }
 });
 
+router.get("/addfromimdb", async (req, res, next) => {
+  console.log("GET addfromimdb");
+  try {
+    var id = req.query.id;
+    var title = req.query.title;
+    var type = req.query.type;
+
+    // must either be imdb id or search term + type
+    if (id || (title && type && ["movie", "series"].includes(type))){
+      var movie;
+      if (id){
+        movie = await scraper.getMovieData(id);
+      } else {
+        const ids = await scraper.getImdbIDs(title, type);
+        const id = ids[0];
+        movie = await scraper.getMovieData(id);
+      }
+      console.log(movie);
+      await addMovie(movie);
+      res.status(201).send("Added "+movie.Title);
+    } else {
+      throw new Error("Invalid query params.");
+    }
+  } catch (e) {
+    console.log(e);
+    res.status(500).send({ error: "Error adding movie." });
+  }
+
+})
+
+async function addMovie(movie){
+  const exists = await Movie.findOne({ Title: movie.Title, Year:movie.Year });
+  if (exists){
+    console.log("Movie already exists.");
+    throw new Error("Movie already exists.");
+  }
+
+  var directorNames = [];
+  var writerNames = [];
+  var actorNames = [];
+  var directors = [];
+  var writers = [];
+  var actors = [];
+  var people = [];
+
+  var newMovie = new Movie({
+    // everything except people
+    Title: movie.Title,
+    Year: movie.Year,
+    Rated: movie.Rated,
+    Released: movie.Released,
+    Runtime: movie.Runtime,
+    Genre: movie.Genre,
+    Plot: movie.Plot,
+    Language: movie.Language,
+    Country: movie.Country,
+    Awards: movie.Awards,
+    Poster: movie.Poster,
+    Ratings: movie.Ratings,
+    Metascore: movie.Metascore,
+    imdbRating: movie.imdbRating,
+    imdbId: movie.imdbId,
+    Type: movie.Type,
+    DVD: movie.DVD,
+    BoxOffice: movie.BoxOffice,
+    Production: movie.Production,
+  });
+
+  // Get people from each movie object
+  movie.Director.replace(/ *\([^)]*\) */g, "")
+    .split(", ")
+    .forEach((director) => {
+      // remove brackets
+      directorNames.push(director);
+    });
+  directorNames = Array.from(new Set(directorNames)).sort();
+
+  movie.Writer.replace(/ *\([^)]*\) */g, "")
+    .split(", ")
+    .forEach((writer) => {
+      writerNames.push(writer);
+    });
+  writerNames = Array.from(new Set(writerNames)).sort();
+  movie.Actors.split(", ").forEach((actor) => {
+    actorNames.push(actor);
+  });
+  actorNames = Array.from(new Set(actorNames)).sort();
+
+  // Create person document if doesn't exist, get array of {String, ObjectIds}
+  directors = await getPeopleIds(directorNames);
+  writers = await getPeopleIds(writerNames);
+  actors = await getPeopleIds(actorNames);
+  people.push(...directors, ...writers, ...actors);
+
+  // update Director
+  for (const director of directors) {
+    const directorDocument = await People.findOne({ _id: director.id });
+    directorDocument.movies.push(newMovie._id);
+    for (const follower of directorDocument.followers) {
+      console.log("Notifying", follower);
+      req.app.io.emit(follower, {
+        name: directorDocument.name,
+        body: `directed in ${newMovie.Title}.`,
+      });
+    }
+    for (const person of people.filter(
+      (ele) => ele.name != director.name
+    )) {
+      // get all other people
+      var collaborator = directorDocument.frequentCollaborators.find(
+        (ele) => ele.name === person.name
+      );
+      if (collaborator) {
+        // if collaborator already exists, increase the count
+        ++collaborator.count;
+      } else {
+        // if collaborator doesn't exist, add new collaborator
+        directorDocument.frequentCollaborators.push({
+          name: person.name,
+          id: person.id,
+          count: 1,
+        });
+      }
+    }
+    await directorDocument.save();
+  }
+
+  // update Writers
+  for (const writer of writers) {
+    const writerDocument = await People.findOne({ _id: writer.id });
+    writerDocument.movies.push(newMovie._id);
+    for (const follower of writerDocument.followers) {
+      console.log("Notifying", follower);
+      req.app.io.emit(follower, {
+        name: writerDocument.name,
+        body: `wrote in ${newMovie.Title}.`,
+      });
+    }
+    for (const person of people.filter((ele) => ele.name != writer.name)) {
+      var collaborator = writerDocument.frequentCollaborators.find(
+        (ele) => ele.name === person.name
+      );
+      if (collaborator) {
+        ++collaborator.count;
+      } else {
+        writerDocument.frequentCollaborators.push({
+          name: person.name,
+          id: person.id,
+          count: 1,
+        });
+      }
+    }
+    await writerDocument.save();
+  }
+
+  // update Actors
+  for (const actor of actors) {
+    const actorDocument = await People.findOne({ _id: actor.id });
+    actorDocument.movies.push(newMovie._id);
+    for (const follower of actorDocument.followers) {
+      console.log("Notifying", follower);
+      req.app.io.emit(follower, {
+        name: actorDocument.name,
+        body: `acted in ${newMovie.Title}.`,
+      });
+    }
+    for (const person of people.filter((ele) => ele.name != actor.name)) {
+      var collaborator = actorDocument.frequentCollaborators.find(
+        (ele) => ele.name === person.name
+      );
+      if (collaborator) {
+        ++collaborator.count;
+      } else {
+        actorDocument.frequentCollaborators.push({
+          name: person.name,
+          id: person.id,
+          count: 1,
+        });
+      }
+    }
+    await actorDocument.save();
+  }
+
+  // add people Ids to movie
+  newMovie.Director = directors.map((director) => director.id);
+  newMovie.Writer = writers.map((writer) => writer.id);
+  newMovie.Actors = actors.map((actor) => actor.id);
+  await newMovie.save();
+  console.log(movie.Title, "saved.");
+}
 // Creates People if not already created from array of string (names)
 // and returns array [ {name, id}, {name, id}, ...]
 async function getPeopleIds(people) {

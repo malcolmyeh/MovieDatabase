@@ -24,12 +24,12 @@ export default function Home() {
   const [showTrailer, setShowTrailer] = useState(getWidth());
 
   const { isAuthenticated, userId } = useAppContext();
-
+  console.log("userId:", userId);
   async function loadFeatured() {
     setIsLoadingRecommended(true);
     setIsLoadingTrailer(true);
     var endpoint;
-    if (isAuthenticated) endpoint = `/api/recommended?user=${userId}`;
+    if (isAuthenticated && userId) endpoint = `/api/recommended?user=${userId}`;
     else endpoint = `/api/featuredmovies`;
     try {
       const res = await axios(`${process.env.REACT_APP_API_URL}${endpoint}`);
@@ -85,12 +85,13 @@ export default function Home() {
       loadFeatured();
     }
     onLoad();
+
     function handleResize() {
       setShowTrailer(getWidth());
     }
-
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, userId]);
   console.log("featured Movies:", featuredMovies);
@@ -126,7 +127,6 @@ export default function Home() {
                   ) : (
                     <></>
                   )}
-                  {/* <Col style={{ padding: "0", visibility: showTrailer }}>{isLoadingTrailer ? (Loading("trailer")) : Trailer(movie.videoSrc)}</Col> */}
                 </Row>
 
                 <Carousel.Caption

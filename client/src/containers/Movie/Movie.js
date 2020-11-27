@@ -29,7 +29,7 @@ export default function Movie() {
   const [recommended, setRecommended] = useState([]);
   const [watched, setWatched] = useState(false);
   const { id } = useParams();
-  console.log("isAuthenticated:", isAuthenticated);
+  // console.log("isAuthenticated:", isAuthenticated);
   async function loadReviews() {
     const res = await axios.get(
       `${process.env.REACT_APP_API_URL}/api/reviews?movieId=${id}`,
@@ -218,7 +218,7 @@ export default function Movie() {
               <p>{review.body}</p>
             </div>
           ) : (
-            <></>
+            <React.Fragment key={review.user+review.title}></React.Fragment>
           );
         })}
       </FadeIn>
@@ -280,7 +280,7 @@ export default function Movie() {
     };
     try {
       const res = await axios.post(
-        `${process.env.REACT_APP_API_URL}/api/addPeople/${id}`,
+        `${process.env.REACT_APP_API_URL}/api/movies/addPeople/${id}`,
         newPeople
       );
       console.log(res);

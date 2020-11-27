@@ -10,7 +10,6 @@ export default function MovieCard(movie) {
       as={Link}
       to={`/movie/${movie._id}`}
       key={uuidv1()}
-      // style={{ width: "11vw", textDecoration: "none", color: "black" }}
       style={{ width: "210px", textDecoration: "none", color: "black" }}
     >
       <Card.Img

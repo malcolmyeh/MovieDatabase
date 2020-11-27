@@ -19,7 +19,7 @@ async function getImdbIDs(searchTerm, type = "movie") {
   try {
     const res = await axios.get(`${searchUrl}${searchTerm}`);
     const $ = cheerio.load(res.data);
-    console.log(`${$(".findResult").length} movies found: `);
+    // console.log(`${$(".findResult").length} movies found: `);
 
     $(".findResult").each(function (i, element) {
       const $element = $(element);
@@ -28,10 +28,10 @@ async function getImdbIDs(searchTerm, type = "movie") {
         .find("td.result_text a")
         .attr("href")
         .match(/title\/(.*)\//)[1];
-      console.log(i + 1, $title.text().substring(1));
+      // console.log(i + 1, $title.text().substring(1));
       imdbIDs.push(imdbID);
     });
-    console.log("imdbIDs:", imdbIDs);
+    // console.log("imdbIDs:", imdbIDs);
   } catch (e) {
     console.log(e);
   }
@@ -94,13 +94,14 @@ async function getMovieData(imdbID) {
     if (movie.Type === "movie") {
       // Year
       const $year = $(".title_wrapper span").attr("id", "titleYear");
-      movie.Year = $year.first().contents().text().trim();
+      movie.Year = $year.first().contents().text().trim().replace(/[()]/g, "");
     } else if (movie.Type === "series") {
       // Year
       movie.Year = $(".subtext")
         .text()
         .match(/\(([^)]+)\)/)[1]
-        .trim();
+        .trim()
+        .replace(/[()]/g, "");
     } else {
       // Year
       movie.Year = $(".parentDate").text().trim().replace(/[()]/g, "");
@@ -215,7 +216,7 @@ async function getMovieData(imdbID) {
       : "N/A";
     movie.Language = detailObj.Language ? detailObj.Language.join(", ") : "N/A";
     movie.Country = detailObj.Country ? detailObj.Country[0] : "N/A";
-    console.log(movie);
+    // console.log(movie);
   } catch (e) {
     console.log(e);
   }
@@ -223,8 +224,9 @@ async function getMovieData(imdbID) {
 }
 
 // getImdbIDs("test", "series");
-getMovieData("tt3297776"); // episode
+// getMovieData("tt3297776"); // episode
 // getMovieData("tt1520211"); //series
+// getMovieData("adsfasdf");
 
 exports.getImdbIDs = getImdbIDs;
 exports.getMovieData = getMovieData;

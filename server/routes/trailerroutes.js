@@ -10,15 +10,14 @@ async function getTrailerId(searchTerm) {
     jsonData = JSON.parse($("script")[28].children[0].data.replace('var ytInitialData = ','').replace(']};', ']}'));
     const videoId = (jsonData.contents.twoColumnSearchResultsRenderer.primaryContents.sectionListRenderer.contents[0].itemSectionRenderer.contents[1].videoRenderer.videoId);
     const youtubeLink = `https://www.youtube.com/embed/${videoId}`;
-    console.log(youtubeLink);
+    // console.log(youtubeLink);
     return youtubeLink;
 }
 
-router.get("/trailer/:movie", async (req, res, next) => {
-    console.log("GET trailer for movie", req.params.movie);
+router.get("/trailer/:searchterm", async (req, res, next) => {
+    // console.log("GET trailer for movie", req.params.searchterm);
     try {
-    //   res.status(200).send({ movie: movie, isWatched: isWatched });
-        const videoSrc = await getTrailerId(req.params.movie);
+        const videoSrc = await getTrailerId(req.params.searchterm);
         res.status(200).send(videoSrc);
     } catch (e) {
       console.log(e);

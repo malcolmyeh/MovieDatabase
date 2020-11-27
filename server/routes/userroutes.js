@@ -9,7 +9,6 @@ router.get("/users/:user", async (req, res, next) => {
     const user = await User.findOne({ _id: req.params.user });
     var isFollowing = false;
     if (req.session.loggedIn) {
-      // console.log("user:", req.params.user ,"logged in:", req.user.id);
       isFollowing = user.followers.includes(req.user.id);
     }
     res.status(200).send({ user: user, isFollowing: isFollowing });
@@ -24,9 +23,7 @@ router.get("/users", async (req, res, next) => {
     let name = req.query.name;
     let query = {};
     if (name) query.username = { $regex: `(?i).*${name}.*` };
-    // console.log("query: ", query);
     const users = await User.find(query);
-    // console.log("users: ", users);
     var reducedUsers = users.map((user) => {
       const reducedUser = {
         username: user.username,
@@ -91,7 +88,6 @@ router.get("/contributor", async (req, res, next) => {
   if (req.session.loggedIn) {
     req.user.accountType = "Contributor";
     req.user.save();
-    // console.log(req.user);
     res.status(200).send(`${req.user.username} is a contributor. `);
   } else {
     res.status(401).send("Cannot become contributor - not logged in. ");

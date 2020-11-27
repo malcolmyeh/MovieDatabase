@@ -78,7 +78,6 @@ export default function AddNewMovie() {
   const [isLoading, setIsLoading] = useState(false);
   const history = useHistory();
 
-  // todo: remove default values
   var [fields, handleFieldChange] = useFields({
     Title: "Test",
     Year: "2020",

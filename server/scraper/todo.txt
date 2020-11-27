@@ -1,3 +1,0 @@
-- add route in express server to add movie from imdbID
-    - can use existing POST/movies, just need another layer to get JSON from imdbID
-- automated webcrawler as part of database initialization

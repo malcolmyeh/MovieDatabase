@@ -10,7 +10,7 @@ function delay(ms = 300) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-// since .save() to instace of each Model, it cannot be mocked
+// since .save() is tied to instance of each Model, it cannot be mocked
 
 describe("Integration Tests", () => {
   beforeAll(async () => {
