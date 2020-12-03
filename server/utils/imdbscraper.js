@@ -46,7 +46,7 @@ async function getMovieData(imdbID) {
   console.log(`Getting data for "${imdbID}"...`);
   try {
     const res = await axios.get(`${movieUrl}${imdbID}`);
-    writeFileSync(`moviedata.html`, res.data);
+    // writeFileSync(`moviedata.html`, res.data);
 
     const $ = cheerio.load(res.data);
 
