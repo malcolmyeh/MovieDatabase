@@ -20,10 +20,12 @@ router.get("/people/:person", async (req, res, next) => {
 });
 
 router.get("/people", async (req, res, next) => {
+  console.log("GET people");
+  console.log(req.query.name);
   try {
     let name = req.query.name;
     let query = {};
-    if (name) query.name = { $regex: `(?i).*${name}.*` };
+    if (name) query.name = { $regex: `(?i).*${name.replace("-", " ")}.*` };
     const people = await People.find(query);
     var reducedPeople = people.map((person) => {
       const reducedPerson = {

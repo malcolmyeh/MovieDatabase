@@ -21,7 +21,6 @@ async function getTrailerId(searchTerm) {
   });
   // console.log(resultScript[0].children[0]);
   // console.log($("script")[27].children[0].data);
-
   // jsonData = JSON.parse($("script")[27].children[0].data.replace('var ytInitialData = ','').replace(']};', ']}'));
   jsonData = JSON.parse(resultScript[0].children[0].data.replace('var ytInitialData = ','').replace(']};', ']}'));
 
@@ -37,7 +36,7 @@ router.get("/trailer/:searchterm", async (req, res, next) => {
         const videoSrc = await getTrailerId(req.params.searchterm);
         res.status(200).send(videoSrc);
     } catch (e) {
-      console.log(e);
+      console.log("ERROR: Could not find trailer...");
       res.status(200).send("https://www.youtube.com/embed");
     }
   });

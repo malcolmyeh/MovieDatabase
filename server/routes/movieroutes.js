@@ -87,7 +87,7 @@ router.post("/movies", async (req, res, next) => {
     req.get("source") == "postman"
   ) {
     try {
-      await addMovie(movie);
+      await addMovie(movie, req);
       res.status(201).send("Added "+movie.Title);
     } catch (e) {
       console.log(e);
@@ -287,6 +287,12 @@ router.get("/recommended", async (req, res, next) => {
           }
         }
       }
+      if (recommended.length == 0){
+        console.log("Could not find recommendations.");
+        recommended = await Movie.find()
+      .sort([["Year", -1]])
+      .limit(5);
+      }
       const reducedRecommended = recommended.slice(0, 5).map((movie) => {
         return {
           Title: movie.Title,
@@ -470,7 +476,7 @@ router.get("/addfromimdb", async (req, res, next) => {
         movie = await scraper.getMovieData(id);
       }
       console.log(movie);
-      await addMovie(movie);
+      await addMovie(movie, req);
       res.status(201).send("Added "+movie.Title);
     } else {
       throw new Error("Invalid query params.");
@@ -482,7 +488,7 @@ router.get("/addfromimdb", async (req, res, next) => {
 
 })
 
-async function addMovie(movie){
+async function addMovie(movie, req){
   const exists = await Movie.findOne({ Title: movie.Title, Year:movie.Year });
   if (exists){
     console.log("Movie already exists.");
@@ -549,7 +555,8 @@ async function addMovie(movie){
   // update Director
   for (const director of directors) {
     const directorDocument = await People.findOne({ _id: director.id });
-    directorDocument.movies.push(newMovie._id);
+    if (directorDocument.movies.indexOf(newMovie._id) === -1)
+      directorDocument.movies.push(newMovie._id);
     for (const follower of directorDocument.followers) {
       console.log("Notifying", follower);
       req.app.io.emit(follower, {
@@ -582,7 +589,8 @@ async function addMovie(movie){
   // update Writers
   for (const writer of writers) {
     const writerDocument = await People.findOne({ _id: writer.id });
-    writerDocument.movies.push(newMovie._id);
+    if (writerDocument.movies.indexOf(newMovie._id) === -1)
+      writerDocument.movies.push(newMovie._id);
     for (const follower of writerDocument.followers) {
       console.log("Notifying", follower);
       req.app.io.emit(follower, {
@@ -610,7 +618,8 @@ async function addMovie(movie){
   // update Actors
   for (const actor of actors) {
     const actorDocument = await People.findOne({ _id: actor.id });
-    actorDocument.movies.push(newMovie._id);
+    if (actorDocument.movies.indexOf(newMovie._id) === -1)
+      actorDocument.movies.push(newMovie._id);
     for (const follower of actorDocument.followers) {
       console.log("Notifying", follower);
       req.app.io.emit(follower, {

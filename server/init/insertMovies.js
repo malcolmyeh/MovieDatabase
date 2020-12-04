@@ -73,7 +73,8 @@ async function insertMovies() {
     // update Director
     for (const director of directors) {
       const directorDocument = await People.findOne({ _id: director.id });
-      directorDocument.movies.push(newMovie._id);
+      if (directorDocument.movies.indexOf(newMovie._id) === -1)
+        directorDocument.movies.push(newMovie._id);
       for (const person of people.filter((ele) => ele.name != director.name)) {
         // get all other people
         var collaborator = directorDocument.frequentCollaborators.find(
@@ -97,7 +98,8 @@ async function insertMovies() {
     // update Writers
     for (const writer of writers) {
       const writerDocument = await People.findOne({ _id: writer.id });
-      writerDocument.movies.push(newMovie._id);
+      if (writerDocument.movies.indexOf(newMovie._id) === -1)
+       writerDocument.movies.push(newMovie._id);
       for (const person of people.filter((ele) => ele.name != writer.name)) {
         var collaborator = writerDocument.frequentCollaborators.find(
           (ele) => ele.name === person.name
@@ -118,7 +120,8 @@ async function insertMovies() {
     // update Actors
     for (const actor of actors) {
       const actorDocument = await People.findOne({ _id: actor.id });
-      actorDocument.movies.push(newMovie._id);
+      if (actorDocument.movies.indexOf(newMovie._id) === -1)
+        actorDocument.movies.push(newMovie._id);
       for (const person of people.filter((ele) => ele.name != actor.name)) {
         var collaborator = actorDocument.frequentCollaborators.find(
           (ele) => ele.name === person.name

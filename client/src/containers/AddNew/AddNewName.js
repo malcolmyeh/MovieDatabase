@@ -52,7 +52,7 @@ export default function AddNewName() {
               return (
                 <Form.Group as={Row} key={property}>
                   <Form.Label column sm={2}>
-                    {property}
+                    {property.charAt(0).toUpperCase() + property.slice(1)}
                   </Form.Label>
                   <Col sm={10}>
                     <FormControl
