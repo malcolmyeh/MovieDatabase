@@ -166,6 +166,16 @@ export default function AddNewMovie() {
         "https://i.pinimg.com/originals/ae/9f/73/ae9f732d6094233e902ca2bfdc8e2a84.jpg";
     console.log(newMovie);
     try {
+      const namesStr = newMovie.Director + "," + newMovie.Writer + "," + newMovie.Actors;
+      const names = namesStr.replace(", ", ",").split(",");
+      for (const name of names){
+        const res = await axios(
+          `${process.env.REACT_APP_API_URL}/api/people?name=${name}`
+        );
+        if (res.data.length === 0)
+          throw new Error(name+" does not exist!");
+        console.log(name, "exists.", res);
+      }
       const res = await axios.post(
         `
         ${process.env.REACT_APP_API_URL}/api/movies`,
@@ -176,6 +186,7 @@ export default function AddNewMovie() {
       history.push("/");
     } catch (e) {
       console.error(e);
+      alert(e)
       setIsLoading(false);
     }
   }
