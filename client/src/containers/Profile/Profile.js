@@ -29,7 +29,7 @@ export default function Profile() {
       const res = await axios.get(
         `${process.env.REACT_APP_API_URL}/api/contributor`
       );
-      console.log(res);
+      // console.log(res);
       setIsContributor(true);
     } catch (e) {
       console.log(e);
@@ -41,7 +41,7 @@ export default function Profile() {
       const res = await axios.get(
         `${process.env.REACT_APP_API_URL}/api/regular`
       );
-      console.log(res);
+      // console.log(res);
       setIsContributor(false);
     } catch (e) {
       console.log(e);
@@ -55,7 +55,7 @@ export default function Profile() {
         const res = await axios.get(
           `${process.env.REACT_APP_API_URL}/api/followuser/${id}`
         );
-        console.log(res);
+        // console.log(res);
         setIsFollowing(true);
       } catch (e) {
         console.log(e);
@@ -65,7 +65,7 @@ export default function Profile() {
         const res = await axios.get(
           `${process.env.REACT_APP_API_URL}/api/unfollowuser/${id}`
         );
-        console.log(res);
+        // console.log(res);
         setIsFollowing(false);
       } catch (e) {
         console.log(e);
@@ -79,13 +79,13 @@ export default function Profile() {
       const res = await axios(
         `${process.env.REACT_APP_API_URL}/api/users/${id}`
       );
-      console.log("res.data", res.data);
+      // console.log("res.data", res.data);
       setUsername(res.data.user.username);
       setIsFollowing(res.data.isFollowing);
       if (res.data.user.accountType === "Contributor") setIsContributor(true);
       else setIsContributor(false);
-      console.log("res.data.isFollowing:", res.data.isFollowing);
-      console.log("isFollowing:", isFollowing);
+      // console.log("res.data.isFollowing:", res.data.isFollowing);
+      // console.log("isFollowing:", isFollowing);
     } catch (e) {
       console.log(e);
       alert(e);

@@ -39,7 +39,7 @@ export default function Following(id, ownPage, type) {
           );
           names.push({ name: person.data.person.name, id: nameId });
         }
-        console.log(names);
+        // console.log(names);
         setFollowing(names);
       }
     } catch (e) {
@@ -67,23 +67,23 @@ export default function Following(id, ownPage, type) {
     }
     try {
       async function unfollowName(name) {
-        console.log("name: ", name);
+        // console.log("name: ", name);
         try {
           const res = await axios.get(
             `${process.env.REACT_APP_API_URL}/api/unfollowperson/${name}`
           );
-          console.log(res);
+          // console.log(res);
         } catch (e) {
           console.log(e);
         }
       }
       async function unfollowUser(user) {
-        console.log("user: ", user);
+        // console.log("user: ", user);
         try {
           const res = await axios.get(
             `${process.env.REACT_APP_API_URL}/api/unfollowuser/${user}`
           );
-          console.log(res);
+          // console.log(res);
         } catch (e) {
           console.log(e);
         }

@@ -2,7 +2,7 @@ import React from "react";
 
 export default function Trailer(videoSrc) {
 
-  console.log("Trailer videoSrc:", videoSrc);
+  // console.log("Trailer videoSrc:", videoSrc);
   return (
     <iframe
       style={{ width: "100%", height: "100%" }}

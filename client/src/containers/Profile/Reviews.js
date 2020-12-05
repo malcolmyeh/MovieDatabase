@@ -15,14 +15,14 @@ export default function Reviews(ownPage, id) {
   const [reviews, setReviews] = useState([{}]);
 
   async function loadReviews() {
-    console.log("loadReviews");
+    // console.log("loadReviews");
     setIsLoading(true);
     try {
       const res = await axios(
         `${process.env.REACT_APP_API_URL}/api/reviews?userId=${id}`
       );
       const reviews = res.data;
-      console.log("reviews:", reviews);
+      // console.log("reviews:", reviews);
       setReviews(reviews);
     } catch (e) {
       console.log(e);
@@ -52,7 +52,7 @@ export default function Reviews(ownPage, id) {
       const res = await axios.delete(
         `${process.env.REACT_APP_API_URL}/api/reviews/${event.target.id}`
       );
-      console.log(res);
+      // console.log(res);
       loadReviews(id);
     } catch (e) {
       console.log(e);

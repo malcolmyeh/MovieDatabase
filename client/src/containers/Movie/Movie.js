@@ -46,7 +46,7 @@ export default function Movie() {
     const movieRes = await axios.get(
       `${process.env.REACT_APP_API_URL}/api/movies/${id}`
     );
-    console.log("movieRes", movieRes);
+    // console.log("movieRes", movieRes);
     setMovie(movieRes.data.movie);
     setWatched(movieRes.data.isWatched);
     // director name from id
@@ -90,7 +90,7 @@ export default function Movie() {
     const res = await axios(
       `${process.env.REACT_APP_API_URL}/api/recommended?movie=${id}`
     );
-    console.log("recommended: ", res.data);
+    // console.log("recommended: ", res.data);
     setRecommended(res.data);
     setIsLoadingRecommended(false);
   }
@@ -104,7 +104,7 @@ export default function Movie() {
     const trailerRes = await axios(
       `${process.env.REACT_APP_API_URL}/api/trailer/${query}`
     );
-    console.log(trailerRes.data);
+    // console.log(trailerRes.data);
     setTrailer(trailerRes.data);
     setIsLoadingTrailer(false);
   }
@@ -134,13 +134,13 @@ export default function Movie() {
         const res = await axios.get(
           `${process.env.REACT_APP_API_URL}/api/removemoviewatched/${id}`
         );
-        console.log(res);
+        // console.log(res);
         setWatched(false);
       } else {
         const res = await axios.get(
           `${process.env.REACT_APP_API_URL}/api/addmoviewatched/${id}`
         );
-        console.log(res);
+        // console.log(res);
         setWatched(true);
       }
     } catch (e) {
@@ -247,7 +247,7 @@ export default function Movie() {
         `${process.env.REACT_APP_API_URL}/api/reviews`,
         newReview
       );
-      console.log(res);
+      // console.log(res);
     } catch (e) {
       console.log(e);
     }
@@ -283,7 +283,7 @@ export default function Movie() {
         `${process.env.REACT_APP_API_URL}/api/movies/addPeople/${id}`,
         newPeople
       );
-      console.log(res);
+      // console.log(res);
     } catch (e) {
       console.log(e);
     }

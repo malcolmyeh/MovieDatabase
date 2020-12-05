@@ -24,7 +24,7 @@ export default function Home() {
   const [showTrailer, setShowTrailer] = useState(getWidth());
 
   const { isAuthenticated, userId } = useAppContext();
-  console.log("userId:", userId);
+  // console.log("userId:", userId);
   async function loadFeatured() {
     setIsLoadingRecommended(true);
     setIsLoadingTrailer(true);
@@ -34,7 +34,7 @@ export default function Home() {
     try {
       const res = await axios(`${process.env.REACT_APP_API_URL}${endpoint}`);
       movieList = res.data;
-      console.log("movieList:", movieList);
+      // console.log("movieList:", movieList);
       setFeaturedMovies(movieList);
     } catch (e) {
       console.log(e);
@@ -51,10 +51,10 @@ export default function Home() {
         const res = await axios(
           `${process.env.REACT_APP_API_URL}/api/trailer/${query}`
         );
-        console.log(res.data);
+        // console.log(res.data);
         movie.videoSrc = res.data;
       }
-      console.log("movieList:", movieList);
+      // console.log("movieList:", movieList);
       setFeaturedMovies(movieList);
     } catch (e) {
       console.log(e);
@@ -94,7 +94,7 @@ export default function Home() {
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, userId]);
-  console.log("featured Movies:", featuredMovies);
+  // console.log("featured Movies:", featuredMovies);
   return (
     <Container>
       <Jumbotron style={{ marginTop: "15px" }}></Jumbotron>

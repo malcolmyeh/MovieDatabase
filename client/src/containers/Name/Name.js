@@ -28,7 +28,7 @@ export default function Name() {
       );
       setIsFollowing(personRes.data.isFollowing)
       setPerson(personRes.data.person);
-      console.log("personRes.data", personRes.data);
+      // console.log("personRes.data", personRes.data);
       // movies
       const movieIds = personRes.data.person.movies;
       const movieArr = [];
@@ -38,7 +38,7 @@ export default function Name() {
         );
         movieArr.push(movieRes.data.movie);
       }
-      console.log("movieArr:", movieArr);
+      // console.log("movieArr:", movieArr);
       setMovies(movieArr);
       // frequent collaborators
       // sort collaborators by count and return top 10
@@ -52,7 +52,7 @@ export default function Name() {
     }
     setIsLoading(false);
   }
-  console.log("isFollowing:",isFollowing);
+  // console.log("isFollowing:",isFollowing);
 
   useEffect(() => {
     async function onLoad() {
@@ -68,7 +68,7 @@ export default function Name() {
         const res = await axios(
           `${process.env.REACT_APP_API_URL}/api/followperson/${id}`
         );
-        console.log(res);
+        // console.log(res);
         setIsFollowing(true);
       } catch (e) {
         console.log(e);
@@ -78,7 +78,7 @@ export default function Name() {
         const res = await axios(
           `${process.env.REACT_APP_API_URL}/api/unfollowperson/${id}`
         );
-        console.log(res);
+        // console.log(res);
         setIsFollowing(false);
       } catch (e) {
         console.log(e);

@@ -138,15 +138,9 @@ export default function AddNewMovie() {
     ).toString()}`;
     fields.Runtime = `${Math.floor(Math.random() * 200).toString()} min`;
     fields.Genre = genreArr[Math.floor(Math.random() * genreArr.length)];
-    fields.Director = loremIpsum({ count: 1, units: "words" });
-    fields.Writer = `${loremIpsum({ count: 1, units: "words" })}, ${loremIpsum({
-      count: 1,
-      units: "words",
-    })}`;
-    fields.Actors = `${loremIpsum({ count: 1, units: "words" })}, ${loremIpsum({
-      count: 1,
-      units: "words",
-    })}`;
+    fields.Director = "John Lasseter";
+    fields.Writer = "Stephen J. Rivele, Christopher Wilkinson";
+    fields.Actors = "Chris Evans, Tina Fey";
     fields.Plot = loremIpsum({ count: 1, units: "paragraph" });
     fields.Language = "English";
     fields.Type = "movie";
@@ -167,7 +161,8 @@ export default function AddNewMovie() {
     console.log(newMovie);
     try {
       const namesStr = newMovie.Director + "," + newMovie.Writer + "," + newMovie.Actors;
-      const names = namesStr.replace(", ", ",").split(",");
+      // console.log(namesStr.replace(", ", ",").replace(" ,", ",").replace(", ", ","));
+      const names = namesStr.replace(", ", ",").replace(" ,", ",").replace(", ", ",").split(",");
       for (const name of names){
         const res = await axios(
           `${process.env.REACT_APP_API_URL}/api/people?name=${name}`

@@ -1,7 +1,21 @@
 Malcolm Yeh
 101109829
 
-Instructions are in the Final Report PDF
+Movie Database
+
+Instructions and details are located in the Final Report PDF.
+
+All required features have been implemented. 
+
+Extensions included:
+- React
+- Interface Adapts to Varying Screen Sizes
+- PassportJS
+- SocketIO
+- MongoDB/Mongoose
+- Automated Backend Tests
+- IMDB Web Scraper
+- YouTube Trailer Integration
 
 Movie Database
 ├───client -------------------------- React Frontend
