@@ -52,7 +52,7 @@ export default function Reviews(ownPage, id) {
       const res = await axios.delete(
         `${process.env.REACT_APP_API_URL}/api/reviews/${event.target.id}`
       );
-      // console.log(res);
+      console.log(res);
       loadReviews(id);
     } catch (e) {
       console.log(e);

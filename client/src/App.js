@@ -76,7 +76,7 @@ function App() {
     const res = await axios.get(
       `${process.env.REACT_APP_API_URL}/api/auth/logout`
     );
-    // console.log(res);
+    console.log(res);
     userHasAuthenticated(false);
     setIsContributor(false);
     setUsername("");

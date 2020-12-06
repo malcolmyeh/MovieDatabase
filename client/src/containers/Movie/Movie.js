@@ -134,13 +134,13 @@ export default function Movie() {
         const res = await axios.get(
           `${process.env.REACT_APP_API_URL}/api/removemoviewatched/${id}`
         );
-        // console.log(res);
+        console.log(res);
         setWatched(false);
       } else {
         const res = await axios.get(
           `${process.env.REACT_APP_API_URL}/api/addmoviewatched/${id}`
         );
-        // console.log(res);
+        console.log(res);
         setWatched(true);
       }
     } catch (e) {
@@ -247,7 +247,7 @@ export default function Movie() {
         `${process.env.REACT_APP_API_URL}/api/reviews`,
         newReview
       );
-      // console.log(res);
+      console.log(res);
     } catch (e) {
       console.log(e);
     }
@@ -283,7 +283,7 @@ export default function Movie() {
         `${process.env.REACT_APP_API_URL}/api/movies/addPeople/${id}`,
         newPeople
       );
-      // console.log(res);
+      console.log(res);
     } catch (e) {
       console.log(e);
     }

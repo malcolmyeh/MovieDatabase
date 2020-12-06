@@ -72,7 +72,7 @@ export default function Following(id, ownPage, type) {
           const res = await axios.get(
             `${process.env.REACT_APP_API_URL}/api/unfollowperson/${name}`
           );
-          // console.log(res);
+          console.log(res);
         } catch (e) {
           console.log(e);
         }
@@ -83,7 +83,7 @@ export default function Following(id, ownPage, type) {
           const res = await axios.get(
             `${process.env.REACT_APP_API_URL}/api/unfollowuser/${user}`
           );
-          // console.log(res);
+          console.log(res);
         } catch (e) {
           console.log(e);
         }

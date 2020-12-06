@@ -68,7 +68,7 @@ export default function Name() {
         const res = await axios(
           `${process.env.REACT_APP_API_URL}/api/followperson/${id}`
         );
-        // console.log(res);
+        console.log(res);
         setIsFollowing(true);
       } catch (e) {
         console.log(e);
@@ -78,7 +78,7 @@ export default function Name() {
         const res = await axios(
           `${process.env.REACT_APP_API_URL}/api/unfollowperson/${id}`
         );
-        // console.log(res);
+        console.log(res);
         setIsFollowing(false);
       } catch (e) {
         console.log(e);
